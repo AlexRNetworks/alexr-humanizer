@@ -1,13 +1,8 @@
 {
-  "name": "alexr-humanizer",  // Replace with your website name
+  "name": "Alexr-Humanizer",
   "version": "1.0.0",
-  "description": "humanize your ai text with our complex ai humanizer!", // Replace with your description
-  "main": "script.js",  // Or your main script file
-  "scripts": {
-    "start": "netlify dev",
-    "build": "netlify build"
-  },
+  "description": "A complex ai humanizer free to your use!",
   "dependencies": {
-    "openai": "^4.13.0" // Or the latest version
+    "openai": "^4.0.0"
   }
 }
