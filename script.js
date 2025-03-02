@@ -37,7 +37,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const response = await fetch('https://api.openai.com/v1/chat/completions', {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Bearer ${process.env.API_KEY}`, // Use GitHub secret
+                    'Authorization': `Bearer ${import.meta.env.API_KEY}`, // Use Netlify env variable
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
