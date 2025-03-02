@@ -1,1 +1,47 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alexr Humanizer - Complex Edition</title> 
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="quantum-background">
+        <div class="quantum-particles"></div>
+    </div>
+    <div class="container">
+        <header>
+            <h1 class="quantum-text">Alexr Humanizer - Complex Edition</h1> 
+            <p class="quantum-text">Tailor AI text to your desired tone.</p>
+        </header>
+        <main>
+            <div class="input-container">
+                <textarea id="inputText" placeholder="Enter AI-generated text..."></textarea>
+                <div class="input-overlay"></div>
+            </div>
+            <select id="toneSelector" class="quantum-select">
+                <option value="casual">Casual</option>
+                <option value="complex">Complex</option>
+                <option value="teenager">Teenager</option>
+                <option value="college">College</option>
+            </select>
+            <button id="humanizeButton" class="quantum-button">
+                <i class="fas fa-comments"></i> Humanize
+            </button>
+            <div id="outputText" class="output-container">
+                <div class="output-overlay"></div>
+            </div>
+        </main>
+        <footer>
+            <p class="quantum-text">&copy; 2024 Alexr Humanizer - Complex Leap</p> 
+        </footer>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
