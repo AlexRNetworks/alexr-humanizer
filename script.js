@@ -15,42 +15,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
         outputText.innerHTML = '<p class="quantum-text">Quantum Humanizing...</p>';
 
-        let systemPrompt = '';
-        switch (tone) {
-            case 'casual':
-                systemPrompt = 'Humanize the following text in a casual, conversational tone, as if talking to a friend.';
-                break;
-            case 'complex':
-                systemPrompt = 'Humanize the following text using complex sentence structures, advanced vocabulary, and nuanced rhetorical devices.';
-                break;
-            case 'teenager':
-                systemPrompt = 'Humanize the following text using slang, abbreviations, and the typical speech patterns of a teenager.';
-                break;
-            case 'college':
-                systemPrompt = 'Humanize the following text using a sophisticated, academic tone, suitable for a college student.';
-                break;
-            default:
-                systemPrompt = 'Humanize the following text in a neutral, conversational tone.';
-        }
-
         try {
-            const response = await fetch('https://api.openai.com/v1/chat/completions', {
+            const response = await fetch('/.netlify/functions/openai', {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Bearer ${import.meta.env.API_KEY}`, // Use Netlify env variable
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({
-                    model: 'gpt-4',
-                    messages: [{
-                        role: 'system',
-                        content: systemPrompt,
-                    },
-                    {
-                        role: 'user',
-                        content: `Humanize: ${text}`,
-                    }],
-                }),
+                body: JSON.stringify({ prompt: text, tone: tone }),
             });
 
             if (!response.ok) {
@@ -58,7 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             const data = await response.json();
-            const humanizedText = data.choices[0].message.content;
+            const humanizedText = data;
 
             outputText.innerHTML = '';
             let charIndex = 0;
@@ -94,7 +65,7 @@ document.addEventListener('DOMContentLoaded', () => {
         particles.appendChild(particle);
     }
 
-    // Particle fade animation (added using dynamic style tag)
+    // Particle fade animation
     const style = document.createElement('style');
     style.innerHTML = `
 @keyframes particleFade {
