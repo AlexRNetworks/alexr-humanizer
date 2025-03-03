@@ -19,7 +19,8 @@ exports.handler = async function (event, context) {
 
                     Write in a casual, conversational tone, 
                     using slightly more complex sentences and vocabulary than a high schooler, 
-                    but still maintaining a relaxed and informal tone.
+                    but still maintaining a relaxed and informal tone. 
+                    Do not add any information or opinions beyond what is provided in the prompt.
                 `;
                 break;
             case 'highschool':
@@ -31,7 +32,8 @@ exports.handler = async function (event, context) {
                     Write as you would naturally in this situation, 
                     using simple vocabulary and sentence structures. 
                     Avoid commas and hyphens as much as possible, 
-                    and feel free to incorporate slang, abbreviations, and common internet language.
+                    and feel free to incorporate slang, abbreviations, and common internet language. 
+                    Do not use complex vocabulary or add any information or opinions beyond what is provided in the prompt.
                 `;
                 break;
             case 'college':
@@ -47,7 +49,8 @@ exports.handler = async function (event, context) {
 
                     Use sophisticated vocabulary, complex sentence structures, 
                     and proper grammar and punctuation. 
-                    Focus on conveying information accurately and efficiently.
+                    Focus on conveying information accurately and efficiently. 
+                    Do not add any information or opinions beyond what is provided in the prompt.
                 `;
                 break;
             case 'complex':
@@ -59,7 +62,8 @@ exports.handler = async function (event, context) {
                     Use highly sophisticated language, complex sentence structures, 
                     and nuanced rhetorical devices. 
                     Create text that sounds natural and engaging, with a human-like rhythm and cadence. 
-                    You may incorporate metaphors, similes, and other literary devices.
+                    You may incorporate metaphors, similes, and other literary devices. 
+                    Do not add any information or opinions beyond what is provided in the prompt.
                 `;
                 break;
             default:
@@ -70,7 +74,8 @@ exports.handler = async function (event, context) {
 
                     Write in a neutral, conversational tone, 
                     using a balance of simple and complex sentences. 
-                    Ensure proper grammar and punctuation.
+                    Ensure proper grammar and punctuation. 
+                    Do not add any information or opinions beyond what is provided in the prompt.
                 `;
         }
 
