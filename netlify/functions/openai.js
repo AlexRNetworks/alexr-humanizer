@@ -8,7 +8,7 @@ exports.handler = async function (event, context) {
     try {
         const body = JSON.parse(event.body);
 
-        // Advanced systemPrompt generation with context, examples, and constraints
+        // Advanced systemPrompt generation with context and constraints, NO EXAMPLES
         let systemPrompt = '';
         switch (body.tone) {
             case 'casual':
@@ -16,8 +16,6 @@ exports.handler = async function (event, context) {
                     You are a recent high school graduate writing a ${body.context || 'message'} 
                     to ${body.audience || 'a friend'}. 
                     The purpose of this text is to ${body.purpose || 'share your thoughts and feelings'}. 
-                    
-                    Example: "Hey, what's up? I saw that movie you were talking about, and it was totally awesome! We should hang out sometime and discuss it." 
 
                     Write in a casual, conversational tone, 
                     using slightly more complex sentences and vocabulary than a high schooler, 
@@ -29,8 +27,6 @@ exports.handler = async function (event, context) {
                     You are a high school student working on a ${body.context || 'writing assignment'} 
                     for ${body.audience || 'your teacher'}. 
                     The purpose of this text is to ${body.purpose || 'express your understanding of the topic'}. 
-                    
-                    Example: "OMG, that book was like, so boring! I almost fell asleep reading it. But the movie was way better, with all the explosions and stuff. LOL."
 
                     Write as you would naturally in this situation, 
                     using simple vocabulary and sentence structures. 
@@ -43,13 +39,11 @@ exports.handler = async function (event, context) {
                     You are a college student writing a ${body.context || 'research paper'} 
                     for ${body.audience || 'your professor'}. 
                     The purpose of this text is to ${body.purpose || 'present your analysis and arguments'}. 
-                    
+
                     Constraints:
                     * Maximum word count: ${body.wordCount || '300 words'}
                     * Tone: ${body.tone || 'Objective and analytical'}
                     * Format: Use proper citations and references according to ${body.citationStyle || 'MLA style'}.
-
-                    Example: "The author's argument is supported by recent research in the field (Smith, 2023). However, further investigation is needed to fully understand the implications of these findings."
 
                     Use sophisticated vocabulary, complex sentence structures, 
                     and proper grammar and punctuation. 
@@ -61,8 +55,6 @@ exports.handler = async function (event, context) {
                     You are a professional writer crafting a ${body.context || 'piece of literary fiction'} 
                     for ${body.audience || 'a sophisticated audience'}. 
                     The purpose of this text is to ${body.purpose || 'explore complex themes and emotions'}. 
-                    
-                    Example: "The city lights, like a million fallen stars, shimmered on the inky canvas of the night, reflecting the dreams and desires of the restless souls below."
 
                     Use highly sophisticated language, complex sentence structures, 
                     and nuanced rhetorical devices. 
