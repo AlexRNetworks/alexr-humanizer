@@ -8,74 +8,41 @@ exports.handler = async function (event, context) {
     try {
         const body = JSON.parse(event.body);
 
-        // Advanced systemPrompt generation with context and constraints, NO EXAMPLES
+        // Simplified systemPrompt generation with clear instructions
         let systemPrompt = '';
         switch (body.tone) {
             case 'casual':
                 systemPrompt = `
-                    You are a recent high school graduate writing a ${body.context || 'message'} 
-                    to ${body.audience || 'a friend'}. 
-                    The purpose of this text is to ${body.purpose || 'share your thoughts and feelings'}. 
-
-                    Write in a casual, conversational tone, 
-                    using slightly more complex sentences and vocabulary than a high schooler, 
-                    but still maintaining a relaxed and informal tone. 
-                    Do not add any information or opinions beyond what is provided in the prompt.
+                    Humanize this text as if a recent high school graduate is writing to a friend. 
+                    Keep the same meaning but make it sound casual and relatable. 
+                    IMPORTANT: Do not add any extra information or opinions.
                 `;
                 break;
             case 'highschool':
                 systemPrompt = `
-                    You are a high school student working on a ${body.context || 'writing assignment'} 
-                    for ${body.audience || 'your teacher'}. 
-                    The purpose of this text is to ${body.purpose || 'express your understanding of the topic'}. 
-
-                    Write as you would naturally in this situation, 
-                    using simple vocabulary and sentence structures. 
-                    Avoid commas and hyphens as much as possible, 
-                    and feel free to incorporate slang, abbreviations, and common internet language. 
-                    Do not use complex vocabulary or add any information or opinions beyond what is provided in the prompt.
+                    Humanize this text as if a high school student is writing it. 
+                    Use simple words and sentences, slang, and abbreviations. 
+                    IMPORTANT: Do not add any extra information or opinions.
                 `;
                 break;
             case 'college':
                 systemPrompt = `
-                    You are a college student writing a ${body.context || 'research paper'} 
-                    for ${body.audience || 'your professor'}. 
-                    The purpose of this text is to ${body.purpose || 'present your analysis and arguments'}. 
-
-                    Constraints:
-                    * Maximum word count: ${body.wordCount || '300 words'}
-                    * Tone: ${body.tone || 'Objective and analytical'}
-                    * Format: Use proper citations and references according to ${body.citationStyle || 'MLA style'}.
-
-                    Use sophisticated vocabulary, complex sentence structures, 
-                    and proper grammar and punctuation. 
-                    Focus on conveying information accurately and efficiently. 
-                    Do not add any information or opinions beyond what is provided in the prompt.
+                    Humanize this text for a college-level audience. 
+                    Use sophisticated vocabulary and proper grammar. 
+                    IMPORTANT: Do not add any extra information or opinions.
                 `;
                 break;
             case 'complex':
                 systemPrompt = `
-                    You are a professional writer crafting a ${body.context || 'piece of literary fiction'} 
-                    for ${body.audience || 'a sophisticated audience'}. 
-                    The purpose of this text is to ${body.purpose || 'explore complex themes and emotions'}. 
-
-                    Use highly sophisticated language, complex sentence structures, 
-                    and nuanced rhetorical devices. 
-                    Create text that sounds natural and engaging, with a human-like rhythm and cadence. 
-                    You may incorporate metaphors, similes, and other literary devices. 
-                    Do not add any information or opinions beyond what is provided in the prompt.
+                    Humanize this text using complex language and literary devices, 
+                    making it sound like professional writing. 
+                    IMPORTANT: Do not add any extra information or opinions.
                 `;
                 break;
             default:
                 systemPrompt = `
-                    You are a writer creating a ${body.context || 'piece of text'} 
-                    for ${body.audience || 'a general audience'}. 
-                    The purpose of this text is to ${body.purpose || 'communicate information clearly and effectively'}. 
-
-                    Write in a neutral, conversational tone, 
-                    using a balance of simple and complex sentences. 
-                    Ensure proper grammar and punctuation. 
-                    Do not add any information or opinions beyond what is provided in the prompt.
+                    Humanize this text in a neutral, conversational tone. 
+                    IMPORTANT: Do not add any extra information or opinions.
                 `;
         }
 
