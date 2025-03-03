@@ -1,15 +1,13 @@
 const { OpenAI } = require("openai");
 
-const app = express();
-app.use(express.json());
+exports.handler = async function (event, context) {
+    const openai = new OpenAI({
+        apiKey: process.env.API_KEY,
+    });
 
-const openai = new OpenAI({
-    apiKey: process.env.API_KEY,
-});
-
-app.post('/humanize', async (req, res) => {
     try {
-        const { prompt, tone, context, audience, purpose } = req.body;
+        const body = JSON.parse(event.body);
+        const { prompt, tone, context, audience, purpose } = body;
 
         // Construct a detailed system prompt with explicit instructions
         let systemPrompt = `
@@ -43,9 +41,14 @@ app.post('/humanize', async (req, res) => {
             presence_penalty: 0.6 
         });
 
-        res.status(200).json(response.choices[0].message.content);
+       return {
+            statusCode: 200,
+            body: JSON.stringify(response.choices[0].message.content),
+        };
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: error.message });
+        return {
+            statusCode: 500,
+            body: JSON.stringify({ error: error.message }),
+        };
     }
-});
+};
