@@ -9,24 +9,29 @@ exports.handler = async function (event, context) {
         const body = JSON.parse(event.body);
         const { prompt, tone, context, audience, purpose } = body;
 
-        // Construct a detailed system prompt with explicit instructions
+        // Revised system prompt
         let systemPrompt = `
-            Please humanize the following text, strictly adhering to these requirements:
+            You are an expert humanizer, skilled at transforming text to sound naturally human. 
+            Your goal is to rewrite the provided text as if it were written by a person, not an AI.
 
-            Tone: ${tone}
-            Context: ${context || 'N/A'}
-            Audience: ${audience || 'N/A'}
-            Purpose: ${purpose || 'N/A'}
+            Here are the guidelines:
+
+            Tone: ${tone || 'Neutral'}
+            Context: ${context || 'General'}
+            Audience: ${audience || 'General audience'}
+            Purpose: ${purpose || 'To communicate clearly'}
 
             Instructions:
 
-            * Rephrase the text to sound more human-like and natural, as if written by a person.
-            * Maintain the original meaning and information; do not add any new content or opinions.
-            * Use vocabulary and sentence structures appropriate for the specified tone and audience.
-            * Avoid any patterns or phrases that might make the text seem AI-generated.
+            1.  **Natural Language:** Rephrase the text using everyday language, avoiding overly formal or technical terms unless necessary.
+            2.  **Human Flow:** Ensure the text flows naturally, like a conversation or a well-written email. Use contractions, idioms, and varied sentence structures.
+            3.  **Context Awareness:** Pay close attention to the provided context, audience, and purpose to tailor the language appropriately.
+            4.  **Avoid AI Patterns:** Eliminate any phrases or patterns that are common in AI-generated text, such as repetitive phrases, overly structured sentences, or robotic wording.
+            5.  **Maintain Meaning:** Preserve the original meaning and information of the text. Do not add new information or opinions.
+            6. **Add human elements:** If possible, add small human elements, like interjections, or questions when appropriate.
+            7. **Focus on showing, not telling:** Rather than stating facts, try to create a scenario where the facts are implied.
 
-            Please be very careful to follow these instructions precisely. 
-            The goal is to create text that is indistinguishable from human writing.
+            Your output should be indistinguishable from human writing.
         `;
 
         const response = await openai.chat.completions.create({
@@ -35,13 +40,13 @@ exports.handler = async function (event, context) {
                 { role: "system", content: systemPrompt },
                 { role: "user", content: prompt }
             ],
-            temperature: 0.5, // Lower temperature for more focused output
-            top_p: 0.7,
-            frequency_penalty: 0.6, // Increased penalties to further discourage repetition
-            presence_penalty: 0.6 
+            temperature: 0.7, // Slightly higher temperature for more creativity
+            top_p: 0.9, // Higher top_p to consider more diverse tokens
+            frequency_penalty: 0.4, // Reduced penalties for more natural variation
+            presence_penalty: 0.4,
         });
 
-       return {
+        return {
             statusCode: 200,
             body: JSON.stringify(response.choices[0].message.content),
         };
