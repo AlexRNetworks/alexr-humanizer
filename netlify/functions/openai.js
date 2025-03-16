@@ -22,7 +22,7 @@ exports.handler = async function (event, context) {
         const stage1Response = await openai.chat.completions.create({
             model: "gpt-4",
             messages: [{ role: "user", content: stage1Prompt }],
-            temperature: 2.0,
+            temperature: 1.0,
         });
 
         const finalOutput = stage1Response.choices[0].message.content;
