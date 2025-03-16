@@ -19,15 +19,13 @@ exports.handler = async function (event, context) {
         const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
 
         const requestBody = JSON.stringify({
-            contents: [{ parts: [{ text: `"Rephrase the following text to sound like a student trying to explain a concept. You're not very confident in your understanding, so you're just writing down what you remember. Make it sound like you're thinking out loud, like you're trying to figure it out as you go. Use simple words and short sentences. Repeat phrases. Make it sound unorganized. Use some run-on sentences and don't worry about commas. Make it sound like you're talking, not writing. Here are some examples of the desired style:
+            contents: [{ parts: [{ text: `"Rephrase the following text. Use simple words, short sentences, and repeat phrases. Make it sound unorganized, with run-on sentences and no commas. Do not add or remove content. Do not summarize. Do not use fancy or formal language.
 
-Example 1: 'Recycling is a good thing for our world. The throwing away of bottles cans and paper is the enormous to make our land dirty and bad. To begin with bottles is found in almost every area of our homes. From the start of when we drink from a bottle to when we throw it away we are adding to trash.'
+Rephrase:
 
-Example 2: 'Fast food is a big problem for peoples health. The eating of hamburgers fries and soda is the enormous to make kids fat and sick. To begin with hamburgers is found in almost every area of our eating.'
+${prompt}
 
-Now rephrase the following text:
-
-${prompt}"` }] }],
+Grammatical errors are encouraged."` }] }],
         });
 
         const response = await fetch(apiUrl, {
