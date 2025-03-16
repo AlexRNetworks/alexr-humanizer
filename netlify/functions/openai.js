@@ -7,61 +7,34 @@ exports.handler = async function (event, context) {
 
     try {
         const body = JSON.parse(event.body);
-        const { prompt, tone, context: providedContext, audience, purpose } = body;
+        const { prompt, context: providedContext, audience, purpose } = body;
 
-        const validTones = ["casual", "highschool", "complex", "college"];
-        if (!validTones.includes(tone)) {
-            return {
-                statusCode: 400,
-                body: JSON.stringify({ error: "Invalid tone. Must be one of: casual, highschool, complex, college." }),
-            };
-        }
+        let stage1Prompt = `Revise the following text to sound like a student explaining a concept. Use simple vocabulary, short sentences, and repetitive phrases. Include minor grammatical errors and awkward phrasing. Do not add or remove content. Here are some examples of the desired style:
 
-        let stage1Prompt = `Rephrase the following essay. Use simple vocabulary and short, direct sentences. Minor grammatical errors and awkward phrasing are acceptable. Use repetitive phrasing and basic explanations. Explain concepts in a straightforward, step-by-step manner. Maintain the original meaning and context: ${providedContext}. The audience is: ${audience}. The purpose of the text is: ${purpose}.\n\n${prompt}`;
+        Example 1: "Recycling is a good thing for our world. The throwing away of bottles, cans and paper is the enormous to make our land dirty and bad. To begin with, bottles is found in almost every area of our homes. From the start of when we drink from a bottle to when we throw it away we are adding to trash."
 
-        let stage3Prompt = `Add subtle human nuances to the following essay. Use simple vocabulary and short, direct sentences. Minor grammatical errors and awkward phrasing are acceptable. Use repetitive phrasing and basic explanations. Explain concepts in a straightforward, step-by-step manner. The tone is: ${tone}. The context is: ${providedContext}. The audience is: ${audience}. The purpose is: ${purpose}.\n\n`;
+        Example 2: "Fast food is a big problem for peoples health. The eating of hamburgers, fries and soda is the enormous to make kids fat and sick. To begin with, hamburgers is found in almost every area of our eating."
 
-        // Stage 1: Structural and Tone Variation
+        Now, revise the following text:
+
+        ${prompt}`;
+
         const stage1Response = await openai.chat.completions.create({
             model: "gpt-4",
             messages: [{ role: "user", content: stage1Prompt }],
-            temperature: 0.8,
+            temperature: 0.9, // Increased temperature for more variation
         });
 
-        let stage1Output = stage1Response.choices[0].message.content;
-
-        // Stage 2: Basic Synonym Replacement (Simplified)
-        const synonyms = {
-            "important": "big",
-            "necessary": "needed",
-            "utilize": "use",
-            "however": "but",
-        };
-
-        let stage2Output = stage1Output;
-        for (const word in synonyms) {
-            const regex = new RegExp(`\\b${word}\\b`, "gi");
-            stage2Output = stage2Output.replace(regex, synonyms[word]);
-        }
-
-        // Stage 3: Human Nuances and Inconsistencies
-        stage3Prompt += stage2Output;
-
-        const stage3Response = await openai.chat.completions.create({
-            model: "gpt-4",
-            messages: [{ role: "user", content: stage3Prompt }],
-            temperature: 0.7,
-        });
-
-        const finalOutput = stage3Response.choices[0].message.content;
+        const finalOutput = stage1Response.choices[0].message.content;
 
         return {
             statusCode: 200,
             body: JSON.stringify(finalOutput),
         };
     } catch (error) {
+        console.error("OpenAI Error:", error);
         return {
-            statusCode: 500,
+            statusCode: 502,
             body: JSON.stringify({ error: error.message }),
         };
     }
