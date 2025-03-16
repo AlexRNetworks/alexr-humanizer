@@ -18,7 +18,7 @@ exports.handler = async function (event, context) {
 
         const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
 
-        const transformationPrompt = `Rephrase the following text to sound like a student in highschool 10th grade would be best. Use simple words and short sentences. Make it sound like a essay they read and wrote about. Use run-on sentences not to many. Do not summarize or add make it about the same word count. Do not use fancy or formal language or hyphens or questionmarks.
+        const transformationPrompt = `Rephrase the following text to sound like a student in highschool 10th grade would be best. Use simple words and short sentences. Make it sound like a essay they read and wrote about. Use run-on sentences not to many. Do not summarize or add make it about the same word count. Do not use fancy or formal language or hyphens or questionmarks. Do not sound like your talking to the person reading make it sound like your writing about the topic but at a 10th grade level sound acadmic and not like there texting someone.
 
 Rephrase:
 
