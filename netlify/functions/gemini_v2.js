@@ -16,10 +16,10 @@ exports.handler = async function (event, context) {
             return { statusCode: 500, body: JSON.stringify({ error: 'API key not found' }) };
         }
 
-        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini20flash:generateContent?key=${apiKey}`;
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
 
         // Stage 1: Input Simplification and Basic Vocabulary
-        let text = prompt.replace(/([azA-Z]+(?:ly|tion|ment|ness|able|ible|ive|ous|ful)\b)/g, (match) => {
+        let text = prompt.replace(/([a-zA-Z]+(?:ly|tion|ment|ness|able|ible|ive|ous|ful)\b)/g, (match) => {
             if (match === 'completely') return 'totally';
             if (match === 'understandable') return 'easy to get';
             return match;
@@ -66,8 +66,6 @@ exports.handler = async function (event, context) {
             return { statusCode: 500, body: JSON.stringify({ error: "Unexpected Gemini API response structure" }) };
         }
 
-        responseText = randomizeText(responseText);
-
         return {
             statusCode: 200,
             body: JSON.stringify(responseText),
@@ -80,31 +78,3 @@ exports.handler = async function (event, context) {
         };
     }
 };
-
-function randomizeText(text) {
-    let sentences = text.split(".");
-    sentences = sentences.filter(sentence => sentence.trim() !== "");
-
-    sentences = sentences.map(sentence => {
-        let words = sentence.trim().split(" ");
-        if (Math.random() < 0.1) {
-            let randomIndex = Math.floor(Math.random() * words.length);
-            if (words[randomIndex]) {
-                words.splice(randomIndex, 0, words[randomIndex]);
-            }
-        }
-        return words.join(" ");
-    });
-
-    sentences = sentences.map(sentence => {
-        if (Math.random() < 0.1) {
-            sentence = sentence.replace(/is/g, "are").replace(/are/g, "is");
-        }
-        if (Math.random() < 0.05) {
-            sentence = sentence.replace(/he/g, "they").replace(/she/g, "it");
-        }
-        return sentence;
-    });
-
-    return sentences.join(". ");
-}
