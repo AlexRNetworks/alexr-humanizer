@@ -17,51 +17,33 @@ exports.handler = async function (event, context) {
             };
         }
 
-        let systemPrompt = `
-            You are an expert academic essay humanizer, tasked with making essays indistinguishable from human writing to bypass AI detection.
+        let stage1Prompt = `Rewrite the following essay in a conversational tone, as if you were explaining the topic to a friend. Use contractions, simple vocabulary, and vary sentence lengths. Incorporate rhetorical questions and idioms where appropriate. Maintain the original meaning. Add phrases like 'Let me break this down' where it makes sense.\n\n${prompt}`;
 
-            Tone: ${tone} (essay context)
-            Context: ${providedContext || 'Academic essay'}
-            Audience: ${audience || 'Academic audience'}
-            Purpose: ${purpose || 'To present an argument or analysis'}
+        let stage2Prompt = `Add subtle human nuances to the following essay, enhancing its conversational style. Introduce occasional, natural-sounding grammatical variations or colloquialisms. Also, add very minor formatting inconsistencies. Avoid making the text appear sloppy. Do not add new information. Keep the length the same.\n\n`;
 
-            Instructions:
-
-            1.  **Length Preservation:** Maintain the original length of the essay, or slightly reduce it. Do not add significant new content.
-            2.  **Academic Tone:** Maintain a formal and objective tone, but avoid overly rigid language.
-            3.  **Argumentative Flow:** Ensure a logical flow with clear transitions and supporting evidence.
-            4.  **Sentence Diversity:** Use a mix of sentence structures to avoid predictability.
-            5.  **Sophisticated Vocabulary:** Employ academic vocabulary, but avoid repetition.
-            6.  **Subtle Nuances:** Introduce hedging, qualifying statements, or rhetorical questions.
-            7.  **Human-Like Errors:** Introduce occasional, natural-sounding grammatical variations or colloquialisms, and very minor formatting inconsistencies.
-            8.  **Avoid AI Patterns:** Eliminate AI-generated phrases and patterns.
-            9.  **Varied Language:** Use diverse vocabulary and phrasing.
-            10. **Maintain Meaning:** Preserve the original meaning and arguments.
-            11. **Contextual Awareness:** Understand the context and purpose of the essay.
-            12. **Increase Perplexity:** Use less predictable word choices and phrasing.
-            13. **Stylistic Variation:** Vary the tone and style within the essay.
-            14. **"Thought Process" Indicators:** Use phrases like "it seems," "perhaps," or "one might argue."
-            15. **Avoid Overly Polished Language:** Introduce subtle imperfections.
-            16. **Use active voice:** use active voice when possible.
-
-            Your output must be undetectable by AI detection tools and suitable for academic submission.
-        `;
-
-        const response = await openai.chat.completions.create({
+        // Stage 1: Conversational Rephrasing
+        const stage1Response = await openai.chat.completions.create({
             model: "gpt-4",
-            messages: [
-                { role: "system", content: systemPrompt },
-                { role: "user", content: prompt }
-            ],
-            temperature: 0.65, //slight reduction to focus on following instructions
-            top_p: 0.95,
-            frequency_penalty: 0.15, //Reduced further to allow for more variation
-            presence_penalty: 0.15, //Reduced further to allow for more variation
+            messages: [{ role: "user", content: stage1Prompt }],
+            temperature: 0.75,
         });
+
+        let stage1Output = stage1Response.choices[0].message.content;
+
+        // Stage 2: Subtle Nuances and Human Quirks
+        stage2Prompt += stage1Output;
+
+        const stage2Response = await openai.chat.completions.create({
+            model: "gpt-4",
+            messages: [{ role: "user", content: stage2Prompt }],
+            temperature: 0.65,
+        });
+
+        const finalOutput = stage2Response.choices[0].message.content;
 
         return {
             statusCode: 200,
-            body: JSON.stringify(response.choices[0].message.content),
+            body: JSON.stringify(finalOutput),
         };
     } catch (error) {
         return {
