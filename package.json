@@ -4,17 +4,13 @@
   "description": "A complex AI humanizer free to your use!",
   "main": "gemini.js",
   "scripts": {
-    "build": "ncc build gemini.js -o dist", 
-    "start": "node dist/index.js" 
+    "start": "node gemini.js"
   },
   "author": "Michigan",
   "license": "MIT",
   "dependencies": {
-    "@google-cloud/vertexai": "latest",
+    "node-fetch": "^2.6.12",
     "dotenv": "^16.0.0"
-  },
-  "devDependencies": {
-    "@vercel/ncc": "^0.38.1"
   },
   "engines": {
     "node": ">=18"
