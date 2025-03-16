@@ -18,7 +18,13 @@ exports.handler = async function (event, context) {
 
         const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
 
-        const transformationPrompt = `Rephrase the following text to sound like a student in highschool 10th grade would be best. Use simple words and short sentences. Make it sound like a essay they read and wrote about. Use run-on sentences not to many. Do not summarize or add make it about the same word count. Do not use fancy or formal language or hyphens or questionmarks. Do not sound like your talking to the person reading make it sound like your writing about the topic but at a 10th grade level sound acadmic and not like there texting someone.
+        const transformationPrompt = `Rephrase the following text to sound like a student in highschool 10th grade would be best. okay so write something that sounds like this
+
+Fossil fuels are a major contributor to global warming.  The use of oil, gas and coal is the enormous to fuel our transportation, warm our houses, and run our businesses.  To begin with, oil is found in almost every area of our lifes.  From the beginning of when we find oil to when we throw an oil product away we are adding to global warming.  When they find oil, they get it out of the ground.  When they get it out of the ground, they pollute the environment by using machinery.  The machinery pollutes the air because the carbon monoxide is given off from the machines goes into our atmosphere.  If they are “mining” the oil then large amounts of the land is destroyed and will take man, many years to grow again.  Again the machinery that is used to strip the oil from the land pollutes the air with its carbon monoxide.  The process that is used to take the oil out of the sand also pollutes the air.  In addition to that, any of the products that are made from oil result in pollution in the way of factories putting smoke into the air.
+
+
+
+Dont add the Umm and Right and all that just a student who read a book and wrote about it its not supose to be a fun sounding text its not fun.
 
 Rephrase:
 
