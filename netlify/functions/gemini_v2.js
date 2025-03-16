@@ -18,33 +18,22 @@ exports.handler = async function (event, context) {
 
         const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
 
-        let text = prompt;
+        const transformationPrompt = `Transform the following input text according to these rules:
 
-        // Stage 1: Word Scrambling and Rearrangement
-        text = text.split('. ').map(sentence => {
-            const words = sentence.split(' ');
-            for (let i = words.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [words[i], words[j]] = [words[j], words[i]];
-            }
-            return words.join(' ');
-        }).sort(() => Math.random() - 0.5).join('. ');
+1.  Scramble the order of words within sentences.
+2.  Rearrange the order of sentences.
+3.  Randomly swap pronouns (he/she/they, is/are).
+4.  Introduce inconsistent verb tenses.
+5.  Add redundant phrases or clauses without direct, obvious repetition.
+6.  Combine sentences without proper conjunctions or punctuation.
+7.  Remove commas and question marks.
 
-        // Stage 2: Pronoun and Verb Tense Inconsistencies
-        text = text.replace(/(is|are)\b/gi, (match) => match === 'is' ? 'are' : 'is');
-        text = text.replace(/(he|she|it)\b/gi, (match) => match === 'he' ? 'they' : match === 'she' ? 'it' : 'he');
-        text = text.replace(/(ed|ing)\b/gi, () => Math.random() < 0.5 ? 'ed' : 'ing'); // Random verb tense
+Input: ${prompt}
 
-        // Stage 3: Redundancy and Repetition (Subtle)
-        text = text.replace(/([.?!])\s+(?=[A-Z])/g, '$1 you know ');
-        text = text + ' really think about it ';
-
-        // Stage 4: Structural Distortion
-        text = text.replace(/[,?]/g, '');
-        text = text.replace(/([.?!])\s+(?=[A-Z])/g, '$1 ');
+Output:`;
 
         const requestBody = JSON.stringify({
-            contents: [{ parts: [{ text: text }] }],
+            contents: [{ parts: [{ text: transformationPrompt }] }],
         });
 
         const response = await fetch(apiUrl, {
