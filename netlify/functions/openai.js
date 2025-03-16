@@ -17,15 +17,15 @@ exports.handler = async function (event, context) {
             };
         }
 
-        let stage1Prompt = `Rephrase the following essay, focusing on varying sentence structures and paragraph organization. Maintain the original meaning and tone. Avoid adding new information. Do not change the vocabulary. Ensure the essay flows naturally. Try to use a mix of short and long sentences.\n\n${prompt}`;
+        let stage1Prompt = `Given the following essay, rephrase it with a ${tone} tone, focusing on varying sentence structures and paragraph organization. Maintain the original meaning and context provided: ${providedContext}. The audience is: ${audience}. The purpose of the text is: ${purpose}. Avoid adding new information. Do not change the vocabulary. Ensure the essay flows naturally. Try to use a mix of short and long sentences. Incorporate natural language idioms and phrases.\n\n${prompt}`;
 
-        let stage3Prompt = `Add subtle human nuances to the following essay. This includes adding phrases like 'it seems,' 'perhaps,' or 'one might argue.' Introduce occasional, natural-sounding grammatical variations or colloquialisms. Also, add very minor formatting inconsistencies. Avoid making the text appear sloppy. Do not add new information. Keep the length the same.\n\n`;
+        let stage3Prompt = `Given the following essay, add subtle human nuances. This includes adding phrases like 'it seems,' 'perhaps,' or 'one might argue.' Introduce occasional, natural-sounding grammatical variations or colloquialisms. Also, add very minor formatting inconsistencies. Avoid making the text appear sloppy. Do not add new information. Keep the length the same. The tone is: ${tone}. The context is: ${providedContext}. The audience is: ${audience}. The purpose is: ${purpose}.\n\n`;
 
-        // Stage 1: Structural Variation
+        // Stage 1: Structural and Tone Variation
         const stage1Response = await openai.chat.completions.create({
             model: "gpt-4",
             messages: [{ role: "user", content: stage1Prompt }],
-            temperature: 0.7,
+            temperature: 0.8, // Increased temperature for more variation
         });
 
         let stage1Output = stage1Response.choices[0].message.content;
@@ -44,13 +44,13 @@ exports.handler = async function (event, context) {
             stage2Output = stage2Output.replace(regex, synonyms[word]);
         }
 
-        // Stage 3: Style Refinement
+        // Stage 3: Human Nuances and Inconsistencies
         stage3Prompt += stage2Output;
 
         const stage3Response = await openai.chat.completions.create({
             model: "gpt-4",
             messages: [{ role: "user", content: stage3Prompt }],
-            temperature: 0.6,
+            temperature: 0.7, // Slightly lower temperature for refinement
         });
 
         const finalOutput = stage3Response.choices[0].message.content;
