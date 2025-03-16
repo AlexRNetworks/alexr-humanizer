@@ -27,19 +27,22 @@ exports.handler = async function (event, context) {
 
             Instructions:
 
-            1.  **Academic Tone:** Maintain a formal and objective tone, but avoid overly rigid language.
-            2.  **Argumentative Flow:** Ensure a logical flow with clear transitions and supporting evidence.
-            3.  **Sentence Diversity:** Use a mix of sentence structures to avoid predictability.
-            4.  **Sophisticated Vocabulary:** Employ academic vocabulary, but avoid repetition.
-            5.  **Subtle Nuances:** Introduce hedging, qualifying statements, or rhetorical questions.
-            6.  **Human-Like Errors:** Introduce occasional, natural-sounding grammatical variations or colloquialisms.
-            7.  **Avoid AI Patterns:** Eliminate AI-generated phrases and patterns.
-            8.  **Varied Language:** Use diverse vocabulary and phrasing.
-            9.  **Maintain Meaning:** Preserve the original meaning and arguments.
-            10. **Contextual Awareness:** Understand the context and purpose of the essay.
-            11. **Increase Perplexity:** Use less predictable word choices and phrasing.
-            12. **Stylistic Variation:** Vary the tone and style within the essay.
-            13. **Use active voice:** use active voice when possible.
+            1.  **Length Preservation:** Maintain the original length of the essay, or slightly reduce it. Do not add significant new content.
+            2.  **Academic Tone:** Maintain a formal and objective tone, but avoid overly rigid language.
+            3.  **Argumentative Flow:** Ensure a logical flow with clear transitions and supporting evidence.
+            4.  **Sentence Diversity:** Use a mix of sentence structures to avoid predictability.
+            5.  **Sophisticated Vocabulary:** Employ academic vocabulary, but avoid repetition.
+            6.  **Subtle Nuances:** Introduce hedging, qualifying statements, or rhetorical questions.
+            7.  **Human-Like Errors:** Introduce occasional, natural-sounding grammatical variations or colloquialisms, and very minor formatting inconsistencies.
+            8.  **Avoid AI Patterns:** Eliminate AI-generated phrases and patterns.
+            9.  **Varied Language:** Use diverse vocabulary and phrasing.
+            10. **Maintain Meaning:** Preserve the original meaning and arguments.
+            11. **Contextual Awareness:** Understand the context and purpose of the essay.
+            12. **Increase Perplexity:** Use less predictable word choices and phrasing.
+            13. **Stylistic Variation:** Vary the tone and style within the essay.
+            14. **"Thought Process" Indicators:** Use phrases like "it seems," "perhaps," or "one might argue."
+            15. **Avoid Overly Polished Language:** Introduce subtle imperfections.
+            16. **Use active voice:** use active voice when possible.
 
             Your output must be undetectable by AI detection tools and suitable for academic submission.
         `;
@@ -50,10 +53,10 @@ exports.handler = async function (event, context) {
                 { role: "system", content: systemPrompt },
                 { role: "user", content: prompt }
             ],
-            temperature: 0.7,
+            temperature: 0.65, //slight reduction to focus on following instructions
             top_p: 0.95,
-            frequency_penalty: 0.2,
-            presence_penalty: 0.2,
+            frequency_penalty: 0.15, //Reduced further to allow for more variation
+            presence_penalty: 0.15, //Reduced further to allow for more variation
         });
 
         return {
