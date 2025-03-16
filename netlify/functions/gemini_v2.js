@@ -18,13 +18,7 @@ exports.handler = async function (event, context) {
 
         const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
 
-        const transformationPrompt = `Rephrase the following text to sound like a student in highschool 10th grade would be best. okay so write something that sounds like this
-
-Fossil fuels are a major contributor to global warming.  The use of oil, gas and coal is the enormous to fuel our transportation, warm our houses, and run our businesses.  To begin with, oil is found in almost every area of our lifes.  From the beginning of when we find oil to when we throw an oil product away we are adding to global warming.  When they find oil, they get it out of the ground.  When they get it out of the ground, they pollute the environment by using machinery.  The machinery pollutes the air because the carbon monoxide is given off from the machines goes into our atmosphere.  If they are “mining” the oil then large amounts of the land is destroyed and will take man, many years to grow again.  Again the machinery that is used to strip the oil from the land pollutes the air with its carbon monoxide.  The process that is used to take the oil out of the sand also pollutes the air.  In addition to that, any of the products that are made from oil result in pollution in the way of factories putting smoke into the air.
-
-
-
-Dont add the Umm and Right and all that just a student who read a book and wrote about it its not supose to be a fun sounding text its not fun.
+        const transformationPrompt = `Humanize this text and make it sound like a 10th grader wrote it for a teacher for a assignment dont use hyphens or question marks. dont use Ummm, So, basically, and like as these are informal and sound like your texting someone. Make sure the text i give you is bypassable by AI detectors and not going to be flagged. this text needs to stay the same length or as close as it can dont add or remove unless you need to and it should  be little bits not a lot. We want to bypass so if you can use the best model you can to obtain the best response and most detectors wont have to be able to flag this text.
 
 Rephrase:
 
