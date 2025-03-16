@@ -7,10 +7,10 @@
     "build": "ncc build gemini.js -o dist", 
     "start": "node dist/index.js" 
   },
-  "author": "Your Name (Optional)",
-  "license": "MIT (or your preferred license)",
+  "author": "Michigan",
+  "license": "MIT",
   "dependencies": {
-    "@google-cloud/vertexai": "^0.8.0",
+    "@google-cloud/vertexai": "latest",
     "dotenv": "^16.0.0"
   },
   "devDependencies": {
