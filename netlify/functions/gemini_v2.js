@@ -19,13 +19,13 @@ exports.handler = async function (event, context) {
         const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
 
         const requestBody = JSON.stringify({
-            contents: [{ parts: [{ text: `"Rephrase the following text. Use simple words, short sentences, and repeat phrases. Make it sound unorganized, with run-on sentences and no commas. Do not add or remove content. Do not summarize. Do not use fancy or formal language.
+            contents: [{ parts: [{ text: `"Rephrase the following text. Use simple words. Short sentences. Repeat phrases. Make it sound unorganized. Use run-on sentences. Do not use commas or question marks. Do not add or remove content. Do not summarize. Do not use fancy or formal language.
 
 Rephrase:
 
 ${prompt}
 
-Grammatical errors are encouraged."` }] }],
+Make it sound like a very bad student wrote this."` }] }],
         });
 
         const response = await fetch(apiUrl, {
