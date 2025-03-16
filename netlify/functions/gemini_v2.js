@@ -19,13 +19,25 @@ exports.handler = async function (event, context) {
         const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
 
         const requestBody = JSON.stringify({
-            contents: [{ parts: [{ text: `"Rephrase the following text. Use simple words. Short sentences. Repeat phrases. Make it sound unorganized. Use run-on sentences. Do not use commas or question marks. Do not add or remove content. Do not summarize. Do not use fancy or formal language.
+            contents: [{ parts: [{ text: `"Follow these stages to rephrase the following text:
 
-Rephrase:
+Stage 1: Input Analysis and Simplification
+- Read the input text carefully. Identify the main concepts and ideas.
+- Rewrite each sentence using the simplest possible vocabulary. Replace complex words with basic synonyms.
+- Shorten long sentences. Break them into two or three shorter sentences if necessary.
 
-${prompt}
+Stage 2: Structural Degradation
+- Introduce run-on sentences. Combine two or three sentences into one without using commas or conjunctions like 'and' or 'but'.
+- Remove all commas and question marks from the text.
+- Do not repeat any words or phrases directly. Rearrange words and sentences instead.
 
-Make it sound like a very bad student wrote this."` }] }],
+Stage 3: Output Generation
+- Combine the modified sentences into a single, unorganized paragraph. Do not attempt to create a logical flow or structure.
+- Ensure the output sounds like a very bad student wrote it. Do not add or remove content. Do not summarize. Do not use fancy or formal language.
+
+Text to rephrase:
+
+${prompt}"` }] }],
         });
 
         const response = await fetch(apiUrl, {
