@@ -18,16 +18,15 @@ exports.handler = async function (event, context) {
 
         const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
 
-        // Stage 1: Input Simplification and Basic Vocabulary
+        // Stage 1: Simplification
         let text = prompt.replace(/([a-zA-Z]+(?:ly|tion|ment|ness|able|ible|ive|ous|ful)\b)/g, (match) => {
             if (match === 'completely') return 'totally';
             if (match === 'understandable') return 'easy to get';
             return match;
         });
         text = text.replace(/([.?!])\s+(?=[A-Z])/g, '$1\n');
-        console.log("Stage 1:", text);
 
-        // Stage 2: Structural Degradation and Grammatical Flaws
+        // Stage 2: Degradation and Grammatical Errors
         text = text.replace(/[,?]/g, '');
         text = text.replace(/([.?!])\s+(?=[A-Z])/g, '$1 ');
         text = text.replace(/and|but/gi, '');
@@ -35,12 +34,10 @@ exports.handler = async function (event, context) {
         text = text.replace(/(he|she|it)\b/gi, (match) => match === 'he' ? 'they' : match === 'she' ? 'it' : 'he');
         text = text.replace(/([A-Z][a-z]+)\s+([A-Z][a-z]+)\b/g, '$2 $1');
         text = text.replace(/(\b\w+\b)\s+\1/g, '$1');
-        console.log("Stage 2:", text);
 
-        // Stage 3: Output Unorganization
+        // Stage 3: Unorganization
         text = text.replace(/\n+/g, ' ');
         text = text + " " + text.split(" ")[0] + " " + text.split(" ")[1];
-        console.log("Stage 3:", text);
 
         const requestBody = JSON.stringify({
             contents: [{ parts: [{ text: text }] }],
