@@ -18,23 +18,12 @@ exports.handler = async function (event, context) {
 
         const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
 
-        const transformationPrompt = `Transform the text within the <input> tags according to these rules:
-
-1. Remove all commas and question marks.
-2. Swap 'is' with 'are' and 'are' with 'is'.
-3. Swap pronouns like 'he' with 'they', 'she' with 'it', and 'it' with 'he'.
-4. Swap the positions of adjacent words within sentences.
-5. Add the phrase 'you know' after each sentence ending.
-6. Add the phrase 'like really think about it' to the end of the text.
-
-<input>
-${prompt}
-</input>
-
-Output:`;
-
         const requestBody = JSON.stringify({
-            contents: [{ parts: [{ text: transformationPrompt }] }],
+            contents: [{ parts: [{ text: `"Rephrase the following text to sound like a student in highschool 10th grade would be best. Use simple words and short sentences. Make it sound like a essay they read and wrote about. Use run-on sentences not to many. Do not summarize or add make it about the same word count. Do not use fancy or formal language or hyphens or questionmarks.
+
+Rephrase:
+
+${prompt}"` }] }],
         });
 
         const response = await fetch(apiUrl, {
@@ -54,7 +43,7 @@ Output:`;
 
         let responseText = "";
         if (data && data.candidates && data.candidates.length > 0 && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts.length > 0 && data.candidates[0].content.parts[0].text) {
-            responseText = data.candidates[0].content.parts[0].text;
+            responseText = data.candidates[0].text;
         } else {
             console.error("Unexpected Gemini API response structure:", data);
             return { statusCode: 500, body: JSON.stringify({ error: "Unexpected Gemini API response structure" }) };
