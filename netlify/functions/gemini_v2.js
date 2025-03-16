@@ -18,18 +18,23 @@ exports.handler = async function (event, context) {
 
         const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
 
-        let text = prompt;
+        const transformationPrompt = `Transform the text within the <input> tags according to these rules:
 
-        // Subtle Transformations
-        text = text.replace(/[,?]/g, ''); // Remove punctuation
-        text = text.replace(/(is|are)\b/gi, (match) => match === 'is' ? 'are' : 'is'); // Swap is/are
-        text = text.replace(/(he|she|it)\b/gi, (match) => match === 'he' ? 'they' : match === 'she' ? 'it' : 'he'); // Swap pronouns
-        text = text.replace(/([A-Z][a-z]+)\s+([A-Z][a-z]+)\b/g, '$2 $1'); // Swap words
-        text = text.replace(/([.?!])\s+(?=[A-Z])/g, '$1 you know '); // Add filler phrase
-        text = text + " like really think about it"; // Add ending filler
+1. Remove all commas and question marks.
+2. Swap 'is' with 'are' and 'are' with 'is'.
+3. Swap pronouns like 'he' with 'they', 'she' with 'it', and 'it' with 'he'.
+4. Swap the positions of adjacent words within sentences.
+5. Add the phrase 'you know' after each sentence ending.
+6. Add the phrase 'like really think about it' to the end of the text.
+
+<input>
+${prompt}
+</input>
+
+Output:`;
 
         const requestBody = JSON.stringify({
-            contents: [{ parts: [{ text: text }] }],
+            contents: [{ parts: [{ text: transformationPrompt }] }],
         });
 
         const response = await fetch(apiUrl, {
