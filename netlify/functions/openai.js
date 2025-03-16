@@ -1,60 +1,68 @@
-// netlify/functions/openai.js
-const OpenAI = require('openai');
-require('dotenv').config();
+const { OpenAI } = require("openai");
 
 exports.handler = async function (event, context) {
-  if (event.httpMethod !== 'POST') {
-    return { statusCode: 405, body: 'Method Not Allowed' };
-  }
-
-  const openai = new OpenAI({
-    apiKey: process.env.API_KEY,
-  });
-
-  try {
-    const { text, tone, language } = JSON.parse(event.body);
-
-    // Stage 1: Rephrasing
-    const stage1Prompt = `Rephrase the following text to make it sound more natural and less formal:\n\n${text}`;
-    const stage1Response = await openai.chat.completions.create({
-      model: 'gpt-3.5-turbo',
-      messages: [{ role: 'user', content: stage1Prompt }],
+    const openai = new OpenAI({
+        apiKey: process.env.API_KEY,
     });
 
-    // Robust extraction stage 1.
-    let rephrasedText = "";
-    if (stage1Response && stage1Response.choices && stage1Response.choices.length > 0 && stage1Response.choices[0].message && stage1Response.choices[0].message.content) {
-      rephrasedText = stage1Response.choices[0].message.content;
-    } else {
-      console.error("Error: Stage 1 response structure unexpected");
-      return { statusCode: 500, body: JSON.stringify({ error: "Unexpected response from OpenAI Stage 1" }) };
+    try {
+        const body = JSON.parse(event.body);
+        const { prompt, tone, context: providedContext, audience, purpose } = body;
+
+        const validTones = ["casual", "highschool", "complex", "college"];
+        if (!validTones.includes(tone)) {
+            return {
+                statusCode: 400,
+                body: JSON.stringify({ error: "Invalid tone. Must be one of: casual, highschool, complex, college." }),
+            };
+        }
+
+        let stage1Prompt = `Rephrase the following essay, focusing on varying sentence structures and paragraph organization. Maintain the original meaning and tone. Avoid adding new information. Do not change the vocabulary. Ensure the essay flows naturally. Try to use a mix of short and long sentences.\n\n${prompt}`;
+
+        let stage3Prompt = `Add subtle human nuances to the following essay. This includes adding phrases like 'it seems,' 'perhaps,' or 'one might argue.' Introduce occasional, natural-sounding grammatical variations or colloquialisms. Also, add very minor formatting inconsistencies. Avoid making the text appear sloppy. Do not add new information. Keep the length the same.\n\n`;
+
+        // Stage 1: Structural Variation
+        const stage1Response = await openai.chat.completions.create({
+            model: "gpt-4",
+            messages: [{ role: "user", content: stage1Prompt }],
+            temperature: 0.7,
+        });
+
+        let stage1Output = stage1Response.choices[0].message.content;
+
+        // Stage 2: Basic Synonym Replacement (Simplified)
+        const synonyms = {
+            "important": "significant",
+            "necessary": "essential",
+            "utilize": "use",
+            "however": "though",
+        };
+
+        let stage2Output = stage1Output;
+        for (const word in synonyms) {
+            const regex = new RegExp(`\\b${word}\\b`, "gi");
+            stage2Output = stage2Output.replace(regex, synonyms[word]);
+        }
+
+        // Stage 3: Style Refinement
+        stage3Prompt += stage2Output;
+
+        const stage3Response = await openai.chat.completions.create({
+            model: "gpt-4",
+            messages: [{ role: "user", content: stage3Prompt }],
+            temperature: 0.6,
+        });
+
+        const finalOutput = stage3Response.choices[0].message.content;
+
+        return {
+            statusCode: 200,
+            body: JSON.stringify(finalOutput),
+        };
+    } catch (error) {
+        return {
+            statusCode: 500,
+            body: JSON.stringify({ error: error.message }),
+        };
     }
-
-    // Stage 2: Tone and Language Adjustment
-    const stage2Prompt = `Adjust the following text to match the tone "${tone}" and language "${language}":\n\n${rephrasedText}`;
-    const stage2Response = await openai.chat.completions.create({
-      model: 'gpt-3.5-turbo',
-      messages: [{ role: 'user', content: stage2Prompt }],
-    });
-
-    // Robust extraction stage 2.
-    let humanizedText = "";
-    if (stage2Response && stage2Response.choices && stage2Response.choices.length > 0 && stage2Response.choices[0].message && stage2Response.choices[0].message.content) {
-      humanizedText = stage2Response.choices[0].message.content;
-    } else {
-      console.error("Error: Stage 2 response structure unexpected");
-      return { statusCode: 500, body: JSON.stringify({ error: "Unexpected response from OpenAI Stage 2" }) };
-    }
-
-    return {
-      statusCode: 200,
-      body: JSON.stringify({ humanizedText }),
-    };
-  } catch (error) {
-    console.error('Error in Netlify function:', error);
-    return {
-      statusCode: 502,
-      body: JSON.stringify({ error: 'Failed to process request' }),
-    };
-  }
 };
