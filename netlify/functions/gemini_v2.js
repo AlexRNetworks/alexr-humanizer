@@ -18,26 +18,14 @@ exports.handler = async function (event, context) {
 
         const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
 
-        // Stage 1: Simplification
-        let text = prompt.replace(/([a-zA-Z]+(?:ly|tion|ment|ness|able|ible|ive|ous|ful)\b)/g, (match) => {
-            if (match === 'completely') return 'totally';
-            if (match === 'understandable') return 'easy to get';
-            return match;
-        });
-        text = text.replace(/([.?!])\s+(?=[A-Z])/g, '$1\n');
-
-        // Stage 2: Degradation and Grammatical Errors
-        text = text.replace(/[,?]/g, '');
-        text = text.replace(/([.?!])\s+(?=[A-Z])/g, '$1 ');
-        text = text.replace(/and|but/gi, '');
-        text = text.replace(/(is|are)\b/gi, (match) => match === 'is' ? 'are' : 'is');
-        text = text.replace(/(he|she|it)\b/gi, (match) => match === 'he' ? 'they' : match === 'she' ? 'it' : 'he');
-        text = text.replace(/([A-Z][a-z]+)\s+([A-Z][a-z]+)\b/g, '$2 $1');
-        text = text.replace(/(\b\w+\b)\s+\1/g, '$1');
-
-        // Stage 3: Unorganization
-        text = text.replace(/\n+/g, ' ');
-        text = text + " " + text.split(" ")[0] + " " + text.split(" ")[1];
+        // Core Transformations
+        let text = prompt.replace(/[,?]/g, ''); // Remove punctuation
+        text = text.replace(/(is|are)\b/gi, (match) => match === 'is' ? 'are' : 'is'); // Swap is/are
+        text = text.replace(/(he|she|it)\b/gi, (match) => match === 'he' ? 'they' : match === 'she' ? 'it' : 'he'); // Swap pronouns
+        text = text.replace(/([A-Z][a-z]+)\s+([A-Z][a-z]+)\b/g, '$2 $1'); // Swap words
+        text = text.replace(/(\b\w+\b)\s+\1/g, '$1'); // Remove duplicate words
+        text = text.replace(/([.?!])\s+(?=[A-Z])/g, '$1 '); // Combine sentences
+        text = text + " " + text.split(" ")[0] + " " + text.split(" ")[1]; // Add redundant words
 
         const requestBody = JSON.stringify({
             contents: [{ parts: [{ text: text }] }],
