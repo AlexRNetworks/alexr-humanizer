@@ -61,5 +61,3 @@ async function runExample() {
     console.error('Example failed:', error);
   }
 }
-
-runExample();
