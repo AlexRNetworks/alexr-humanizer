@@ -1,15 +1,19 @@
-// openai.js
+// netlify/functions/openai.js
 const OpenAI = require('openai');
-const readline = require('readline');
 require('dotenv').config();
 
-const openai = new OpenAI({
-  apiKey: process.env.API_KEY,
-});
+exports.handler = async function (event, context) {
+  if (event.httpMethod !== 'POST') {
+    return { statusCode: 405, body: 'Method Not Allowed' };
+  }
 
-async function humanizeText(text, tone, language) {
-  // ... (humanizeText function remains the same)
+  const openai = new OpenAI({
+    apiKey: process.env.API_KEY,
+  });
+
   try {
+    const { text, tone, language } = JSON.parse(event.body);
+
     // Stage 1: Rephrasing
     const stage1Prompt = `Rephrase the following text to make it sound more natural and less formal:\n\n${text}`;
     const stage1Response = await openai.chat.completions.create({
@@ -26,34 +30,15 @@ async function humanizeText(text, tone, language) {
     });
     const humanizedText = stage2Response.choices[0].message.content;
 
-    return humanizedText;
+    return {
+      statusCode: 200,
+      body: JSON.stringify({ humanizedText }),
+    };
   } catch (error) {
-    console.error('Error humanizing text:', error);
-    throw error;
+    console.error('Error in Netlify function:', error);
+    return {
+      statusCode: 502,
+      body: JSON.stringify({ error: 'Failed to process request' }),
+    };
   }
-
-}
-
-// Interactive CLI
-const rl = readline.createInterface({
-  input: process.stdin,
-  output: process.stdout,
-});
-
-async function runInteractive() {
-  rl.question('Enter text to humanize: ', async (text) => {
-    rl.question('Enter tone (e.g., friendly, formal): ', async (tone) => {
-      rl.question('Enter language (e.g., english, spanish): ', async (language) => {
-        try {
-          const humanizedText = await humanizeText(text, tone, language);
-          console.log('\nHumanized text:\n', humanizedText);
-        } catch (error) {
-          console.error('Error:', error);
-        }
-        rl.close(); // Close the readline interface after completion
-      });
-    });
-  });
-}
-
-runInteractive();
+};
