@@ -2,9 +2,9 @@
   "name": "Alexr-Humanizer",
   "version": "1.0.0",
   "description": "A complex AI humanizer free to your use!",
-  "main": "gemini.js",
+  "main": "gemini_v2.js",
   "scripts": {
-    "start": "node gemini.js"
+    "start": "node gemini_v2.js"
   },
   "author": "Michigan",
   "license": "MIT",
