@@ -18,26 +18,27 @@ exports.handler = async function (event, context) {
 
         const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
 
+        // Stage 1: Input Analysis and Simplification
+        let simplifiedText = prompt;
+        simplifiedText = simplifiedText.replace(/([a-zA-Z]+(?:ly|tion|ment|ness|able|ible|ive|ous|ful)\b)/g, (match) => {
+            // Replace complex words with basic synonyms (simple example)
+            if (match === 'completely') return 'totally';
+            if (match === 'understandable') return 'easy to get';
+            return match; // Keep unchanged if not in replacement list
+        });
+        simplifiedText = simplifiedText.replace(/([.?!])\s+(?=[A-Z])/g, '$1\n'); // Split long sentences
+
+        // Stage 2: Structural Degradation
+        let degradedText = simplifiedText.replace(/[,?]/g, ''); // Remove commas and question marks
+        degradedText = degradedText.replace(/([.?!])\s+(?=[A-Z])/g, '$1 '); // Combine short sentences
+        degradedText = degradedText.replace(/(\w+)\s+\1/g, '$1'); // Remove direct word repetitions
+        degradedText = degradedText.replace(/([.?!])\s+(?=[A-Z])/g, '$1 '); // Combine again after removing duplicates
+        degradedText = degradedText.replace(/and|but/gi, ''); //remove conjunctions
+        // Stage 3: Output Generation
+        let finalOutput = degradedText.replace(/\n+/g, ' '); // Combine into a single paragraph
+
         const requestBody = JSON.stringify({
-            contents: [{ parts: [{ text: `"Follow these stages to rephrase the following text:
-
-Stage 1: Input Analysis and Simplification
-- Read the input text carefully. Identify the main concepts and ideas.
-- Rewrite each sentence using the simplest possible vocabulary. Replace complex words with basic synonyms.
-- Shorten long sentences. Break them into two or three shorter sentences if necessary.
-
-Stage 2: Structural Degradation
-- Introduce run-on sentences. Combine two or three sentences into one without using commas or conjunctions like 'and' or 'but'.
-- Remove all commas and question marks from the text.
-- Do not repeat any words or phrases directly. Rearrange words and sentences instead.
-
-Stage 3: Output Generation
-- Combine the modified sentences into a single, unorganized paragraph. Do not attempt to create a logical flow or structure.
-- Ensure the output sounds like a very bad student wrote it. Do not add or remove content. Do not summarize. Do not use fancy or formal language.
-
-Text to rephrase:
-
-${prompt}"` }] }],
+            contents: [{ parts: [{ text: finalOutput }] }],
         });
 
         const response = await fetch(apiUrl, {
