@@ -1,9 +1,17 @@
 {
   "name": "Alexr-Humanizer",
   "version": "1.0.0",
-  "description": "A complex ai humanizer free to your use!",
+  "description": "A complex AI humanizer free to your use!",
+  "main": "gemini.js", // Add the main entry point
+  "scripts": {
+    "start": "node gemini.js" // Add a start script
+  },
+  "author": "Michigan", 
   "dependencies": {
-    "openai": "^4.0.0",
-    "dotenv": "^16.0.0" 
+    "@google-cloud/vertexai": "^0.8.0", 
+    "dotenv": "^16.0.0"
+  },
+  "engines": {
+    "node": ">=18" 
   }
 }
