@@ -18,14 +18,30 @@ exports.handler = async function (event, context) {
 
         const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
 
-        // Core Transformations
-        let text = prompt.replace(/[,?]/g, ''); // Remove punctuation
-        text = text.replace(/(is|are)\b/gi, (match) => match === 'is' ? 'are' : 'is'); // Swap is/are
-        text = text.replace(/(he|she|it)\b/gi, (match) => match === 'he' ? 'they' : match === 'she' ? 'it' : 'he'); // Swap pronouns
-        text = text.replace(/([A-Z][a-z]+)\s+([A-Z][a-z]+)\b/g, '$2 $1'); // Swap words
-        text = text.replace(/(\b\w+\b)\s+\1/g, '$1'); // Remove duplicate words
-        text = text.replace(/([.?!])\s+(?=[A-Z])/g, '$1 '); // Combine sentences
-        text = text + " " + text.split(" ")[0] + " " + text.split(" ")[1]; // Add redundant words
+        let text = prompt;
+
+        // Stage 1: Word Scrambling and Rearrangement
+        text = text.split('. ').map(sentence => {
+            const words = sentence.split(' ');
+            for (let i = words.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [words[i], words[j]] = [words[j], words[i]];
+            }
+            return words.join(' ');
+        }).sort(() => Math.random() - 0.5).join('. ');
+
+        // Stage 2: Pronoun and Verb Tense Inconsistencies
+        text = text.replace(/(is|are)\b/gi, (match) => match === 'is' ? 'are' : 'is');
+        text = text.replace(/(he|she|it)\b/gi, (match) => match === 'he' ? 'they' : match === 'she' ? 'it' : 'he');
+        text = text.replace(/(ed|ing)\b/gi, () => Math.random() < 0.5 ? 'ed' : 'ing'); // Random verb tense
+
+        // Stage 3: Redundancy and Repetition (Subtle)
+        text = text.replace(/([.?!])\s+(?=[A-Z])/g, '$1 you know ');
+        text = text + ' really think about it ';
+
+        // Stage 4: Structural Distortion
+        text = text.replace(/[,?]/g, '');
+        text = text.replace(/([.?!])\s+(?=[A-Z])/g, '$1 ');
 
         const requestBody = JSON.stringify({
             contents: [{ parts: [{ text: text }] }],
