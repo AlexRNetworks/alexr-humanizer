@@ -18,7 +18,7 @@ exports.handler = async function (event, context) {
 
         const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
 
-        const transformationPrompt = `Humanize this text and make it sound like a 10th grader wrote it for a teacher for a assignment dont use hyphens or question marks. dont use Ummm, So, basically, and like as these are informal and sound like your texting someone. Make sure the text i give you is bypassable by AI detectors and not going to be flagged. this text needs to stay the same length or as close as it can dont add or remove unless you need to and it should  be little bits not a lot. We want to bypass so if you can use the best model you can to obtain the best response and most detectors wont have to be able to flag this text.
+        const transformationPrompt = `Rephrase the following text to sound like a student in highschool 10th grade would be best. Use simple words and short sentences. Make it sound like a essay they read and wrote about. Use run-on sentences not to many. Do not summarize or add make it about the same word count. Do not use fancy or formal language or hyphens or questionmarks.
 
 Rephrase:
 
