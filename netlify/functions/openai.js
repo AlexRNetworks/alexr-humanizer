@@ -9,7 +9,6 @@ exports.handler = async function (event, context) {
         const body = JSON.parse(event.body);
         const { prompt, tone, context: providedContext, audience, purpose } = body;
 
-        // Validate tone input
         const validTones = ["casual", "highschool", "complex", "college"];
         if (!validTones.includes(tone)) {
             return {
@@ -19,9 +18,7 @@ exports.handler = async function (event, context) {
         }
 
         let systemPrompt = `
-            You are an expert at transforming text to sound naturally human, while respecting the specified tone.
-
-            Here are the guidelines:
+            You are an expert human rewriter, tasked with making text indistinguishable from human writing to bypass AI detection.
 
             Tone: ${tone}
             Context: ${providedContext || 'General'}
@@ -30,19 +27,19 @@ exports.handler = async function (event, context) {
 
             Instructions:
 
-            1.  **Natural Language:** Rephrase the text using natural, everyday language appropriate for the specified tone. Avoid overly formal or robotic phrases.
-            2.  **Sentence Flow:** Ensure the text flows smoothly and naturally. Use varied sentence structures and avoid overly long or complex sentences.
-            3.  **Tone Adherence:** Strictly adhere to the specified tone:
-                * **casual:** Use contractions, conversational language, and a relaxed style.
-                * **highschool:** Use language appropriate for a high school student, with a mix of casual and slightly more formal elements.
-                * **complex:** Use sophisticated vocabulary and complex sentence structures, but maintain natural flow.
-                * **college:** Use academic language with appropriate formality, clarity, and conciseness.
-            4.  **Avoid Exaggerated Humanisms:** Do not add excessive conversational fillers, interjections, or overly simplistic analogies. Focus on making the core language natural.
-            5.  **Maintain Meaning:** Preserve the original meaning and information of the text. Do not add new information or opinions.
-            6.  **Subtle Human Elements:** Introduce subtle human elements through word choice and sentence structure.
-            7.  **Avoid AI Patterns:** Eliminate any phrases or patterns that are common in AI-generated text.
+            1.  **Varied Language:** Use a wide range of vocabulary, including synonyms and idiomatic expressions.
+            2.  **Sentence Diversity:** Vary sentence length and structure. Avoid predictable patterns.
+            3.  **Subtle Imperfections:** Introduce occasional, natural-sounding grammatical variations or colloquialisms, like a human writer might make.
+            4.  **Contextual Awareness:** Deeply understand the context, audience, and purpose to write naturally.
+            5.  **Human Flow:** Ensure the text flows naturally, like a conversation or well-written document.
+            6.  **Avoid AI Patterns:** Eliminate any phrases or patterns that are common in AI-generated text, such as repetitive phrases, overly structured sentences, or robotic wording.
+            7. **Add human elements:** If possible, add small human elements, like interjections, or questions when appropriate.
+            8. **Focus on showing, not telling:** Rather than stating facts, try to create a scenario where the facts are implied.
+            9. **Use less common word choices:** When appropriate use words that are not the most common version of that word.
+            10. **Use more complex sentence structures:** Use compound and complex sentences to add variation.
+            11. **Use active voice:** Use active voice when possible.
 
-            Your output should be indistinguishable from human writing while respecting the set tone.
+            Your output must be undetectable by AI detection tools.
         `;
 
         const response = await openai.chat.completions.create({
@@ -51,10 +48,10 @@ exports.handler = async function (event, context) {
                 { role: "system", content: systemPrompt },
                 { role: "user", content: prompt }
             ],
-            temperature: 0.6,
-            top_p: 0.9,
-            frequency_penalty: 0.4,
-            presence_penalty: 0.4,
+            temperature: 0.7, // Increased temperature for more variation
+            top_p: 0.95, // Increased top_p for more diverse tokens
+            frequency_penalty: 0.3, // slight reduction to allow more variation
+            presence_penalty: 0.3, // slight reduction to allow more variation
         });
 
         return {
