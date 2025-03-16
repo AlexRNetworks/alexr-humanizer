@@ -17,25 +17,25 @@ exports.handler = async function (event, context) {
             };
         }
 
-        let stage1Prompt = `Given the following essay, rephrase it with a ${tone} tone, focusing on varying sentence structures and paragraph organization. Maintain the original meaning and context provided: ${providedContext}. The audience is: ${audience}. The purpose of the text is: ${purpose}. Avoid adding new information. Do not change the vocabulary. Ensure the essay flows naturally. Try to use a mix of short and long sentences. Incorporate natural language idioms and phrases.\n\n${prompt}`;
+        let stage1Prompt = `Rephrase the following essay. Use simple vocabulary and short, direct sentences. Minor grammatical errors and awkward phrasing are acceptable. Use repetitive phrasing and basic explanations. Explain concepts in a straightforward, step-by-step manner. Maintain the original meaning and context: ${providedContext}. The audience is: ${audience}. The purpose of the text is: ${purpose}.\n\n${prompt}`;
 
-        let stage3Prompt = `Given the following essay, add subtle human nuances. This includes adding phrases like 'it seems,' 'perhaps,' or 'one might argue.' Introduce occasional, natural-sounding grammatical variations or colloquialisms. Also, add very minor formatting inconsistencies. Avoid making the text appear sloppy. Do not add new information. Keep the length the same. The tone is: ${tone}. The context is: ${providedContext}. The audience is: ${audience}. The purpose is: ${purpose}.\n\n`;
+        let stage3Prompt = `Add subtle human nuances to the following essay. Use simple vocabulary and short, direct sentences. Minor grammatical errors and awkward phrasing are acceptable. Use repetitive phrasing and basic explanations. Explain concepts in a straightforward, step-by-step manner. The tone is: ${tone}. The context is: ${providedContext}. The audience is: ${audience}. The purpose is: ${purpose}.\n\n`;
 
         // Stage 1: Structural and Tone Variation
         const stage1Response = await openai.chat.completions.create({
             model: "gpt-4",
             messages: [{ role: "user", content: stage1Prompt }],
-            temperature: 0.8, // Increased temperature for more variation
+            temperature: 0.8,
         });
 
         let stage1Output = stage1Response.choices[0].message.content;
 
         // Stage 2: Basic Synonym Replacement (Simplified)
         const synonyms = {
-            "important": "significant",
-            "necessary": "essential",
+            "important": "big",
+            "necessary": "needed",
             "utilize": "use",
-            "however": "though",
+            "however": "but",
         };
 
         let stage2Output = stage1Output;
@@ -50,7 +50,7 @@ exports.handler = async function (event, context) {
         const stage3Response = await openai.chat.completions.create({
             model: "gpt-4",
             messages: [{ role: "user", content: stage3Prompt }],
-            temperature: 0.7, // Slightly lower temperature for refinement
+            temperature: 0.7,
         });
 
         const finalOutput = stage3Response.choices[0].message.content;
