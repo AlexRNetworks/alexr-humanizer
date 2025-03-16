@@ -4,7 +4,6 @@ require('dotenv').config();
 
 exports.handler = async function (event, context) {
   if (event.httpMethod !== 'POST') {
-    console.log("Method not POST");
     return { statusCode: 405, body: 'Method Not Allowed' };
   }
 
@@ -12,65 +11,50 @@ exports.handler = async function (event, context) {
     apiKey: process.env.API_KEY,
   });
 
-  if (!openai.apiKey) {
-    console.error("API Key is missing!");
-    return { statusCode: 500, body: JSON.stringify({ error: 'API Key is missing!' }) };
-  }
-
   try {
-    const requestBody = event.body;
-    console.log("Request Body:", requestBody); // Log the raw body
-
-    const { text, tone, language } = JSON.parse(requestBody);
-    console.log("Parsed Data:", { text, tone, language });
+    const { text, tone, language } = JSON.parse(event.body);
 
     // Stage 1: Rephrasing
     const stage1Prompt = `Rephrase the following text to make it sound more natural and less formal:\n\n${text}`;
-    console.log("Stage 1 Prompt:", stage1Prompt);
-
     const stage1Response = await openai.chat.completions.create({
       model: 'gpt-3.5-turbo',
       messages: [{ role: 'user', content: stage1Prompt }],
     });
 
-    console.log("Stage 1 Response (Full):", JSON.stringify(stage1Response, null, 2));
-
-    try {
-      const rephrasedText = stage1Response.choices[0].message.content;
-      console.log("Rephrased Text:", rephrasedText);
-    } catch (extractError) {
-      console.error("Error extracting rephrasedText:", extractError);
-      return { statusCode: 500, body: JSON.stringify({ error: "Failed to extract rephrased text: " + extractError.message }) };
+    // Robust extraction stage 1.
+    let rephrasedText = "";
+    if (stage1Response && stage1Response.choices && stage1Response.choices.length > 0 && stage1Response.choices[0].message && stage1Response.choices[0].message.content) {
+      rephrasedText = stage1Response.choices[0].message.content;
+    } else {
+      console.error("Error: Stage 1 response structure unexpected");
+      return { statusCode: 500, body: JSON.stringify({ error: "Unexpected response from OpenAI Stage 1" }) };
     }
 
     // Stage 2: Tone and Language Adjustment
     const stage2Prompt = `Adjust the following text to match the tone "${tone}" and language "${language}":\n\n${rephrasedText}`;
-    console.log("Stage 2 Prompt:", stage2Prompt);
-
     const stage2Response = await openai.chat.completions.create({
       model: 'gpt-3.5-turbo',
       messages: [{ role: 'user', content: stage2Prompt }],
     });
 
-    console.log("Stage 2 Response (Full):", JSON.stringify(stage2Response, null, 2));
-
-    try {
-      const humanizedText = stage2Response.choices[0].message.content;
-      console.log("Humanized Text:", humanizedText);
-      return {
-        statusCode: 200,
-        body: JSON.stringify({ humanizedText }),
-      };
-    } catch (extractError) {
-      console.error("Error extracting humanizedText:", extractError);
-      return { statusCode: 500, body: JSON.stringify({ error: "Failed to extract humanized text: " + extractError.message }) };
+    // Robust extraction stage 2.
+    let humanizedText = "";
+    if (stage2Response && stage2Response.choices && stage2Response.choices.length > 0 && stage2Response.choices[0].message && stage2Response.choices[0].message.content) {
+      humanizedText = stage2Response.choices[0].message.content;
+    } else {
+      console.error("Error: Stage 2 response structure unexpected");
+      return { statusCode: 500, body: JSON.stringify({ error: "Unexpected response from OpenAI Stage 2" }) };
     }
 
+    return {
+      statusCode: 200,
+      body: JSON.stringify({ humanizedText }),
+    };
   } catch (error) {
-    console.error("Error in Netlify function:", error);
+    console.error('Error in Netlify function:', error);
     return {
       statusCode: 502,
-      body: JSON.stringify({ error: "Failed to process request: " + error.message }),
+      body: JSON.stringify({ error: 'Failed to process request' }),
     };
   }
 };
