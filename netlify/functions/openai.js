@@ -9,27 +9,22 @@ exports.handler = async function (event, context) {
         const body = JSON.parse(event.body);
         const { prompt } = body;
 
-        let stage1Prompt = `Revise the following text to sound like a student explaining a concept. Use simple vocabulary, short sentences, and repetitive phrases. Include consistent grammatical errors, especially in subject-verb agreement. Use informal language. Do not use commas or question marks. Make the text sound unpolished and imperfect with abrupt shifts in thought. Do not correct any of the errors in the original text. Do not add or remove words unless asked. Here are some examples of the desired style:
-
-        Example 1: "Recycling is a good thing for our world. The throwing away of bottles cans and paper is the enormous to make our land dirty and bad. To begin with bottles is found in almost every area of our homes. From the start of when we drink from a bottle to when we throw it away we are adding to trash."
-
-        Example 2: "Fast food is a big problem for peoples health. The eating of hamburgers fries and soda is the enormous to make kids fat and sick. To begin with hamburgers is found in almost every area of our eating."
-
-        Now revise the following text:
-
-        ${prompt}`;
+        let stage1Prompt = `Rephrase the following text. Use simple vocabulary and short sentences. Do not add or remove content.`;
 
         const stage1Response = await openai.chat.completions.create({
             model: "gpt-4",
             messages: [{ role: "user", content: stage1Prompt }],
-            temperature: 1.0,
+            temperature: 0.8,
         });
 
-        const finalOutput = stage1Response.choices[0].message.content;
+        let rephrasedText = stage1Response.choices[0].message.content;
+
+        // Deconstruction and Randomization
+        rephrasedText = randomizeText(rephrasedText);
 
         return {
             statusCode: 200,
-            body: JSON.stringify(finalOutput),
+            body: JSON.stringify(rephrasedText),
         };
     } catch (error) {
         console.error("OpenAI Error:", error);
@@ -39,3 +34,51 @@ exports.handler = async function (event, context) {
         };
     }
 };
+
+function randomizeText(text) {
+    let sentences = text.split(".");
+    sentences = sentences.filter(sentence => sentence.trim() !== ""); // Remove empty sentences
+
+    // Sentence Shuffling
+    sentences = shuffleArray(sentences);
+
+    // Word Removal and Repetition
+    sentences = sentences.map(sentence => {
+        let words = sentence.trim().split(" ");
+        words = words.filter(() => Math.random() > 0.05); // Random word removal (5% chance)
+        if (Math.random() < 0.1) {
+            let randomIndex = Math.floor(Math.random() * words.length);
+            if (words[randomIndex]) {
+                words.splice(randomIndex, 0, words[randomIndex]); // Random word repetition (10% chance)
+            }
+        }
+        return words.join(" ");
+    });
+
+    // Punctuation Randomization
+    sentences = sentences.map(sentence => {
+        if (Math.random() < 0.2) {
+            sentence += "."; // Random period addition (20% chance)
+        }
+        return sentence;
+    });
+
+    // Grammatical "Errors" (Simplified)
+    sentences = sentences.map(sentence => {
+        if (Math.random() < 0.1) {
+            // Simple subject-verb error (very basic)
+            sentence = sentence.replace(/is/g, "are").replace(/are/g, "is");
+        }
+        return sentence;
+    });
+
+    return sentences.join(". ");
+}
+
+function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+}
