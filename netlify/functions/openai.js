@@ -9,22 +9,27 @@ exports.handler = async function (event, context) {
         const body = JSON.parse(event.body);
         const { prompt } = body;
 
-        let stage1Prompt = `Rephrase the following text. Use simple vocabulary and short sentences. Do not add or remove content.`;
+        let stage1Prompt = `Pretend you are a high school student writing a quick English essay. You're trying to explain the following topic but you don't really know much about it so you're just writing down what you can remember. Use simple words and short sentences. Maybe have a run-on sentence or two. Don't go into full detail just give a general idea. Make sure there are no question marks few commas and no hyphens. Here are some examples of how to write:
+
+        Example 1: "Recycling is like when you take old stuff and make it new again its good for the earth cause it stops trash from piling up and you can use the old stuff to make new things like paper or bottles."
+
+        Example 2: "Fast food is when you get food real quick like burgers and fries its cheap and tastes good but its not very healthy if you eat it all the time it can make you fat and sick."
+
+        Now write an essay on this topic:
+
+        ${prompt}`;
 
         const stage1Response = await openai.chat.completions.create({
             model: "gpt-4",
             messages: [{ role: "user", content: stage1Prompt }],
-            temperature: 0.8,
+            temperature: 1.0,
         });
 
-        let rephrasedText = stage1Response.choices[0].message.content;
-
-        // Deconstruction and Randomization
-        rephrasedText = randomizeText(rephrasedText);
+        const finalOutput = stage1Response.choices[0].message.content;
 
         return {
             statusCode: 200,
-            body: JSON.stringify(rephrasedText),
+            body: JSON.stringify(finalOutput),
         };
     } catch (error) {
         console.error("OpenAI Error:", error);
@@ -34,51 +39,3 @@ exports.handler = async function (event, context) {
         };
     }
 };
-
-function randomizeText(text) {
-    let sentences = text.split(".");
-    sentences = sentences.filter(sentence => sentence.trim() !== ""); // Remove empty sentences
-
-    // Sentence Shuffling
-    sentences = shuffleArray(sentences);
-
-    // Word Removal and Repetition
-    sentences = sentences.map(sentence => {
-        let words = sentence.trim().split(" ");
-        words = words.filter(() => Math.random() > 0.05); // Random word removal (5% chance)
-        if (Math.random() < 0.1) {
-            let randomIndex = Math.floor(Math.random() * words.length);
-            if (words[randomIndex]) {
-                words.splice(randomIndex, 0, words[randomIndex]); // Random word repetition (10% chance)
-            }
-        }
-        return words.join(" ");
-    });
-
-    // Punctuation Randomization
-    sentences = sentences.map(sentence => {
-        if (Math.random() < 0.2) {
-            sentence += "."; // Random period addition (20% chance)
-        }
-        return sentence;
-    });
-
-    // Grammatical "Errors" (Simplified)
-    sentences = sentences.map(sentence => {
-        if (Math.random() < 0.1) {
-            // Simple subject-verb error (very basic)
-            sentence = sentence.replace(/is/g, "are").replace(/are/g, "is");
-        }
-        return sentence;
-    });
-
-    return sentences.join(". ");
-}
-
-function shuffleArray(array) {
-    for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
-    }
-    return array;
-}
