@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "A complex ai humanizer free to your use!",
   "dependencies": {
-    "openai": "^4.0.0"
+    "openai": "^4.0.0",
+    "dotenv": "^16.0.0" 
   }
 }
