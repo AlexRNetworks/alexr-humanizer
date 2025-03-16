@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
         outputText.innerHTML = '<p class="quantum-text">Quantum Humanizing...</p>';
 
         try {
-            const response = await fetch('/.netlify/functions/openai', {
+            const response = await fetch('/.netlify/functions/gemini_v2', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
