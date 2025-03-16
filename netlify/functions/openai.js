@@ -7,9 +7,9 @@ exports.handler = async function (event, context) {
 
     try {
         const body = JSON.parse(event.body);
-        const { prompt, context: providedContext, audience, purpose } = body;
+        const { prompt } = body;
 
-        let stage1Prompt = `Revise the following text to sound like a student explaining a concept. Use simple vocabulary, short sentences, and repetitive phrases. Include minor grammatical errors and awkward phrasing. Do not add or remove content. Here are some examples of the desired style:
+        let stage1Prompt = `Revise the following text to sound like a student explaining a concept. Use simple vocabulary, short sentences, and repetitive phrases. Include minor grammatical errors and awkward phrasing. Do not add or remove content. Make the text sound unpolished and imperfect. Here are some examples of the desired style:
 
         Example 1: "Recycling is a good thing for our world. The throwing away of bottles, cans and paper is the enormous to make our land dirty and bad. To begin with, bottles is found in almost every area of our homes. From the start of when we drink from a bottle to when we throw it away we are adding to trash."
 
@@ -22,7 +22,7 @@ exports.handler = async function (event, context) {
         const stage1Response = await openai.chat.completions.create({
             model: "gpt-4",
             messages: [{ role: "user", content: stage1Prompt }],
-            temperature: 0.9, // Increased temperature for more variation
+            temperature: 2.0,
         });
 
         const finalOutput = stage1Response.choices[0].message.content;
