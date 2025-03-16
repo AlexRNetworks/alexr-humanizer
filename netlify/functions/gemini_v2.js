@@ -25,19 +25,22 @@ exports.handler = async function (event, context) {
             return match;
         });
         text = text.replace(/([.?!])\s+(?=[A-Z])/g, '$1\n');
+        console.log("Stage 1:", text);
 
         // Stage 2: Structural Degradation and Grammatical Flaws
         text = text.replace(/[,?]/g, '');
         text = text.replace(/([.?!])\s+(?=[A-Z])/g, '$1 ');
         text = text.replace(/and|but/gi, '');
-        text = text.replace(/(is|are)\b/gi, (match) => match === 'is' ? 'are' : 'is'); // Swap is/are (more aggressive)
-        text = text.replace(/(he|she|it)\b/gi, (match) => match === 'he' ? 'they' : match === 'she' ? 'it' : 'he'); // Swap pronouns
-        text = text.replace(/([A-Z][a-z]+)\s+([A-Z][a-z]+)\b/g, '$2 $1'); //swap words
-        text = text.replace(/(\b\w+\b)\s+\1/g, '$1'); //remove direct word duplicates.
+        text = text.replace(/(is|are)\b/gi, (match) => match === 'is' ? 'are' : 'is');
+        text = text.replace(/(he|she|it)\b/gi, (match) => match === 'he' ? 'they' : match === 'she' ? 'it' : 'he');
+        text = text.replace(/([A-Z][a-z]+)\s+([A-Z][a-z]+)\b/g, '$2 $1');
+        text = text.replace(/(\b\w+\b)\s+\1/g, '$1');
+        console.log("Stage 2:", text);
 
         // Stage 3: Output Unorganization
         text = text.replace(/\n+/g, ' ');
-        text = text + " " + text.split(" ")[0] + " " + text.split(" ")[1]; //add redundant words.
+        text = text + " " + text.split(" ")[0] + " " + text.split(" ")[1];
+        console.log("Stage 3:", text);
 
         const requestBody = JSON.stringify({
             contents: [{ parts: [{ text: text }] }],
