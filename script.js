@@ -1,19 +1,19 @@
+// script.js
 document.addEventListener('DOMContentLoaded', () => {
     const inputText = document.getElementById('inputText');
     const humanizeButton = document.getElementById('humanizeButton');
     const outputText = document.getElementById('outputText');
-    const toneSelector = document.getElementById('toneSelector'); // Keep the tone selector
+    // NO toneSelector needed anymore
 
     humanizeButton.addEventListener('click', async () => {
         const text = inputText.value;
-        const tone = toneSelector.value; // Get the selected tone
+        // NO tone variable needed
 
         if (!text) {
             alert('Please enter some text.');
             return;
         }
 
-        // Use a text/placeholder instead of innerHTML for initial message
         outputText.textContent = 'Quantum Humanizing...';
 
         try {
@@ -22,25 +22,23 @@ document.addEventListener('DOMContentLoaded', () => {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                // Include the 'tone' in the request body, along with 'prompt'
-                body: JSON.stringify({ prompt: text, tone: tone }),
+                // Send ONLY the prompt.  No 'tone' property.
+                body: JSON.stringify({ prompt: text }),
             });
 
             if (!response.ok) {
-                // Get more detailed error from the response body
                 const errorData = await response.json();
                 throw new Error(`HTTP error! status: ${response.status}, message: ${errorData.error}`);
             }
 
             const data = await response.json();
-            const humanizedText = data.generatedText; // Access the 'generatedText' property
+            const humanizedText = data.generatedText;
 
-            // Use textContent for initial setting, then build up with innerHTML for animation
             outputText.textContent = ''; // Clear the "Processing..." message
             let charIndex = 0;
             const interval = setInterval(() => {
                 if (charIndex < humanizedText.length) {
-                    outputText.innerHTML += humanizedText.charAt(charIndex);
+                    outputText.value += humanizedText.charAt(charIndex); // Use .value for textarea
                     charIndex++;
                 } else {
                     clearInterval(interval);
@@ -49,7 +47,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         } catch (error) {
             console.error('Error:', error);
-            // Use textContent for error message
             outputText.textContent = `Error: ${error.message || 'An error occurred.'}`;
         }
     });
@@ -75,9 +72,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const style = document.createElement('style');
     style.innerHTML = `
     @keyframes particleFade {
-      0% { opacity: 0; transform: translateY(-20px); }
-      50% { opacity: 1; }
-      100% { opacity: 0; transform: translateY(20px); }
+        0% { opacity: 0; transform: translateY(-20px); }
+        50% { opacity: 1; }
+        100% { opacity: 0; transform: translateY(20px); }
     }`;
     document.head.appendChild(style);
 });
