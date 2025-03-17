@@ -40,7 +40,7 @@ exports.handler = async (event, context) => {
         }
 
         // --- 3. Gemini API Interaction ---
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`; // CORRECTED URL using gemini-pro
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`; // Using gemini-2.0-flash
         const transformationPrompt = `Rephrase the following text to sound like a ${tone} would be best. Use simple words and short sentences. Make it sound like a essay they read and wrote about. Use run-on sentences, not too many. Do not summarize or add; make it about the same word count. Do not use fancy or formal language, hyphens, or question marks.
 
 Rephrase:
@@ -87,21 +87,21 @@ ${inputText}`;
             };
         }
 
-        if (!jsonResponse || !jsonResponse.candidates || !jsonResponse.candidates[0] || !jsonResponse.candidates[0].content || !jsonResponse.candidates[0].content.parts || !jsonResponse.candidates[0].content.parts[0] || !jsonResponse.candidates[0].content.parts[0].text) {
+         if (jsonResponse && jsonResponse.candidates && jsonResponse.candidates.length > 0 && jsonResponse.candidates[0].content && jsonResponse.candidates[0].content.parts && jsonResponse.candidates[0].content.parts.length > 0)
+        {
+            const generatedText = jsonResponse.candidates[0].content.parts[0].text;
+            return {
+            statusCode: 200,
+            body: JSON.stringify({ generatedText }), // Correct return value
+        };
+        }
+        else{
             console.error("Unexpected Gemini API response structure:", jsonResponse);
             return {
                 statusCode: 500,
                 body: JSON.stringify({ error: "Unexpected Gemini API response structure. See server logs." }),
             };
         }
-
-        const generatedText = jsonResponse.candidates[0].content.parts[0].text;
-
-        // --- 5. Return Result ---
-        return {
-            statusCode: 200,
-            body: JSON.stringify({ generatedText }),
-        };
 
     } catch (error) {
         // --- 6. General Error Handling ---
