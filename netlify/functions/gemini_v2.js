@@ -28,23 +28,9 @@ exports.handler = async (event, context) => {
 
         const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`; //Use gemini-1.5-flash
 
-        const transformationPrompt = `Rephrase the following text to sound like a high school student's essay, written without careful editing.  The student understands the basic concepts but makes grammatical errors and has an unpolished writing style.
+        const transformationPrompt = `Rephrase the following text to sound like a 10th-grade student's essay. Use simple, everyday words, but avoid slang.  Keep sentences relatively short, but include a few run-on sentences. Do not use question marks. Omit some commas where they would normally be required, but don't remove all of them. Do not add or remove any information. Do not summarize.
 
-Specifically, incorporate these characteristics:
-
-*   Missing Commas: Omit commas where they would normally be required.
-*   Incorrect Verb Tense/Agreement:  Use incorrect verb tenses (e.g., present instead of past) or incorrect subject-verb agreement (e.g., "they was").
-*   Run-on Sentences: Combine sentences without proper punctuation or conjunctions.
-*   Sentence Fragments: Use incomplete sentences.
-*   Awkward Phrasing: Use wording that is grammatically incorrect or stylistically unusual.
-*   Unusual Word Order:  Invert the typical order of words within phrases or sentences.
-*   Subtle Repetition: Repeat ideas or phrases using slightly different wording, but avoid directly repeating the same words in close proximity.
-*   Simple Vocabulary: Use basic, everyday words. Avoid complex or technical terms.
-*    Short sentences: Use short sentences.
-
-Do NOT add any extra information. Do NOT summarize.  Maintain the original meaning and approximate length.
-
-Rephrase the following text:
+Rephrase:
 
 ${inputText}`;
 
