@@ -1,73 +1,115 @@
-const fetch = require('node-fetch');
-require('dotenv').config();
+import fetch from 'node-fetch';
 
-exports.handler = async function (event, context) {
-    if (event.httpMethod !== 'POST') {
-        return { statusCode: 405, body: 'Method Not Allowed' };
-    }
-
+exports.handler = async (event, context) => {
     try {
-        const body = JSON.parse(event.body);
-        const { prompt } = body;
-
+        // --- 1. API Key and Configuration ---
         const apiKey = process.env.API_KEY;
+        const projectId = process.env.GCP_PROJECT_ID;
+        const location = process.env.GCP_LOCATION;
 
-        if (!apiKey) {
-            return { statusCode: 500, body: JSON.stringify({ error: 'API key not found' }) };
+        if (!apiKey || !projectId || !location) {
+            console.error("Missing API Key, Project ID, or Location. Check Netlify environment variables.");
+            return {
+                statusCode: 500,
+                body: JSON.stringify({ error: "Server configuration error.  Missing API Key, Project ID, or Location." }),
+            };
         }
 
-        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+        // --- 2. Request Validation ---
+        if (event.httpMethod !== "POST") {
+            return { statusCode: 405, body: "Method Not Allowed" };
+        }
 
-        const transformationPrompt = `Rephrase the following text to sound like a student in highschool 10th grade would be best. Use simple words and short sentences. Make it sound like a essay they read and wrote about. Use run-on sentences not to many. Do not summarize or add make it about the same word count. Do not use fancy or formal language or hyphens or questionmarks.
+        let inputText;
+        try {
+            const requestBody = JSON.parse(event.body);
+            inputText = requestBody.prompt; // Use 'prompt'
+        } catch (parseError) {
+            console.error("Error parsing request body:", parseError);
+            return {
+                statusCode: 400,
+                body: JSON.stringify({ error: "Invalid request body.  Must be valid JSON with a 'prompt' field." }),
+            };
+        }
+
+        if (!inputText) {
+            return {
+                statusCode: 400,
+                body: JSON.stringify({ error: "Missing 'prompt' in request body." }),
+            };
+        }
+
+        // --- 3. Gemini API Interaction ---
+        const url = `https://us-central1-aiplatform.googleapis.com/v1/projects/${projectId}/locations/${location}/publishers/google/models/gemini-1.0-pro:streamGenerateContent?alt=sse`;
+        const transformationPrompt = `Rephrase the following text to sound like a student in highschool 10th grade would be best. Use simple words and short sentences. Make it sound like a essay they read and wrote about. Use run-on sentences, not too many. Do not summarize or add; make it about the same word count. Do not use fancy or formal language, hyphens, or question marks.
 
 Rephrase:
 
-${prompt}`;
+${inputText}`;
 
-        const requestBody = JSON.stringify({
-            contents: [{ parts: [{ text: transformationPrompt }] }],
-        });
-
-        const response = await fetch(apiUrl, {
+        const requestOptions = {
             method: 'POST',
             headers: {
+                'Authorization': `Bearer ${apiKey}`,
                 'Content-Type': 'application/json',
             },
-            body: requestBody,
-        });
+            body: JSON.stringify({
+                contents: [{
+                    role: 'user',
+                    parts: [{ text: transformationPrompt }],
+                }],
+            }),
+        };
+
+        const response = await fetch(url, requestOptions);
+
+        // --- 4. API Response Handling ---
+        console.log("Raw API Response Status:", response.status);
+        const rawResponseText = await response.text();
+        console.log("Raw API Response:", rawResponseText);
 
         if (!response.ok) {
-            console.error("Gemini API Error:", response.status, response.statusText);
-            return { statusCode: response.status, body: JSON.stringify({ error: `Gemini API Error: ${response.status} ${response.statusText}` }) };
-        }
-
-        const responseTextRaw = await response.text();
-        console.log("Raw API Response:", responseTextRaw);
-
-        try {
-            const data = JSON.parse(responseTextRaw);
-            let responseText = "";
-
-            if (data && data.candidates && data.candidates.length > 0 && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts.length > 0 && data.candidates[0].content.parts[0].text) {
-                responseText = data.candidates[0].content.parts[0].text;
-            } else {
-                console.error("Unexpected Gemini API response structure:", data);
-                return { statusCode: 500, body: JSON.stringify({ error: "Unexpected Gemini API response structure" }) };
-            }
-
+            console.error("Gemini API Error:", rawResponseText);
             return {
-                statusCode: 200,
-                body: JSON.stringify(responseText),
+                statusCode: response.status,
+                body: JSON.stringify({ error: "Gemini API Error: " + rawResponseText }),
             };
-        } catch (jsonError) {
-            console.error("JSON Parse Error:", jsonError);
-            return { statusCode: 500, body: JSON.stringify({ error: "Failed to parse JSON response: " + jsonError.message }) };
         }
-    } catch (error) {
-        console.error("Error in Netlify function:", error);
+
+        let jsonResponse;
+        try {
+            jsonResponse = JSON.parse(rawResponseText.trim().split('\n').filter(line => line.startsWith('data:')).map(line=>line.substring(5)).join(''));
+        } catch (jsonError) {
+            console.error("Error parsing Gemini API response as JSON:", jsonError);
+            console.error("Raw response that caused the error:", rawResponseText);
+            return {
+                statusCode: 500,
+                body: JSON.stringify({ error: "Error parsing Gemini API response. See server logs for details." }),
+            };
+        }
+
+        if (!jsonResponse || !jsonResponse.candidates || !jsonResponse.candidates[0] || !jsonResponse.candidates[0].content || !jsonResponse.candidates[0].content.parts || !jsonResponse.candidates[0].content.parts[0] || !jsonResponse.candidates[0].content.parts[0].text) {
+            console.error("Unexpected Gemini API response structure:", jsonResponse);
+            return {
+                statusCode: 500,
+                body: JSON.stringify({ error: "Unexpected Gemini API response structure. See server logs." }),
+            };
+        }
+
+        const generatedText = jsonResponse.candidates[0].content.parts[0].text;
+
+        // --- 5. Return Result ---
         return {
-            statusCode: 502,
-            body: JSON.stringify({ error: "Failed to process request: " + error.message }),
+            statusCode: 200,
+            body: JSON.stringify({ generatedText }),
+        };
+
+    } catch (error) {
+        // --- 6. General Error Handling ---
+        console.error("General Error:", error);
+        return {
+            statusCode: 500,
+            body: JSON.stringify({ error: "An unexpected error occurred: " + error.message }),
         };
     }
 };
