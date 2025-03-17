@@ -2,18 +2,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const inputText = document.getElementById('inputText');
     const humanizeButton = document.getElementById('humanizeButton');
     const outputText = document.getElementById('outputText');
-    const toneSelector = document.getElementById('toneSelector');
+    const toneSelector = document.getElementById('toneSelector'); // Keep the tone selector
 
     humanizeButton.addEventListener('click', async () => {
         const text = inputText.value;
-        const tone = toneSelector.value;
+        const tone = toneSelector.value; // Get the selected tone
 
         if (!text) {
             alert('Please enter some text.');
             return;
         }
 
-        outputText.innerHTML = '<p class="quantum-text">Quantum Humanizing...</p>';
+        // Use a text/placeholder instead of innerHTML for initial message
+        outputText.textContent = 'Quantum Humanizing...';
 
         try {
             const response = await fetch('/.netlify/functions/gemini_v2', {
@@ -21,17 +22,21 @@ document.addEventListener('DOMContentLoaded', () => {
                 headers: {
                     'Content-Type': 'application/json',
                 },
+                // Include the 'tone' in the request body, along with 'prompt'
                 body: JSON.stringify({ prompt: text, tone: tone }),
             });
 
             if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+                // Get more detailed error from the response body
+                const errorData = await response.json();
+                throw new Error(`HTTP error! status: ${response.status}, message: ${errorData.error}`);
             }
 
             const data = await response.json();
-            const humanizedText = data;
+            const humanizedText = data.generatedText; // Access the 'generatedText' property
 
-            outputText.innerHTML = '';
+            // Use textContent for initial setting, then build up with innerHTML for animation
+            outputText.textContent = ''; // Clear the "Processing..." message
             let charIndex = 0;
             const interval = setInterval(() => {
                 if (charIndex < humanizedText.length) {
@@ -44,11 +49,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
         } catch (error) {
             console.error('Error:', error);
-            outputText.innerHTML = `<p class="quantum-text">Error: ${error.message || 'An error occurred.'}</p>`;
+            // Use textContent for error message
+            outputText.textContent = `Error: ${error.message || 'An error occurred.'}`;
         }
     });
 
-    // Particle effect
+    // Particle effect (Keep this as is - it's separate from the API call)
     const particles = document.querySelector('.quantum-particles');
     const particleCount = 50;
 
@@ -65,13 +71,13 @@ document.addEventListener('DOMContentLoaded', () => {
         particles.appendChild(particle);
     }
 
-    // Particle fade animation
+    // Particle fade animation (Keep this as is)
     const style = document.createElement('style');
     style.innerHTML = `
-@keyframes particleFade {
-    0% { opacity: 0; transform: translateY(-20px); }
-    50% { opacity: 1; }
-    100% { opacity: 0; transform: translateY(20px); }
-}`;
+    @keyframes particleFade {
+      0% { opacity: 0; transform: translateY(-20px); }
+      50% { opacity: 1; }
+      100% { opacity: 0; transform: translateY(20px); }
+    }`;
     document.head.appendChild(style);
 });
