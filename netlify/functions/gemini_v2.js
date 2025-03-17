@@ -14,11 +14,9 @@ exports.handler = async (event, context) => {
         }
 
         let inputText;
-        let tone; // Keep the tone, but we'll use it more subtly.
         try {
             const requestBody = JSON.parse(event.body);
             inputText = requestBody.prompt;
-            tone = requestBody.tone;
         } catch (parseError) {
             console.error("Error parsing request body:", parseError);
             return { statusCode: 400, body: JSON.stringify({ error: "Invalid request body." }) };
@@ -30,10 +28,23 @@ exports.handler = async (event, context) => {
 
         const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`; //Use gemini-1.5-flash
 
-        // --- REVISED PROMPT ---
-        const transformationPrompt = `Rewrite the following text as a formal, academic essay suitable for submission to a high school teacher. Maintain the original meaning and approximate word count.  Focus on clarity, coherence, and proper grammar.  Avoid conversational language, slang, and contractions.  Use precise vocabulary appropriate for a 10th-grade level.
+        const transformationPrompt = `Rephrase the following text to sound like a high school student's essay, written without careful editing.  The student understands the basic concepts but makes grammatical errors and has an unpolished writing style.
 
-Original Text:
+Specifically, incorporate these characteristics:
+
+*   Missing Commas: Omit commas where they would normally be required.
+*   Incorrect Verb Tense/Agreement:  Use incorrect verb tenses (e.g., present instead of past) or incorrect subject-verb agreement (e.g., "they was").
+*   Run-on Sentences: Combine sentences without proper punctuation or conjunctions.
+*   Sentence Fragments: Use incomplete sentences.
+*   Awkward Phrasing: Use wording that is grammatically incorrect or stylistically unusual.
+*   Unusual Word Order:  Invert the typical order of words within phrases or sentences.
+*   Subtle Repetition: Repeat ideas or phrases using slightly different wording, but avoid directly repeating the same words in close proximity.
+*   Simple Vocabulary: Use basic, everyday words. Avoid complex or technical terms.
+*    Short sentences: Use short sentences.
+
+Do NOT add any extra information. Do NOT summarize.  Maintain the original meaning and approximate length.
+
+Rephrase the following text:
 
 ${inputText}`;
 
@@ -63,15 +74,14 @@ ${inputText}`;
             console.error("Error parsing JSON:", jsonError, "Raw:", rawResponseText);
             return { statusCode: 500, body: JSON.stringify({ error: "Error parsing Gemini API response." }) };
         }
-        if (jsonResponse && jsonResponse.candidates && jsonResponse.candidates.length > 0 && jsonResponse.candidates[0].content && jsonResponse.candidates[0].content.parts && jsonResponse.candidates[0].content.parts.length > 0)
-        {
+
+        if (jsonResponse && jsonResponse.candidates && jsonResponse.candidates.length > 0 && jsonResponse.candidates[0].content && jsonResponse.candidates[0].content.parts && jsonResponse.candidates[0].content.parts.length > 0) {
             const generatedText = jsonResponse.candidates[0].content.parts[0].text;
             return {
-            statusCode: 200,
-            body: JSON.stringify({ generatedText }), // Correct return value
-        };
-        }
-        else{
+                statusCode: 200,
+                body: JSON.stringify({ generatedText }),
+            };
+        } else {
             console.error("Unexpected Gemini API response structure:", jsonResponse);
             return {
                 statusCode: 500,
