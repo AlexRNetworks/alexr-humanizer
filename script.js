@@ -48,31 +48,90 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Animated Starfield (moved here)
+    // Animated Starfield
     function createStars(numStars) {
         const starsContainer = document.createElement('div');
         starsContainer.className = 'stars';
-        document.querySelector('.quantum-background').appendChild(starsContainer);
+        const quantumBackground = document.querySelector('.quantum-background');
+        if (quantumBackground) { // Ensure quantum-background exists
+            quantumBackground.appendChild(starsContainer);
 
-        for (let i = 0; i < numStars; i++) {
-            const star = document.createElement('div');
-            star.className = 'star';
+            for (let i = 0; i < numStars; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
 
-            const size = Math.random() * 3 + 1;
-            star.style.width = `${size}px`;
-            star.style.height = `${size}px`;
+                const size = Math.random() * 3 + 1;
+                star.style.width = `${size}px`;
+                star.style.height = `${size}px`;
 
-            const x = Math.random() * 100;
-            const y = Math.random() * 100;
-            star.style.left = `${x}%`;
-            star.style.top = `${y}%`;
+                const x = Math.random() * 100;
+                const y = Math.random() * 100;
+                star.style.left = `${x}%`;
+                star.style.top = `${y}%`;
 
-            star.style.animationDelay = `${Math.random() * 2}s`;
+                star.style.animationDelay = `${Math.random() * 2}s`;
 
-            starsContainer.appendChild(star);
+                starsContainer.appendChild(star);
+            }
         }
     }
 
     createStars(200);
 
+    // --- Tab Cloaking Script ---
+    const favicon = document.getElementById('favicon');
+    const cloakSelector = document.getElementById('cloakSelector');
+
+    const originalTitle = document.title;
+    // Make sure 'alexr-favicon.png' is your actual original favicon file name, or update it.
+    const originalFavicon = favicon ? favicon.href : 'alexr-favicon.png';
+
+    const cloakData = {
+        "none": {
+            title: originalTitle,
+            favicon: originalFavicon // Uses the original favicon defined above
+        },
+        "delta-math": {
+            title: "DeltaMath",
+            favicon: "DeltaMath.png" // Updated to local file
+        },
+        "google": {
+            title: "Google",
+            favicon: "Google.png" // Updated to local file
+        },
+        "gmail": {
+            title: "Gmail",
+            favicon: "gmail.png" // Updated to local file
+        },
+        "calculator": {
+            title: "Calculator",
+            favicon: "Google.png" // Updated to use Google.png as requested
+        }
+    };
+
+    function setCloak(cloakKey) {
+        const cloak = cloakData[cloakKey] || cloakData["none"];
+        document.title = cloak.title;
+        if (favicon) {
+            favicon.href = cloak.favicon;
+        }
+    }
+
+    window.addEventListener('blur', () => {
+        if (cloakSelector) {
+            const selectedCloak = cloakSelector.value;
+            if (selectedCloak !== "none") {
+                setCloak(selectedCloak);
+            }
+        }
+    });
+
+    window.addEventListener('focus', () => {
+        // Always revert to original when tab is focused
+        document.title = originalTitle;
+        if (favicon) {
+            favicon.href = originalFavicon;
+        }
+    });
+    // --- End of Tab Cloaking Script ---
 });
