@@ -1,26 +1,154 @@
 /* style.css */
+:root {
+    /* Default Theme: Starfield (Dark Space) */
+    --body-bg-gradient: linear-gradient(to bottom, #1a1a1a, #282828);
+    --stars-display: block; /* For starfield effect */
+    --text-color: #e0e0e0;
+    --text-color-subtle: #ccc;
+    --link-color: #88ccee;
+    --link-hover-color: #aaddff;
+    --container-bg: rgba(10, 10, 20, 0.85); /* Slightly more translucent */
+    --header-text-color: #ffffff;
+    --input-bg: #2a2a3a;
+    --input-text-color: #e0e0e0;
+    --input-border-color: #4f4f6a;
+    --input-focus-border-color: #777799;
+    --input-focus-shadow: rgba(100, 100, 150, 0.5);
+    --button-bg: #4a4a6a;
+    --button-text-color: #ffffff;
+    --button-hover-bg: #5a5a7a;
+    --button-active-bg: #3a3a5a;
+    --quantum-select-bg: var(--input-bg);
+    --quantum-select-text: var(--input-text-color);
+    --quantum-select-border: var(--input-border-color);
+    --quantum-select-arrow-fill: "%23ccc"; /* Default arrow color */
+    --logo-filter: none; /* No filter for dark logo on dark theme */
+}
+
+/* --- Theme Definitions --- */
+
+/* Starfield (Default - values already in :root, class for explicit selection) */
+.theme-starfield {
+    /* Uses :root defaults, but can be explicit if needed */
+    --body-bg-gradient: linear-gradient(to bottom, #1a1a1a, #282828);
+    --stars-display: block;
+    --text-color: #e0e0e0;
+    --container-bg: rgba(10, 10, 20, 0.85);
+    /* ... other starfield specific vars if they differ slightly from initial root ... */
+}
+
+.theme-lunar-light {
+    --body-bg-gradient: linear-gradient(to bottom, #e8eaef, #dcdfe5);
+    --stars-display: none;
+    --text-color: #202124; /* Dark gray for text */
+    --text-color-subtle: #5f6368;
+    --link-color: #1a73e8;
+    --link-hover-color: #174ea6;
+    --container-bg: rgba(255, 255, 255, 0.9);
+    --header-text-color: #131313;
+    --input-bg: #f1f3f4;
+    --input-text-color: #202124;
+    --input-border-color: #dadce0;
+    --input-focus-border-color: #1a73e8;
+    --input-focus-shadow: rgba(26, 115, 232, 0.3);
+    --button-bg: #1a73e8;
+    --button-text-color: #ffffff;
+    --button-hover-bg: #287ae6;
+    --button-active-bg: #174ea6;
+    --quantum-select-arrow-fill: "%23202124"; /* Dark arrow */
+    --logo-filter: brightness(0.1) saturate(0%); /* Example: make dark logo visible */
+}
+
+.theme-cyber-matrix {
+    --body-bg-gradient: linear-gradient(to bottom, #0d0d0d, #050505);
+    --stars-display: none; /* Or a custom green rain effect if you add it */
+    --text-color: #00ff41; /* Bright Green */
+    --text-color-subtle: #00dd30;
+    --link-color: #00ffcc;
+    --link-hover-color: #2bffdd;
+    --container-bg: rgba(0, 10, 0, 0.75);
+    --header-text-color: #00ff41;
+    --input-bg: #000000;
+    --input-text-color: #00ff41;
+    --input-border-color: #005000;
+    --input-focus-border-color: #00ff41;
+    --input-focus-shadow: rgba(0, 255, 65, 0.4);
+    --button-bg: #005000;
+    --button-text-color: #00ff41;
+    --button-hover-bg: #007000;
+    --button-active-bg: #003000;
+    --quantum-select-arrow-fill: "%2300ff41"; /* Green arrow */
+    --logo-filter: grayscale(1) brightness(1.5) sepia(1) hue-rotate(80deg) saturate(5); /* Greenify logo */
+}
+
+.theme-solar-flare {
+    --body-bg-gradient: linear-gradient(to bottom, #2c1e16, #1b120d); /* Dark brown/maroon */
+    --stars-display: none; /* Or a subtle ember particle effect */
+    --text-color: #ffcc66; /* Light orange/yellow */
+    --text-color-subtle: #ffb347;
+    --link-color: #ff8c00; /* Dark Orange */
+    --link-hover-color: #ffa500; /* Orange */
+    --container-bg: rgba(40, 20, 10, 0.8);
+    --header-text-color: #ffcc66;
+    --input-bg: #4d2a17;
+    --input-text-color: #ffcc66;
+    --input-border-color: #8b4513; /* SaddleBrown */
+    --input-focus-border-color: #ff8c00;
+    --input-focus-shadow: rgba(255, 140, 0, 0.4);
+    --button-bg: #d2691e; /* Chocolate */
+    --button-text-color: #ffffff;
+    --button-hover-bg: #e67e22;
+    --button-active-bg: #b85c1a;
+    --quantum-select-arrow-fill: "%23ffcc66"; /* Light orange arrow */
+}
+
+.theme-deep-ocean {
+    --body-bg-gradient: linear-gradient(to bottom, #001f3f, #003366); /* Deep Navy to Dark Blue */
+    --stars-display: none; /* Or subtle bubble/light ray effect */
+    --text-color: #add8e6; /* Light Blue */
+    --text-color-subtle: #87ceeb; /* Sky Blue */
+    --link-color: #1e90ff; /* DodgerBlue */
+    --link-hover-color: #4682b4; /* SteelBlue */
+    --container-bg: rgba(0, 40, 70, 0.85);
+    --header-text-color: #ffffff;
+    --input-bg: #003355;
+    --input-text-color: #add8e6;
+    --input-border-color: #005083;
+    --input-focus-border-color: #1e90ff;
+    --input-focus-shadow: rgba(30, 144, 255, 0.4);
+    --button-bg: #0070c0; /* Stronger Blue */
+    --button-text-color: #ffffff;
+    --button-hover-bg: #0088e0;
+    --button-active-bg: #005a9e;
+    --quantum-select-arrow-fill: "%23add8e6"; /* Light blue arrow */
+}
+
+/* --- Base Styles using CSS Variables --- */
 body {
     font-family: 'Montserrat', sans-serif;
     margin: 0;
     padding: 0;
-    background-color: #1a1a1a;
-    color: #ccc;
-    display: flex;
+    color: var(--text-color);
+    /* Background applied to #page-background directly via JS or inline for themes */
+    display: flex; /* Keep for themes.html, index.html body is simpler */
     flex-direction: column;
     min-height: 100vh;
+    transition: background-color 0.5s ease, color 0.5s ease; /* Smooth theme transition */
 }
 
-.quantum-background {
+#page-background { /* Element that holds the main page gradient/image */
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: linear-gradient(to bottom, #1a1a1a, #282828);
+    background: var(--body-bg-gradient);
     z-index: -2;
+    transition: background 0.5s ease;
 }
 
-.stars {
+#page-background .stars {
+    display: var(--stars-display); /* Controlled by theme */
     position: absolute;
     width: 100%;
     height: 100%;
@@ -28,7 +156,7 @@ body {
     pointer-events: none;
 }
 
-.star {
+.star { /* Assuming star is always white, or make --star-color var */
     position: absolute;
     background: white;
     border-radius: 50%;
@@ -36,106 +164,89 @@ body {
 }
 
 @keyframes twinkle {
-    0%, 100% {
-        opacity: 0.5;
-    }
-    50% {
-        opacity: 1;
-    }
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 1; }
 }
 
 .container {
     width: 100%;
-    /* Adjusted top padding to make space for potentially fixed/absolute header elements if they were inside */
-    /* For elements outside like top-bar and top-navigation, body/viewport relative positioning is fine */
-    padding: 80px 60px 60px 60px; /* Increased top padding to avoid overlap with header elements */
-    box-sizing: border-box; /* Ensures padding doesn't add to width/height causing issues */
+    padding: 80px 60px 60px 60px;
+    box-sizing: border-box;
     text-align: center;
     display: flex;
     flex-direction: column;
-    justify-content: flex-start; /* Aligns header to top, main content follows */
+    justify-content: flex-start;
     align-items: center;
     z-index: 1;
     overflow-y: auto;
-    min-height: 100vh; /* Ensures container tries to fill height */
+    min-height: 100vh;
+    background-color: var(--container-bg);
+    border-radius: 0; /* Or add var(--container-border-radius) */
+    box-shadow: none; /* Or add var(--container-box-shadow) */
+    transition: background-color 0.5s ease;
 }
 
-
-.container:hover {
-    transform: none;
-    box-shadow: none;
-}
-
-.quantum-text {
-    color: #e0e0e0;
+.quantum-text { /* General text elements */
+    color: var(--text-color);
     text-shadow: none;
     animation: none;
 }
 
-.top-bar { /* Logo container */
+.top-bar {
     position: absolute;
-    top: 20px; /* Adjusted for a bit more space from top */
-    left: 25px; /* Adjusted for a bit more space from left */
-    z-index: 10; /* Ensure it's above other content */
-}
-
-.logo-container {
-    position: static;
+    top: 20px;
+    left: 25px;
+    z-index: 10;
 }
 
 .logo {
-    max-height: 80px; /* Slightly reduced size, adjust as you like */
+    max-height: 80px;
+    filter: var(--logo-filter); /* Apply theme-specific logo filter */
+    transition: filter 0.5s ease;
 }
 
-/* --- Top Right Navigation Styles - Added --- */
 .top-navigation {
     position: absolute;
-    top: 20px; /* Align with top-bar's top padding */
-    right: 25px; /* Consistent padding from the edge */
+    top: 20px;
+    right: 25px;
     z-index: 10;
     display: flex;
-    align-items: center; /* Vertically align items if their heights differ */
+    align-items: center;
 }
 
 .nav-link {
-    color: #88ccee; /* Brighter link color */
+    color: var(--link-color);
     text-decoration: none;
-    font-size: 1em; /* Adjust as needed */
-    font-weight: 500; /* Slightly bolder */
-    margin-left: 20px; /* Space between navigation links */
-    padding: 8px 12px; /* Add some padding for a button-like feel */
+    font-size: 1em;
+    font-weight: 500;
+    margin-left: 20px;
+    padding: 8px 12px;
     border-radius: 4px;
     transition: background-color 0.3s ease, color 0.3s ease;
 }
-
-.nav-link:first-child {
-    margin-left: 0; /* No margin for the first link */
-}
-
+.nav-link:first-child { margin-left: 0; }
 .nav-link:hover {
-    color: #fff;
-    background-color: rgba(255, 255, 255, 0.1); /* Subtle hover effect */
-    text-decoration: none; /* Remove underline on hover if background changes */
+    color: var(--link-hover-color);
+    background-color: rgba(255, 255, 255, 0.1); /* This might need a variable too */
+    text-decoration: none;
 }
-/* --- End of Top Right Navigation Styles --- */
 
 header {
     width: 80%;
     margin-bottom: 30px;
     text-align: center;
-    margin-top: 0; /* Was previously implicitly spaced by container padding, ensure it's fine */
 }
-
 header h1 {
     margin-bottom: 10px;
     font-size: 2.5em;
     font-weight: 500;
+    color: var(--header-text-color, var(--text-color)); /* Fallback to main text color */
 }
-
 header p {
     font-size: 1.1em;
     line-height: 1.6;
     margin-bottom: 30px;
+    color: var(--text-color-subtle, var(--text-color));
 }
 
 main {
@@ -146,109 +257,107 @@ main {
     align-items: center;
 }
 
-.input-container {
+.input-container, .output-container {
     position: relative;
     width: 100%;
     margin-bottom: 20px;
 }
 
-textarea {
-    width: calc(100% - 20px);
+textarea, .output-container /* Style output-container like a textarea display */ {
+    width: calc(100% - 20px); /* Full width minus padding */
     padding: 10px;
-    border: 1px solid #555;
+    border: 1px solid var(--input-border-color);
     border-radius: 4px;
-    resize: vertical;
-    min-height: 250px;
     font-size: 14px;
-    background-color: #333;
-    color: #ccc;
-    transition: border-color 0.3s ease, box-shadow 0.3s ease;
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+    background-color: var(--input-bg);
+    color: var(--input-text-color);
+    transition: border-color 0.3s ease, box-shadow 0.3s ease, background-color 0.5s ease, color 0.5s ease;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3); /* This shadow might need adjustment per theme */
 }
+textarea {
+    min-height: 250px;
+    resize: vertical;
+}
+.output-container {
+    min-height: 150px;
+    text-align: left;
+    line-height: 1.6;
+    word-wrap: break-word;
+    margin-top: 20px; /* Keep existing margin */
+}
+
 
 textarea:focus {
     outline: none;
-    border-color: #888;
-    box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
-}
-
-.input-overlay {
-    display: none;
+    border-color: var(--input-focus-border-color);
+    box-shadow: 0 0 5px var(--input-focus-shadow);
 }
 
 .quantum-button {
-    background-color: #555;
-    color: #fff;
+    background-color: var(--button-bg);
+    color: var(--button-text-color);
     padding: 15px 30px;
     border: none;
     border-radius: 4px;
     cursor: pointer;
     font-size: 18px;
-    transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
-    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
+    transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease, color 0.3s ease;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3); /* May need theme adjustment */
 }
-
 .quantum-button:hover {
-    background-color: #666;
+    background-color: var(--button-hover-bg);
     transform: translateY(-2px);
-    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.4); /* May need theme adjustment */
 }
-
 .quantum-button:active {
+    background-color: var(--button-active-bg);
     transform: translateY(1px);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-.output-container {
-    position: relative;
-    width: 100%;
-    margin-top: 20px;
-    padding: 15px;
-    border: 1px solid #555;
-    border-radius: 4px;
-    background-color: #333;
-    color: #ccc;
-    text-align: left;
-    min-height: 150px;
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
-    line-height: 1.6;
-    word-wrap: break-word;
-}
-
-.output-overlay {
-    display: none;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* May need theme adjustment */
 }
 
 footer {
     width: 80%;
     margin-top: 30px;
-    color: #888;
+    color: var(--text-color-subtle);
     text-shadow: none;
     font-size: 0.8em;
 }
-
-/* Removed footer .quantum-link as link is moved */
 
 .quantum-select {
     flex-grow: 1;
     padding: 10px;
     margin-bottom: 0;
-    border: 1px solid #555;
+    border: 1px solid var(--quantum-select-border);
     border-radius: 4px;
     font-size: 14px;
-    background-color: #333;
-    color: #ccc;
-    transition: border-color 0.3s ease, box-shadow 0.3s ease;
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+    background-color: var(--quantum-select-bg);
+    color: var(--quantum-select-text);
+    transition: border-color 0.3s ease, box-shadow 0.3s ease, background-color 0.5s ease, color 0.5s ease;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3); /* May need theme adjustment */
     appearance: none;
-    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23ccc"><path d="M7 10l5 5 5-5z"/></svg>');
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="{--quantum-select-arrow-fill}"><path d="M7 10l5 5 5-5z"/></svg>');
     background-repeat: no-repeat;
     background-position: right 10px center;
     min-width: 200px;
 }
-
 .quantum-select:focus {
     outline: none;
-    border-color: #888;
-    box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+    border-color: var(--input-focus-border-color); /* Using general input focus color */
+    box-shadow: 0 0 5px var(--input-focus-shadow); /* Using general input focus shadow */
+}
+
+/* Ensure theme button styles on themes.html also use variables if not covered by general button */
+.theme-button {
+    /* ... from themes.html inline styles, ensure they use vars or are overridden by global button styles if appropriate */
+    /* Example: */
+    border-color: var(--input-border-color); /* Use a consistent border */
+}
+.theme-button.active {
+    background-color: var(--link-color); /* Use link color for active theme button */
+    color: var(--body-bg-gradient); /* Contrast text, might need a specific var if body-bg-gradient is complex */
+    /* A simpler color for active button text: */
+    color: #fff; /* Or var(--button-text-color-active, #fff) */
+}
+.theme-button.active.theme-lunar-light { /* Special case for light theme active button text */
+    color: #000;
 }
