@@ -1,17 +1,24 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
+<html lang="en" class=""> <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Alexr - Star Edition</title>
+
+    <script>
+        (function() {
+            const savedTheme = localStorage.getItem('selectedTheme') || 'theme-starfield'; // Default to Starfield
+            document.documentElement.className = savedTheme; // Apply class to <html>
+        })();
+    </script>
+
     <link rel="icon" id="favicon" href="alexr-favicon.png">
-    <link rel="stylesheet" href="style.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="stylesheet" href="style.css"> <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;700&display=swap" rel="stylesheet">
-    <script src="theme-loader.js" defer></script> </head>
+</head>
 <body>
-    <div id="page-background" class="quantum-background"> <div class="stars"></div>
+    <div id="page-background" class="quantum-background">
+        <div class="stars"></div>
     </div>
 
     <div class="top-bar">
@@ -22,7 +29,8 @@
 
     <div class="top-navigation">
         <a href="cloak-settings.html" class="nav-link">Tab Cloak</a>
-        <a href="themes.html" class="nav-link">Themes</a> </div>
+        <a href="themes.html" class="nav-link">Themes</a>
+    </div>
 
     <div class="container">
         <header>
@@ -42,6 +50,5 @@
             <p class="quantum-text">&copy; 2025 Alexr - Star Edition</p>
         </footer>
     </div>
-    <script src="script.js"></script>
-</body>
+    <script src="script.js"></script> </body>
 </html>
