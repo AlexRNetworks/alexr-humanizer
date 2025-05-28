@@ -1,1 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Select Theme - Alexr</title>
+    <link rel="icon" id="favicon" href="alexr-favicon.png"> <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <script src="theme-loader.js" defer></script>
+    <style>
+        /* Styles specific to themes.html */
+        body {
+            display: flex;
+            flex-direction: column; /* Allow header/nav and content */
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding-top: 80px; /* Space for potential fixed header elements if you add them */
+            box-sizing: border-box;
+        }
+        .themes-selection-container {
+            background-color: var(--container-bg, rgba(40, 40, 40, 0.9));
+            padding: 30px 40px;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.5);
+            text-align: center;
+        }
+        .themes-selection-container h1 {
+            margin-bottom: 25px;
+            color: var(--text-color, #e0e0e0);
+        }
+        .theme-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .theme-button {
+            padding: 12px 20px;
+            font-size: 1em;
+            border: 1px solid var(--border-color, #555);
+            background-color: var(--button-bg, #555);
+            color: var(--button-text-color, #fff);
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+        .theme-button:hover {
+            background-color: var(--button-hover-bg, #666);
+            transform: translateY(-2px);
+        }
+        .theme-button.active {
+            background-color: var(--primary-accent, #88ccee);
+            color: var(--button-text-color-active, #1a1a1a);
+            font-weight: bold;
+        }
+        .feedback-message {
+            color: var(--text-color, #ccc);
+            min-height: 20px;
+            margin-top: 15px;
+        }
+        .back-link-themes { /* Renamed to avoid conflict if any */
+            display: inline-block; /* Changed for better centering if needed */
+            margin-top: 30px;
+            color: var(--link-color, #88ccee);
+            text-decoration: none;
+            padding: 8px 15px;
+            border: 1px solid var(--border-color, transparent);
+            border-radius: 4px;
+        }
+        .back-link-themes:hover {
+            color: var(--link-hover-color, #aaddff);
+            border-color: var(--link-hover-color, #aaddff);
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="page-background" class="quantum-background">
+         <div class="stars"></div> </div>
 
+    <div class="top-navigation" style="position: absolute; top: 20px; right: 25px; z-index: 10;">
+        <a href="index.html" class="nav-link">Humanizer</a>
+        <a href="cloak-settings.html" class="nav-link">Tab Cloak</a>
+    </div>
+
+
+    <div class="themes-selection-container">
+        <h1>Select Your Theme</h1>
+        <div class="theme-buttons">
+            <button class="theme-button" data-theme="theme-starfield">Starfield (Default)</button>
+            <button class="theme-button" data-theme="theme-lunar-light">Lunar Light</button>
+            <button class="theme-button" data-theme="theme-cyber-matrix">Cyber Matrix</button>
+            <button class="theme-button" data-theme="theme-solar-flare">Solar Flare</button>
+            <button class="theme-button" data-theme="theme-deep-ocean">Deep Ocean</button>
+        </div>
+        <p id="feedbackMessage" class="feedback-message"></p>
+        <a href="index.html" class="back-link-themes">&larr; Back to Humanizer</a>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const themeButtons = document.querySelectorAll('.theme-button');
+            const feedbackMessage = document.getElementById('feedbackMessage');
+            const currentTheme = localStorage.getItem('selectedTheme') || 'theme-starfield';
+
+            function setActiveButton(activeTheme) {
+                themeButtons.forEach(button => {
+                    if (button.dataset.theme === activeTheme) {
+                        button.classList.add('active');
+                    } else {
+                        button.classList.remove('active');
+                    }
+                });
+            }
+
+            setActiveButton(currentTheme); // Set active button on load
+
+            themeButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const themeName = button.dataset.theme;
+                    localStorage.setItem('selectedTheme', themeName);
+                    document.body.className = themeName; // Apply theme immediately to this page
+                    feedbackMessage.textContent = `${button.textContent} applied!`;
+                    setActiveButton(themeName);
+                    setTimeout(() => { feedbackMessage.textContent = ''; }, 2000);
+
+                    // Dispatch a custom event that other scripts (like theme-loader.js) can listen to
+                    // This ensures the theme is applied live if theme-loader.js is also managing body class.
+                    window.dispatchEvent(new CustomEvent('themechanged', { detail: { themeName: themeName } }));
+                });
+            });
+        });
+    </script>
+</body>
+</html>
