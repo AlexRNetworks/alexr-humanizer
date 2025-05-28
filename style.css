@@ -8,7 +8,6 @@ body {
     display: flex;
     flex-direction: column;
     min-height: 100vh;
-    
 }
 
 .quantum-background {
@@ -47,19 +46,20 @@ body {
 
 .container {
     width: 100%;
-    height: 100vh; /* Consider min-height if content can exceed viewport */
-    background-color: rgba(0, 0, 0, 0.8);
-    border-radius: 0;
-    box-shadow: none;
-    padding: 20px 60px 60px 60px; /* Adjusted top padding slightly */
+    /* Adjusted top padding to make space for potentially fixed/absolute header elements if they were inside */
+    /* For elements outside like top-bar and top-navigation, body/viewport relative positioning is fine */
+    padding: 80px 60px 60px 60px; /* Increased top padding to avoid overlap with header elements */
+    box-sizing: border-box; /* Ensures padding doesn't add to width/height causing issues */
     text-align: center;
     display: flex;
     flex-direction: column;
-    justify-content: flex-start;
+    justify-content: flex-start; /* Aligns header to top, main content follows */
     align-items: center;
     z-index: 1;
-    overflow-y: auto; /* Added in case content grows */
+    overflow-y: auto;
+    min-height: 100vh; /* Ensures container tries to fill height */
 }
+
 
 .container:hover {
     transform: none;
@@ -72,11 +72,11 @@ body {
     animation: none;
 }
 
-.top-bar {
+.top-bar { /* Logo container */
     position: absolute;
-    top: 10px;
-    left: 10px;
-    z-index: 2;
+    top: 20px; /* Adjusted for a bit more space from top */
+    left: 25px; /* Adjusted for a bit more space from left */
+    z-index: 10; /* Ensure it's above other content */
 }
 
 .logo-container {
@@ -84,31 +84,46 @@ body {
 }
 
 .logo {
-    max-height: 100px;
+    max-height: 80px; /* Slightly reduced size, adjust as you like */
 }
 
-/* --- Tab Cloak Container Styles - Added --- */
-.tab-cloak-container {
-    width: 80%;
-    max-width: 600px; /* Or your preferred max-width for content blocks */
-    margin-bottom: 20px;
-    text-align: left; /* Align label and select to the left */
+/* --- Top Right Navigation Styles - Added --- */
+.top-navigation {
+    position: absolute;
+    top: 20px; /* Align with top-bar's top padding */
+    right: 25px; /* Consistent padding from the edge */
+    z-index: 10;
     display: flex;
-    align-items: center;
-    gap: 10px; /* Space between label and select */
+    align-items: center; /* Vertically align items if their heights differ */
 }
 
-.tab-cloak-container label {
-    font-size: 1em;
-    margin-bottom: 0; /* Remove bottom margin if not needed due to flex alignment */
+.nav-link {
+    color: #88ccee; /* Brighter link color */
+    text-decoration: none;
+    font-size: 1em; /* Adjust as needed */
+    font-weight: 500; /* Slightly bolder */
+    margin-left: 20px; /* Space between navigation links */
+    padding: 8px 12px; /* Add some padding for a button-like feel */
+    border-radius: 4px;
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
-/* --- End of Tab Cloak Container Styles --- */
 
+.nav-link:first-child {
+    margin-left: 0; /* No margin for the first link */
+}
+
+.nav-link:hover {
+    color: #fff;
+    background-color: rgba(255, 255, 255, 0.1); /* Subtle hover effect */
+    text-decoration: none; /* Remove underline on hover if background changes */
+}
+/* --- End of Top Right Navigation Styles --- */
 
 header {
     width: 80%;
     margin-bottom: 30px;
     text-align: center;
+    margin-top: 0; /* Was previously implicitly spaced by container padding, ensure it's fine */
 }
 
 header h1 {
@@ -212,11 +227,12 @@ footer {
     font-size: 0.8em;
 }
 
+/* Removed footer .quantum-link as link is moved */
+
 .quantum-select {
-    flex-grow: 1; /* Allows select to take available space if needed */
-    /* width: calc(100% - 20px); /* Original width, adjust if using flex-grow */
+    flex-grow: 1;
     padding: 10px;
-    margin-bottom: 0; /* Removed margin as .tab-cloak-container handles spacing */
+    margin-bottom: 0;
     border: 1px solid #555;
     border-radius: 4px;
     font-size: 14px;
@@ -228,6 +244,7 @@ footer {
     background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23ccc"><path d="M7 10l5 5 5-5z"/></svg>');
     background-repeat: no-repeat;
     background-position: right 10px center;
+    min-width: 200px;
 }
 
 .quantum-select:focus {
