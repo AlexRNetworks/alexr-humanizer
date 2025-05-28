@@ -4,54 +4,69 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tab Cloak Settings - Alexr</title>
-    <link rel="stylesheet" href="style.css"> <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="icon" id="favicon" href="alexr-favicon.png"> <link rel="stylesheet" href="style.css"> <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;700&display=swap" rel="stylesheet">
-    <style>
-        /* Additional styles specific to this page */
+    <script src="theme-loader.js" defer></script> <style>
+        /* Specific styles for cloak-settings.html - using CSS Variables */
         body {
             display: flex;
+            flex-direction: column; /* For header/nav and content */
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            text-align: center;
+            padding-top: 80px; /* Space for potential fixed header elements */
+            box-sizing: border-box;
         }
         .settings-container {
-            background-color: rgba(40, 40, 40, 0.9);
+            background-color: var(--container-bg, rgba(40, 40, 40, 0.9)); /* Use CSS Variable */
             padding: 30px 40px;
-            border-radius: 8px;
-            box-shadow: 0 0 15px rgba(0,0,0,0.5);
+            border-radius: 8px; /* Or var(--container-border-radius) */
+            box-shadow: 0 0 15px rgba(0,0,0,0.5); /* Or var(--container-shadow) */
+            text-align: center;
+            z-index: 2; /* Ensure it's above page-background */
         }
         .settings-container h1 {
             margin-bottom: 25px;
+            color: var(--header-text-color, var(--text-color)); /* Use CSS Variable */
         }
         .settings-container label {
             margin-right: 10px;
             font-size: 1.1em;
+            color: var(--text-color, #e0e0e0); /* Use CSS Variable */
         }
-        .quantum-select { /* Ensuring the select from main style is applied if needed */
-            padding: 10px;
-            border: 1px solid #555;
-            border-radius: 4px;
-            font-size: 1em;
-            background-color: #333;
-            color: #ccc;
+        /* .quantum-select is styled globally in style.css using variables */
+
+        .feedback-message { /* For cloak setting saved message */
+            color: var(--text-color-subtle, var(--text-color)); /* Use CSS Variable */
+            min-height: 20px;
+            margin-top: 15px;
         }
-        .back-link {
-            display: block;
+        .back-link-cloak { /* Specific class for this page's back link */
+            display: inline-block;
             margin-top: 30px;
-            color: #aaa;
+            color: var(--link-color, #88ccee); /* Use CSS Variable */
             text-decoration: none;
+            padding: 8px 15px;
+            border: 1px solid transparent; /* Or var(--border-color) if you want a border always */
+            border-radius: 4px;
         }
-        .back-link:hover {
-            color: #fff;
+        .back-link-cloak:hover {
+            color: var(--link-hover-color, #aaddff); /* Use CSS Variable */
+            border-color: var(--link-hover-color, var(--link-color)); /* Use CSS Variable */
+            text-decoration: none;
         }
     </style>
 </head>
 <body>
-    <div class="quantum-background">
-        <div class="stars"></div>
-    </div>
+    <div id="page-background" class="quantum-background">
+         <div class="stars"></div> </div>
+
+    <div class="top-navigation" style="position: absolute; top: 20px; right: 25px; z-index: 10;">
+        <a href="index.html" class="nav-link">Humanizer</a>
+        <a href="themes.html" class="nav-link">Themes</a>
+        </div>
+
     <div class="settings-container">
         <h1 class="quantum-text">Tab Cloak Settings</h1>
         <div>
@@ -64,11 +79,12 @@
                 <option value="calculator">Calculator</option>
             </select>
         </div>
-        <p id="feedbackMessage" class="quantum-text" style="margin-top: 15px; min-height: 20px;"></p>
-        <a href="index.html" class="quantum-link back-link">&larr; Back to Humanizer</a>
+        <p id="feedbackMessage" class="feedback-message"></p>
+        <a href="index.html" class="back-link-cloak">&larr; Back to Humanizer</a>
     </div>
 
     <script>
+        // This is the original script for cloak-settings.html functionality
         document.addEventListener('DOMContentLoaded', () => {
             const cloakSelector = document.getElementById('cloakSelector');
             const feedbackMessage = document.getElementById('feedbackMessage');
