@@ -31,32 +31,59 @@ exports.handler = async (event, context) => {
             return { statusCode: 400, body: JSON.stringify({ error: "Text must contain at least 30 words for humanization." }) };
         }
 
-        const apiUrl = 'https://api.humanizeai.pro/v1/';
-
-        // Step 1: Submit the humanization task
         console.log("Submitting humanization task...");
-        console.log("Using API key:", apiKey.substring(0, 10) + "...");
-        console.log("API URL:", apiUrl);
-        
-        const submitOptions = {
-            method: 'POST',
-            headers: { 
-                'Content-Type': 'application/json',
-                'x-api-key': apiKey,
-                'User-Agent': 'Netlify-Function/1.0'
-            },
-            body: JSON.stringify({
-                text: inputText
-            })
-        };
-        
-        console.log("Request headers:", JSON.stringify(submitOptions.headers, null, 2));
-        console.log("Request body:", submitOptions.body);
+        console.log("Using API key:", apiKey.substring(0, 8) + "...");
+        console.log("Text length:", inputText.length, "words:", wordCount);
 
-        const submitResponse = await fetch(apiUrl, submitOptions);
-        const submitResponseText = await submitResponse.text();
-        console.log("Submit Response Status:", submitResponse.status);
-        console.log("Submit Response:", submitResponseText);
+        // Try different possible API endpoints
+        const possibleEndpoints = [
+            'https://api.humanizeai.pro/v1/',
+            'https://api.humanizeai.pro/api/v1/',
+            'https://api.humanizeai.pro/',
+            'https://api.humanizeai.pro/humanize',
+            'https://humanizeai.pro/api/v1/',
+            'https://humanizeai.pro/api/'
+        ];
+        
+        let submitResponse = null;
+        let submitResponseText = '';
+        let workingEndpoint = null;
+        
+        // Try each endpoint until we find one that works
+        for (const endpoint of possibleEndpoints) {
+            console.log("Trying endpoint:", endpoint);
+            
+            const submitOptions = {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'x-api-key': apiKey,
+                    'User-Agent': 'Mozilla/5.0 (compatible; Netlify-Function/1.0)'
+                },
+                body: JSON.stringify({
+                    text: inputText
+                })
+            };
+            
+            try {
+                submitResponse = await fetch(endpoint, submitOptions);
+                submitResponseText = await submitResponse.text();
+                console.log(`Response from ${endpoint}:`, submitResponse.status, submitResponseText);
+                
+                if (submitResponse.status !== 404) {
+                    workingEndpoint = endpoint;
+                    console.log("Found working endpoint:", workingEndpoint);
+                    break;
+                }
+            } catch (error) {
+                console.log(`Error with ${endpoint}:`, error.message);
+                continue;
+            }
+        }
+        
+        if (!workingEndpoint) {
+            return { statusCode: 404, body: JSON.stringify({ error: "No working API endpoint found. The Humanizeproai API might be down or the endpoints have changed." }) };
+        }
 
         if (!submitResponse.ok) {
             console.error("Humanizeproai Submit Error:", submitResponseText);
