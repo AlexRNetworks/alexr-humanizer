@@ -25,63 +25,117 @@ exports.handler = async (event, context) => {
             return { statusCode: 400, body: JSON.stringify({ error: "Missing 'prompt'." }) };
         }
 
-        // Updated URL for Humanizeproai API
-        const url = 'https://www.humanizeai.pro/the-api';
+        // Check if text has at least 30 words (API requirement)
+        const wordCount = inputText.trim().split(/\s+/).length;
+        if (wordCount < 30) {
+            return { statusCode: 400, body: JSON.stringify({ error: "Text must contain at least 30 words for humanization." }) };
+        }
 
-        // Updated request structure for Humanizeproai
-        const requestOptions = {
+        const apiUrl = 'https://api.humanizeai.pro/v1/';
+
+        // Step 1: Submit the humanization task
+        console.log("Submitting humanization task...");
+        const submitOptions = {
             method: 'POST',
             headers: { 
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${apiKey}` // Updated auth header
+                'x-api-key': apiKey
             },
             body: JSON.stringify({
-                text: inputText,
-                mode: 'advanced', // or 'basic' depending on your needs
-                // You may need to adjust these parameters based on Humanizeproai's documentation
-            }),
+                text: inputText
+            })
         };
 
-        const response = await fetch(url, requestOptions);
-        console.log("Raw API Response Status:", response.status);
-        const rawResponseText = await response.text();
-        console.log("Raw API Response:", rawResponseText);
+        const submitResponse = await fetch(apiUrl, submitOptions);
+        const submitResponseText = await submitResponse.text();
+        console.log("Submit Response Status:", submitResponse.status);
+        console.log("Submit Response:", submitResponseText);
 
-        if (!response.ok) {
-            console.error("Humanizeproai API Error:", rawResponseText);
-            return { statusCode: response.status, body: JSON.stringify({ error: "Humanizeproai API Error: " + rawResponseText }) };
+        if (!submitResponse.ok) {
+            console.error("Humanizeproai Submit Error:", submitResponseText);
+            return { statusCode: submitResponse.status, body: JSON.stringify({ error: "Humanizeproai Submit Error: " + submitResponseText }) };
         }
 
-        let jsonResponse;
+        let submitResult;
         try {
-            jsonResponse = JSON.parse(rawResponseText);
+            submitResult = JSON.parse(submitResponseText);
         } catch (jsonError) {
-            console.error("Error parsing JSON:", jsonError, "Raw:", rawResponseText);
-            return { statusCode: 500, body: JSON.stringify({ error: "Error parsing Humanizeproai API response." }) };
+            console.error("Error parsing submit response:", jsonError);
+            return { statusCode: 500, body: JSON.stringify({ error: "Error parsing submit response." }) };
         }
 
-        // Updated response parsing for Humanizeproai
-        // Note: You'll need to verify the exact response structure from Humanizeproai's documentation
-        if (jsonResponse && jsonResponse.humanized_text) {
-            const generatedText = jsonResponse.humanized_text;
-            return {
-                statusCode: 200,
-                body: JSON.stringify({ generatedText }),
-            };
-        } else if (jsonResponse && jsonResponse.result) {
-            // Alternative response structure - adjust based on actual API response
-            const generatedText = jsonResponse.result;
-            return {
-                statusCode: 200,
-                body: JSON.stringify({ generatedText }),
-            };
-        } else {
-            console.error("Unexpected Humanizeproai API response structure:", jsonResponse);
-            return {
-                statusCode: 500,
-                body: JSON.stringify({ error: "Unexpected Humanizeproai API response structure. See server logs." }),
-            };
+        // Extract task ID from submit response
+        const taskId = submitResult.id || submitResult.task_id || submitResult.taskId;
+        if (!taskId) {
+            console.error("No task ID in submit response:", submitResult);
+            return { statusCode: 500, body: JSON.stringify({ error: "No task ID received from API." }) };
         }
+
+        console.log("Task submitted with ID:", taskId);
+
+        // Step 2: Poll for results
+        const maxAttempts = 30; // Maximum polling attempts
+        const pollInterval = 2000; // 2 seconds between polls
+
+        for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+            console.log(`Polling attempt ${attempt}/${maxAttempts}...`);
+            
+            // Wait before polling (except first attempt)
+            if (attempt > 1) {
+                await new Promise(resolve => setTimeout(resolve, pollInterval));
+            }
+
+            const pollOptions = {
+                method: 'GET',
+                headers: { 
+                    'x-api-key': apiKey
+                }
+            };
+
+            const pollResponse = await fetch(`${apiUrl}?id=${taskId}`, pollOptions);
+            const pollResponseText = await pollResponse.text();
+            console.log(`Poll Response Status (attempt ${attempt}):`, pollResponse.status);
+            console.log(`Poll Response (attempt ${attempt}):`, pollResponseText);
+
+            if (!pollResponse.ok) {
+                console.error("Humanizeproai Poll Error:", pollResponseText);
+                return { statusCode: pollResponse.status, body: JSON.stringify({ error: "Humanizeproai Poll Error: " + pollResponseText }) };
+            }
+
+            let pollResult;
+            try {
+                pollResult = JSON.parse(pollResponseText);
+            } catch (jsonError) {
+                console.error("Error parsing poll response:", jsonError);
+                return { statusCode: 500, body: JSON.stringify({ error: "Error parsing poll response." }) };
+            }
+
+            // Check if task is complete
+            if (pollResult.status === 'success' || pollResult.humanized_text || pollResult.result) {
+                const generatedText = pollResult.humanized_text || pollResult.result || pollResult.output;
+                if (generatedText) {
+                    console.log("Task completed successfully!");
+                    return {
+                        statusCode: 200,
+                        body: JSON.stringify({ generatedText }),
+                    };
+                }
+            }
+
+            // Check if task failed
+            if (pollResult.status === 'failure' || pollResult.status === 'failed' || pollResult.error) {
+                const errorMsg = pollResult.error || pollResult.message || "Task failed";
+                console.error("Task failed:", errorMsg);
+                return { statusCode: 500, body: JSON.stringify({ error: "Humanization failed: " + errorMsg }) };
+            }
+
+            // Task is still processing, continue polling
+            console.log("Task still processing...");
+        }
+
+        // If we reach here, polling timed out
+        console.error("Polling timed out after", maxAttempts, "attempts");
+        return { statusCode: 408, body: JSON.stringify({ error: "Task processing timed out. Please try again." }) };
 
     } catch (error) {
         console.error("General Error:", error);
