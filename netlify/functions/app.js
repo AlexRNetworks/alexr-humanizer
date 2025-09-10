@@ -129,7 +129,7 @@ exports.handler = async (event, context) => {
                 }
             };
 
-            const pollResponse = await fetch(`${workingEndpoint}?id=${taskId}`, pollOptions);
+            const pollResponse = await fetch(`${apiUrl}?id=${taskId}`, pollOptions);
             const pollResponseText = await pollResponse.text();
             console.log(`Poll Response Status (attempt ${attempt}):`, pollResponse.status);
             console.log(`Poll Response (attempt ${attempt}):`, pollResponseText);
