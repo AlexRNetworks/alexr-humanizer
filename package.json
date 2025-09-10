@@ -1,6 +1,6 @@
 {
   "name": "Alexr-Humanizer",
-  "version": "1.0.0",
+  "version": "1.0.0", 
   "description": "A complex AI humanizer free to your use!",
   "main": "app.js",
   "scripts": {
