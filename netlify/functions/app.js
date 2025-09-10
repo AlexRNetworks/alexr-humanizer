@@ -35,16 +35,23 @@ exports.handler = async (event, context) => {
 
         // Step 1: Submit the humanization task
         console.log("Submitting humanization task...");
+        console.log("Using API key:", apiKey.substring(0, 10) + "...");
+        console.log("API URL:", apiUrl);
+        
         const submitOptions = {
             method: 'POST',
             headers: { 
                 'Content-Type': 'application/json',
-                'x-api-key': apiKey
+                'x-api-key': apiKey,
+                'User-Agent': 'Netlify-Function/1.0'
             },
             body: JSON.stringify({
                 text: inputText
             })
         };
+        
+        console.log("Request headers:", JSON.stringify(submitOptions.headers, null, 2));
+        console.log("Request body:", submitOptions.body);
 
         const submitResponse = await fetch(apiUrl, submitOptions);
         const submitResponseText = await submitResponse.text();
@@ -53,6 +60,9 @@ exports.handler = async (event, context) => {
 
         if (!submitResponse.ok) {
             console.error("Humanizeproai Submit Error:", submitResponseText);
+            if (submitResponse.status === 403) {
+                return { statusCode: 403, body: JSON.stringify({ error: "Invalid API key or access denied. Please check your API key." }) };
+            }
             return { statusCode: submitResponse.status, body: JSON.stringify({ error: "Humanizeproai Submit Error: " + submitResponseText }) };
         }
 
@@ -92,7 +102,7 @@ exports.handler = async (event, context) => {
                 }
             };
 
-            const pollResponse = await fetch(`${apiUrl}?id=${taskId}`, pollOptions);
+            const pollResponse = await fetch(`${apiUrl}/?id=${taskId}`, pollOptions);
             const pollResponseText = await pollResponse.text();
             console.log(`Poll Response Status (attempt ${attempt}):`, pollResponse.status);
             console.log(`Poll Response (attempt ${attempt}):`, pollResponseText);
