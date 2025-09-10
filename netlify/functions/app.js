@@ -2,12 +2,6 @@ import fetch from 'node-fetch';
 
 exports.handler = async (event, context) => {
     try {
-        const apiKey = process.env.API_KEY;
-        if (!apiKey) {
-            console.error("Missing API Key.");
-            return { statusCode: 500, body: JSON.stringify({ error: "Server configuration error. Missing API Key." }) };
-        }
-
         if (event.httpMethod !== "POST") {
             return { statusCode: 405, body: "Method Not Allowed" };
         }
@@ -25,135 +19,169 @@ exports.handler = async (event, context) => {
             return { statusCode: 400, body: JSON.stringify({ error: "Missing 'prompt'." }) };
         }
 
-        // Check if text has at least 30 words (API requirement)
+        // Check if text has reasonable length
         const wordCount = inputText.trim().split(/\s+/).length;
-        if (wordCount < 30) {
-            return { statusCode: 400, body: JSON.stringify({ error: "Text must contain at least 30 words for humanization." }) };
+        if (wordCount < 10) {
+            return { statusCode: 400, body: JSON.stringify({ error: "Text must contain at least 10 words for humanization." }) };
         }
 
-        console.log("Submitting humanization task...");
-        console.log("Using API key:", apiKey.substring(0, 8) + "...");
+        console.log("Submitting to HumanizeAI.io...");
         console.log("Text length:", inputText.length, "words:", wordCount);
 
-        // Use the working endpoint we found
-        const apiUrl = 'https://humanizeai.pro/api/v1/';
+        const humanizeUrl = 'https://www.humanizeai.io/';
 
-        // Step 1: Submit the humanization task
-        console.log("Using working endpoint:", apiUrl);
+        // Step 1: Get the main page to extract any necessary form data
+        console.log("Getting main page for form data...");
+        const pageResponse = await fetch(humanizeUrl, {
+            method: 'GET',
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+            }
+        });
+
+        if (!pageResponse.ok) {
+            console.error("Error getting main page:", pageResponse.status);
+            return { statusCode: 500, body: JSON.stringify({ error: "Could not access HumanizeAI.io" }) };
+        }
+
+        const pageHtml = await pageResponse.text();
         
+        // Extract CSRF token or other necessary data if present
+        let csrfToken = '';
+        const csrfMatch = pageHtml.match(/name="csrf_token".*?value="([^"]+)"/);
+        if (csrfMatch) {
+            csrfToken = csrfMatch[1];
+            console.log("Found CSRF token");
+        }
+
+        // Step 2: Submit the text for humanization
+        console.log("Submitting text for humanization...");
+        
+        // Create form data
+        const formData = new URLSearchParams();
+        formData.append('text', inputText);
+        if (csrfToken) {
+            formData.append('csrf_token', csrfToken);
+        }
+
         const submitOptions = {
             method: 'POST',
-            headers: { 
-                'Content-Type': 'application/json',
-                'x-api-key': apiKey,
-                'User-Agent': 'Mozilla/5.0 (compatible; Netlify-Function/1.0)',
-                'Accept': 'application/json'
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+                'Referer': humanizeUrl,
+                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+                'Accept-Language': 'en-US,en;q=0.5',
+                'Accept-Encoding': 'gzip, deflate, br',
+                'DNT': '1',
+                'Connection': 'keep-alive',
+                'Upgrade-Insecure-Requests': '1'
             },
-            body: JSON.stringify({
-                text: inputText
-            })
+            body: formData.toString()
         };
-        
-        console.log("Making POST request to:", apiUrl);
-        const submitResponse = await fetch(apiUrl, submitOptions);
-        const submitResponseText = await submitResponse.text();
+
+        const submitResponse = await fetch(humanizeUrl, submitOptions);
         console.log("Submit Response Status:", submitResponse.status);
-        console.log("Submit Response:", submitResponseText);
 
         if (!submitResponse.ok) {
-            console.error("Humanizeproai Submit Error:", submitResponseText);
-            if (submitResponse.status === 403) {
-                return { statusCode: 403, body: JSON.stringify({ error: "Invalid API key or access denied. Please check your API key." }) };
+            console.error("Error submitting to HumanizeAI.io:", submitResponse.status);
+            return { statusCode: submitResponse.status, body: JSON.stringify({ error: "Error submitting to HumanizeAI.io" }) };
+        }
+
+        const responseHtml = await submitResponse.text();
+        console.log("Got response HTML, extracting humanized text...");
+
+        // Step 3: Extract the humanized text from the response
+        // Look for common patterns where the result might be displayed
+        let humanizedText = '';
+        
+        // Try different possible selectors/patterns
+        const patterns = [
+            /<textarea[^>]*id="output"[^>]*>(.*?)<\/textarea>/is,
+            /<div[^>]*class="output"[^>]*>(.*?)<\/div>/is,
+            /<div[^>]*id="result"[^>]*>(.*?)<\/div>/is,
+            /<div[^>]*class="result"[^>]*>(.*?)<\/div>/is,
+            /<div[^>]*class="humanized"[^>]*>(.*?)<\/div>/is,
+            /<textarea[^>]*class="output"[^>]*>(.*?)<\/textarea>/is
+        ];
+
+        for (const pattern of patterns) {
+            const match = responseHtml.match(pattern);
+            if (match && match[1]) {
+                humanizedText = match[1].trim();
+                // Clean up HTML entities and tags
+                humanizedText = humanizedText
+                    .replace(/<[^>]*>/g, '') // Remove HTML tags
+                    .replace(/&nbsp;/g, ' ')
+                    .replace(/&amp;/g, '&')
+                    .replace(/&lt;/g, '<')
+                    .replace(/&gt;/g, '>')
+                    .replace(/&quot;/g, '"')
+                    .trim();
+                
+                if (humanizedText.length > 20) { // Make sure we got substantial content
+                    console.log("Found humanized text using pattern");
+                    break;
+                }
             }
-            if (submitResponse.status === 405) {
-                return { statusCode: 405, body: JSON.stringify({ error: "Method not allowed. The API endpoint might have changed or your API key might be invalid." }) };
-            }
-            return { statusCode: submitResponse.status, body: JSON.stringify({ error: "Humanizeproai Submit Error: " + submitResponseText }) };
         }
 
-        let submitResult;
-        try {
-            submitResult = JSON.parse(submitResponseText);
-        } catch (jsonError) {
-            console.error("Error parsing submit response:", jsonError);
-            return { statusCode: 500, body: JSON.stringify({ error: "Error parsing submit response." }) };
-        }
-
-        // Extract task ID from submit response
-        const taskId = submitResult.id || submitResult.task_id || submitResult.taskId;
-        if (!taskId) {
-            console.error("No task ID in submit response:", submitResult);
-            return { statusCode: 500, body: JSON.stringify({ error: "No task ID received from API." }) };
-        }
-
-        console.log("Task submitted with ID:", taskId);
-
-        // Step 2: Poll for results
-        const maxAttempts = 30; // Maximum polling attempts
-        const pollInterval = 2000; // 2 seconds between polls
-
-        for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-            console.log(`Polling attempt ${attempt}/${maxAttempts}...`);
+        // If no pattern matched, try to find any substantial text content
+        if (!humanizedText) {
+            console.log("No pattern matched, trying fallback extraction...");
             
-            // Wait before polling (except first attempt)
-            if (attempt > 1) {
-                await new Promise(resolve => setTimeout(resolve, pollInterval));
-            }
-
-            const pollOptions = {
-                method: 'GET',
-                headers: { 
-                    'x-api-key': apiKey
-                }
-            };
-
-            const pollResponse = await fetch(`${apiUrl}?id=${taskId}`, pollOptions);
-            const pollResponseText = await pollResponse.text();
-            console.log(`Poll Response Status (attempt ${attempt}):`, pollResponse.status);
-            console.log(`Poll Response (attempt ${attempt}):`, pollResponseText);
-
-            if (!pollResponse.ok) {
-                console.error("Humanizeproai Poll Error:", pollResponseText);
-                return { statusCode: pollResponse.status, body: JSON.stringify({ error: "Humanizeproai Poll Error: " + pollResponseText }) };
-            }
-
-            let pollResult;
-            try {
-                pollResult = JSON.parse(pollResponseText);
-            } catch (jsonError) {
-                console.error("Error parsing poll response:", jsonError);
-                return { statusCode: 500, body: JSON.stringify({ error: "Error parsing poll response." }) };
-            }
-
-            // Check if task is complete
-            if (pollResult.status === 'success' || pollResult.humanized_text || pollResult.result) {
-                const generatedText = pollResult.humanized_text || pollResult.result || pollResult.output;
-                if (generatedText) {
-                    console.log("Task completed successfully!");
-                    return {
-                        statusCode: 200,
-                        body: JSON.stringify({ generatedText }),
-                    };
+            // Look for any text that's different from our input
+            const textMatch = responseHtml.match(/<body[^>]*>(.*?)<\/body>/is);
+            if (textMatch) {
+                const bodyText = textMatch[1]
+                    .replace(/<script[^>]*>.*?<\/script>/gis, '')
+                    .replace(/<style[^>]*>.*?<\/style>/gis, '')
+                    .replace(/<[^>]*>/g, ' ')
+                    .replace(/\s+/g, ' ')
+                    .trim();
+                
+                // Look for text that's longer than our input and different
+                if (bodyText.length > inputText.length && !bodyText.includes(inputText)) {
+                    const sentences = bodyText.split(/[.!?]+/).filter(s => s.trim().length > 50);
+                    if (sentences.length > 0) {
+                        humanizedText = sentences.slice(0, 3).join('. ').trim();
+                        console.log("Used fallback extraction");
+                    }
                 }
             }
-
-            // Check if task failed
-            if (pollResult.status === 'failure' || pollResult.status === 'failed' || pollResult.error) {
-                const errorMsg = pollResult.error || pollResult.message || "Task failed";
-                console.error("Task failed:", errorMsg);
-                return { statusCode: 500, body: JSON.stringify({ error: "Humanization failed: " + errorMsg }) };
-            }
-
-            // Task is still processing, continue polling
-            console.log("Task still processing...");
         }
 
-        // If we reach here, polling timed out
-        console.error("Polling timed out after", maxAttempts, "attempts");
-        return { statusCode: 408, body: JSON.stringify({ error: "Task processing timed out. Please try again." }) };
+        if (!humanizedText || humanizedText.length < 20) {
+            console.error("Could not extract humanized text from response");
+            console.log("Response HTML length:", responseHtml.length);
+            
+            // Log a small portion of the response for debugging
+            const debugSnippet = responseHtml.substring(0, 500);
+            console.log("Response snippet:", debugSnippet);
+            
+            return { 
+                statusCode: 500, 
+                body: JSON.stringify({ 
+                    error: "Could not extract humanized text. The service might be temporarily unavailable or have changed its format." 
+                }) 
+            };
+        }
+
+        console.log("Successfully humanized text");
+        console.log("Original length:", inputText.length, "Humanized length:", humanizedText.length);
+
+        return {
+            statusCode: 200,
+            body: JSON.stringify({ generatedText: humanizedText }),
+        };
 
     } catch (error) {
         console.error("General Error:", error);
-        return { statusCode: 500, body: JSON.stringify({ error: "An unexpected error occurred: " + error.message }) };
+        return { 
+            statusCode: 500, 
+            body: JSON.stringify({ 
+                error: "An unexpected error occurred: " + error.message 
+            }) 
+        };
     }
 };
