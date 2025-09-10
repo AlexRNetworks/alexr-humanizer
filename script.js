@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         outputText.textContent = 'Quantum Humanizing...'; // Or use value for textarea
         try {
-            const response = await fetch('/.netlify/functions/gemini_v2', { // Ensure this endpoint is correct
+            const response = await fetch('/.netlify/functions/app', { // Ensure this endpoint is correct
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ prompt: text }),
