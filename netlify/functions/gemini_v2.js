@@ -26,7 +26,7 @@ exports.handler = async (event, context) => {
         }
 
         // Updated URL for Humanizeproai API
-        const url = 'https://api.humanizeproai.co/api/humanize';
+        const url = 'https://www.humanizeai.pro/the-api';
 
         // Updated request structure for Humanizeproai
         const requestOptions = {
