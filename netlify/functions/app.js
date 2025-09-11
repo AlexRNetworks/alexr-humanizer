@@ -55,8 +55,8 @@ exports.handler = async (event, context) => {
 
         console.log(`Processing text with ${wordCount} words...`);
 
-        // Apply advanced humanization techniques
-        const humanizedText = await advancedHumanize(inputText);
+        // Apply student-focused humanization
+        const humanizedText = await studentHumanize(inputText);
 
         // Return the humanized text with word count info
         return {
@@ -80,156 +80,183 @@ exports.handler = async (event, context) => {
     }
 };
 
-// Advanced humanization using premium techniques
-async function advancedHumanize(text) {
-    // Step 1: Break AI patterns
-    text = breakAIPatterns(text);
+// Student-focused humanization matching top humanizers
+async function studentHumanize(text) {
+    // Core principle: Write like a real student (not too perfect, not too casual)
     
-    // Step 2: Add human imperfections
-    text = addHumanImperfections(text);
+    // Step 1: Simplify vocabulary to high school/early college level
+    text = simplifyToStudentLevel(text);
     
-    // Step 3: Implement burstiness (varying sentence lengths)
-    text = implementBurstiness(text);
+    // Step 2: Add natural student voice
+    text = addStudentVoice(text);
     
-    // Step 4: Add personal voice
-    text = addPersonalVoice(text);
+    // Step 3: Create realistic imperfections (students aren't perfect)
+    text = addStudentImperfections(text);
     
-    // Step 5: Natural transitions
-    text = naturalizeTransitions(text);
+    // Step 4: Vary sentence structure (key for detection bypass)
+    text = varyStudentSentences(text);
     
-    // Step 6: Contextual awareness
-    text = addContextualElements(text);
+    // Step 5: Remove AI markers completely
+    text = removeAIMarkers(text);
     
-    // Step 7: Emotional coloring
-    text = addEmotionalTone(text);
+    // Step 6: Add student-style transitions
+    text = studentTransitions(text);
     
-    // Step 8: Fix over-corrections
-    text = balanceHumanization(text);
+    // Step 7: Final polish
+    text = finalStudentPolish(text);
     
     return text;
 }
 
-// Break common AI writing patterns
-function breakAIPatterns(text) {
-    // Remove AI's favorite phrases
-    const aiPhrases = {
-        'It is important to note that': '',
-        'It should be noted that': '',
-        'It is worth mentioning that': '',
-        'Furthermore,': '',
-        'Moreover,': '',
-        'Additionally,': 'Plus,',
-        'In conclusion,': 'So,',
-        'In summary,': 'Basically,',
-        'It is evident that': '',
-        'Research indicates that': 'Studies show',
-        'It is crucial to': 'You need to',
-        'One must consider': 'Think about',
-        'This demonstrates': 'This shows',
-        'Subsequently': 'Then',
-        'Consequently': 'So',
-        'Nevertheless': 'Still',
-        'Nonetheless': 'But',
-        'In order to': 'To',
-        'Due to the fact that': 'Because',
-        'In the event that': 'If',
-        'Prior to': 'Before',
-        'Subsequent to': 'After',
-        'Utilize': 'Use',
-        'Implement': 'Use',
-        'Facilitate': 'Help',
-        'Optimize': 'Improve',
-        'Leverage': 'Use',
-        'Endeavor': 'Try',
-        'Commence': 'Start',
-        'Terminate': 'End',
-        'Demonstrates': 'Shows',
-        'Indicates': 'Shows',
-        'Signifies': 'Means',
-        'Exemplifies': 'Shows',
-        'Underscores': 'Shows',
-        'Highlights': 'Shows',
+// Simplify to authentic student vocabulary
+function simplifyToStudentLevel(text) {
+    // Replace complex words with what students actually use
+    const studentReplacements = {
+        // Academic words → Student words
+        'utilize': 'use',
+        'utilization': 'use',
+        'utilized': 'used',
+        'utilizing': 'using',
+        'implement': 'do',
+        'implementation': 'doing',
+        'implemented': 'did',
+        'facilitate': 'help',
+        'facilitates': 'helps',
+        'demonstrate': 'show',
+        'demonstrates': 'shows',
+        'illustrated': 'showed',
+        'illustrates': 'shows',
+        'approximately': 'about',
+        'subsequent': 'next',
+        'subsequently': 'after',
+        'furthermore': 'also',
+        'moreover': 'also',
+        'nevertheless': 'but',
+        'nonetheless': 'still',
+        'consequently': 'so',
+        'methodology': 'way',
+        'paradigm': 'idea',
+        'optimize': 'make better',
+        'optimization': 'improvement',
+        'prioritize': 'focus on',
+        'leverage': 'use',
+        'innovative': 'new',
+        'comprehensive': 'complete',
+        'substantial': 'big',
+        'fundamental': 'basic',
+        'establish': 'create',
+        'established': 'created',
+        'indicates': 'shows',
+        'significant': 'important',
+        'significantly': 'a lot',
+        'numerous': 'many',
+        'acquire': 'get',
+        'endeavor': 'try',
+        'commence': 'start',
+        'terminate': 'end',
+        'sufficient': 'enough',
+        'inadequate': 'not enough',
+        'preceding': 'before',
+        'aforementioned': 'mentioned',
+        'regarding': 'about',
+        'concerning': 'about',
+        'pertaining to': 'about',
+        'individuals': 'people',
+        'personnel': 'staff',
+        'obtain': 'get',
+        'possess': 'have',
+        'require': 'need',
+        'necessary': 'needed',
+        'essential': 'important',
+        'crucial': 'important',
+        'vital': 'important',
+        'examine': 'look at',
+        'investigate': 'look into',
+        'analyze': 'look at',
+        'synthesis': 'combination',
+        'hypothesis': 'idea',
+        'phenomenon': 'thing',
+        'criteria': 'standards',
+        'parameter': 'limit',
+        'component': 'part',
+        'element': 'part',
+        'aspect': 'part',
+        'factor': 'thing',
+        'constitute': 'make up',
+        'comprise': 'include',
+        'encompass': 'include',
+        'incorporate': 'include',
+        'initiate': 'start',
+        'undertake': 'do',
+        'conduct': 'do',
+        'perform': 'do',
+        'execute': 'do',
+        'accomplish': 'finish',
+        'achieve': 'reach',
+        'attain': 'get',
+        'ascertain': 'find out',
+        'determine': 'figure out',
+        'elucidate': 'explain',
+        'elaborate': 'explain more',
+        'delineate': 'describe',
+        'articulate': 'say',
+        'convey': 'tell',
+        'transmit': 'send',
+        'disseminate': 'spread',
+        'promulgate': 'announce',
+        'advocate': 'support',
+        'contend': 'argue',
+        'assert': 'say',
+        'postulate': 'suggest',
+        'hypothesize': 'guess',
+        'theorize': 'think',
+        'conceptualize': 'think of',
+        'perceive': 'see',
+        'discern': 'notice',
+        'observe': 'see',
+        'detect': 'find',
+        'identify': 'find',
+        'recognize': 'know',
+        'acknowledge': 'admit',
+        'comprehend': 'understand',
+        'grasp': 'understand',
+        'fathom': 'understand',
     };
     
     let result = text;
-    for (const [ai, human] of Object.entries(aiPhrases)) {
-        const regex = new RegExp(ai, 'gi');
-        result = result.replace(regex, human);
+    for (const [complex, simple] of Object.entries(studentReplacements)) {
+        const regex = new RegExp('\\b' + complex + '\\b', 'gi');
+        result = result.replace(regex, simple);
     }
     
-    // Remove repetitive structure (AI loves parallel construction)
-    result = result.replace(/(\w+ing\s+\w+,\s+\w+ing\s+\w+,\s+and\s+\w+ing\s+\w+)/gi, (match) => {
-        const parts = match.split(/,\s+(?:and\s+)?/);
-        return parts[0] + '. Also, ' + parts[1].toLowerCase();
-    });
+    // Remove overly formal phrases
+    result = result.replace(/in order to/gi, 'to');
+    result = result.replace(/due to the fact that/gi, 'because');
+    result = result.replace(/in the event that/gi, 'if');
+    result = result.replace(/at this point in time/gi, 'now');
+    result = result.replace(/in the near future/gi, 'soon');
+    result = result.replace(/for the purpose of/gi, 'to');
+    result = result.replace(/with respect to/gi, 'about');
+    result = result.replace(/in terms of/gi, 'about');
+    result = result.replace(/as a result of/gi, 'because of');
+    result = result.replace(/in light of/gi, 'considering');
+    result = result.replace(/in spite of/gi, 'despite');
+    result = result.replace(/with regard to/gi, 'about');
+    result = result.replace(/in accordance with/gi, 'following');
+    result = result.replace(/on the basis of/gi, 'based on');
+    result = result.replace(/for the most part/gi, 'mostly');
+    result = result.replace(/to a great extent/gi, 'mostly');
+    result = result.replace(/in many cases/gi, 'often');
+    result = result.replace(/it is important to note that/gi, '');
+    result = result.replace(/it should be noted that/gi, '');
+    result = result.replace(/it is worth mentioning that/gi, '');
     
     return result;
 }
 
-// Add subtle human imperfections
-function addHumanImperfections(text) {
-    const sentences = text.match(/[^.!?]+[.!?]+/g) || [text];
-    
-    return sentences.map((sentence, index) => {
-        let s = sentence.trim();
-        
-        // Occasionally start sentences with conjunctions (humans do this)
-        if (index > 0 && Math.random() < 0.25) {
-            const starters = ['And', 'But', 'So', 'Or', 'Yet'];
-            if (!s.match(/^(And|But|So|Or|Yet|Because)/i)) {
-                s = starters[Math.floor(Math.random() * starters.length)] + ' ' + 
-                    s.charAt(0).toLowerCase() + s.slice(1);
-            }
-        }
-        
-        // Add filler words occasionally (but not too many)
-        if (Math.random() < 0.15) {
-            const fillers = ['actually', 'basically', 'honestly', 'really', 'just'];
-            const filler = fillers[Math.floor(Math.random() * fillers.length)];
-            s = s.replace(/^(\w+)/, `$1 ${filler}`);
-        }
-        
-        // Occasionally use dashes for emphasis
-        if (Math.random() < 0.1 && s.includes(',')) {
-            s = s.replace(/,([^,]+)$/, ' —$1');
-        }
-        
-        return s;
-    }).join(' ');
-}
-
-// Implement burstiness (varying sentence lengths like humans)
-function implementBurstiness(text) {
-    const sentences = text.match(/[^.!?]+[.!?]+/g) || [text];
-    const processed = [];
-    
-    for (let i = 0; i < sentences.length; i++) {
-        let sentence = sentences[i].trim();
-        const words = sentence.split(/\s+/);
-        
-        // If previous sentence was long, make this one shorter
-        if (i > 0 && processed[i-1].split(/\s+/).length > 15 && words.length > 10) {
-            // Split long sentence into two
-            const midPoint = Math.floor(words.length / 2);
-            const firstHalf = words.slice(0, midPoint).join(' ') + '.';
-            const secondHalf = words.slice(midPoint).join(' ');
-            processed.push(firstHalf);
-            if (secondHalf) processed.push(secondHalf);
-        } else if (words.length < 5 && i < sentences.length - 1) {
-            // Merge very short sentences occasionally
-            processed.push(sentence.replace(/\.$/, ', ') + sentences[i + 1].toLowerCase());
-            i++; // Skip next sentence since we merged it
-        } else {
-            processed.push(sentence);
-        }
-    }
-    
-    return processed.join(' ');
-}
-
-// Add personal voice and conversational elements
-function addPersonalVoice(text) {
-    // Add contractions
+// Add authentic student voice
+function addStudentVoice(text) {
+    // Use contractions (students always use these)
     const contractions = {
         'it is': "it's",
         'that is': "that's",
@@ -254,22 +281,6 @@ function addPersonalVoice(text) {
         'is not': "isn't",
         'was not': "wasn't",
         'were not': "weren't",
-        'I am': "I'm",
-        'you are': "you're",
-        'we are': "we're",
-        'they are': "they're",
-        'I have': "I've",
-        'you have': "you've",
-        'we have': "we've",
-        'they have': "they've",
-        'I will': "I'll",
-        'you will': "you'll",
-        'we will': "we'll",
-        'they will': "they'll",
-        'I would': "I'd",
-        'you would': "you'd",
-        'we would': "we'd",
-        'they would': "they'd",
     };
     
     let result = text;
@@ -278,141 +289,187 @@ function addPersonalVoice(text) {
         result = result.replace(regex, informal);
     }
     
-    // Add personal pronouns occasionally
-    result = result.replace(/One can/gi, 'You can');
-    result = result.replace(/One should/gi, 'You should');
-    result = result.replace(/One might/gi, 'You might');
-    
-    return result;
-}
-
-// Natural transition words (less formal)
-function naturalizeTransitions(text) {
-    const transitions = {
-        'However,': 'But',
-        'Therefore,': 'So',
-        'Thus,': 'So',
-        'Hence,': 'So',
-        'Accordingly,': 'So',
-        'In addition,': 'Also,',
-        'Furthermore,': 'Plus,',
-        'Moreover,': 'And',
-        'Conversely,': 'On the flip side,',
-        'Similarly,': 'Likewise,',
-        'Specifically,': 'To be exact,',
-        'Particularly,': 'Especially',
-        'Notably,': '',
-        'Importantly,': '',
-        'Significantly,': '',
-        'Interestingly,': '',
-        'Surprisingly,': '',
-        'Remarkably,': '',
-    };
-    
-    let result = text;
-    for (const [formal, casual] of Object.entries(transitions)) {
-        result = result.replace(new RegExp(formal + ' ', 'gi'), casual + ' ');
+    // Students use "I think" and "I believe" a lot
+    const sentences = result.split(/(?<=[.!?])\s+/);
+    if (sentences.length > 2 && Math.random() < 0.3) {
+        const randomIndex = 1 + Math.floor(Math.random() * (sentences.length - 1));
+        if (!sentences[randomIndex].match(/^(I |We |They |He |She )/)) {
+            sentences[randomIndex] = 'I think ' + sentences[randomIndex].charAt(0).toLowerCase() + 
+                                    sentences[randomIndex].slice(1);
+        }
     }
     
-    return result;
+    return sentences.join(' ');
 }
 
-// Add contextual elements that humans naturally include
-function addContextualElements(text) {
+// Add realistic student imperfections
+function addStudentImperfections(text) {
     const sentences = text.match(/[^.!?]+[.!?]+/g) || [text];
     
     return sentences.map((sentence, index) => {
         let s = sentence.trim();
         
-        // Add slight redundancy (humans repeat for emphasis)
+        // Sometimes start with And/But (common student pattern)
+        if (index > 0 && Math.random() < 0.2) {
+            if (!s.match(/^(And|But|So|Because)/i)) {
+                const starters = ['And', 'But', 'So'];
+                s = starters[Math.floor(Math.random() * starters.length)] + ' ' + 
+                    s.charAt(0).toLowerCase() + s.slice(1);
+            }
+        }
+        
+        // Occasionally use "like" as a filler (but not too much)
+        if (Math.random() < 0.08) {
+            s = s.replace(/\b(was|is|seems)\b/, '$1 like');
+            s = s.replace(/like like/g, 'like'); // Prevent doubles
+        }
+        
+        // Sometimes use "kind of" or "sort of"
         if (Math.random() < 0.1) {
-            s = s.replace(/important/gi, 'really important');
-            s = s.replace(/significant/gi, 'pretty significant');
-            s = s.replace(/effective/gi, 'quite effective');
+            s = s.replace(/\b(very|really|quite)\b/, 'kind of');
+            s = s.replace(/kind of kind of/g, 'kind of');
         }
         
-        // Add casual qualifiers
-        if (Math.random() < 0.15) {
-            s = s.replace(/(\bis\b|\bare\b|\bwas\b|\bwere\b)/i, '$1 kind of');
-            s = s.replace(/kind of kind of/gi, 'kind of'); // Prevent doubles
+        // Add "basically" occasionally (students love this word)
+        if (Math.random() < 0.1 && !s.includes('basically')) {
+            s = 'Basically, ' + s.charAt(0).toLowerCase() + s.slice(1);
         }
         
-        // Use more colloquial expressions
-        s = s.replace(/a large number of/gi, 'a lot of');
-        s = s.replace(/a small number of/gi, 'a few');
-        s = s.replace(/in the near future/gi, 'soon');
-        s = s.replace(/at the present time/gi, 'right now');
-        s = s.replace(/at this point in time/gi, 'now');
+        // Sometimes use "stuff" or "things" instead of specific terms
+        if (Math.random() < 0.05) {
+            s = s.replace(/\b(aspects|elements|components)\b/gi, 'things');
+            s = s.replace(/\b(materials|content|information)\b/gi, 'stuff');
+        }
         
         return s;
     }).join(' ');
 }
 
-// Add subtle emotional coloring
-function addEmotionalTone(text) {
-    // Add emphasis words that humans use
-    const emphasisWords = {
-        'very ': ['really ', 'quite ', 'pretty ', 'super '],
-        'extremely ': ['really ', 'incredibly ', 'super ', 'totally '],
-        'highly ': ['very ', 'really ', 'quite '],
-    };
+// Vary sentences like real students write
+function varyStudentSentences(text) {
+    const sentences = text.match(/[^.!?]+[.!?]+/g) || [text];
+    const processed = [];
     
-    let result = text;
-    for (const [original, replacements] of Object.entries(emphasisWords)) {
-        const regex = new RegExp(original, 'gi');
-        result = result.replace(regex, () => {
-            return replacements[Math.floor(Math.random() * replacements.length)];
-        });
-    }
-    
-    // Add thinking words (shows human thought process)
-    if (Math.random() < 0.2) {
-        const thinkingPhrases = [
-            'I think ', 'I believe ', 'Seems like ', 'Looks like ', 
-            'Probably ', 'Maybe ', 'Perhaps '
-        ];
-        const phrase = thinkingPhrases[Math.floor(Math.random() * thinkingPhrases.length)];
-        const sentences = result.split(/(?<=[.!?])\s+/);
-        if (sentences.length > 1) {
-            const randomIndex = Math.floor(Math.random() * sentences.length);
-            sentences[randomIndex] = phrase + sentences[randomIndex].charAt(0).toLowerCase() + 
-                                    sentences[randomIndex].slice(1);
-            result = sentences.join(' ');
+    for (let i = 0; i < sentences.length; i++) {
+        let sentence = sentences[i].trim();
+        const words = sentence.split(/\s+/);
+        
+        // Mix short and long sentences (key for bypassing detectors)
+        if (i > 0) {
+            const prevLength = processed[processed.length - 1].split(/\s+/).length;
+            
+            // After a long sentence, make it short
+            if (prevLength > 15 && words.length > 10) {
+                const midPoint = Math.floor(words.length / 2);
+                processed.push(words.slice(0, midPoint).join(' ') + '.');
+                processed.push(words.slice(midPoint).join(' '));
+            }
+            // After a short sentence, keep normal or combine
+            else if (prevLength < 6 && words.length < 8 && i < sentences.length - 1) {
+                processed.push(sentence.replace(/\.$/, ',') + ' and ' + 
+                             sentences[i + 1].charAt(0).toLowerCase() + sentences[i + 1].slice(1));
+                i++;
+            } else {
+                processed.push(sentence);
+            }
+        } else {
+            processed.push(sentence);
         }
     }
     
-    return result;
+    return processed.join(' ');
 }
 
-// Balance the humanization to avoid over-correction
-function balanceHumanization(text) {
-    // Fix any double spaces
+// Remove all AI markers
+function removeAIMarkers(text) {
+    // Remove AI's favorite starting phrases
+    text = text.replace(/^(Furthermore|Moreover|Additionally|In conclusion|In summary|To summarize|Overall|In essence|Essentially|Fundamentally),?\s*/gi, '');
+    
+    // Remove embedded AI phrases
+    text = text.replace(/\b(it is evident that|it is clear that|it is apparent that|it can be observed that|one can see that|research indicates that|studies show that|data suggests that|evidence indicates that)\b/gi, '');
+    
+    // Remove academic hedging
+    text = text.replace(/\b(arguably|presumably|ostensibly|purportedly|allegedly|seemingly|apparently)\b/gi, '');
+    
+    // Remove overly precise language
+    text = text.replace(/\b(precisely|specifically|exactly|particularly|especially)\b/gi, '');
+    
+    return text;
+}
+
+// Add student-style transitions
+function studentTransitions(text) {
+    const sentences = text.split(/(?<=[.!?])\s+/);
+    
+    for (let i = 1; i < sentences.length; i++) {
+        // Add simple transitions between some sentences
+        if (Math.random() < 0.25) {
+            const transitions = [
+                'Also, ',
+                'Plus, ',
+                'Another thing is ',
+                'Oh and ',
+                'The thing is, ',
+                'What else... ',
+                'Anyway, '
+            ];
+            
+            if (!sentences[i].match(/^(Also|Plus|Another|Oh|The thing|What|Anyway|But|So|And)/)) {
+                const transition = transitions[Math.floor(Math.random() * transitions.length)];
+                sentences[i] = transition + sentences[i].charAt(0).toLowerCase() + sentences[i].slice(1);
+            }
+        }
+    }
+    
+    return sentences.join(' ');
+}
+
+// Final polish for student writing
+function finalStudentPolish(text) {
+    // Fix spacing
     text = text.replace(/\s+/g, ' ');
     
-    // Fix sentence case after periods
+    // Fix sentence capitalization
     text = text.replace(/\.\s+([a-z])/g, (match, letter) => '. ' + letter.toUpperCase());
     
-    // Ensure proper capitalization at start
+    // Start with capital
     text = text.charAt(0).toUpperCase() + text.slice(1);
     
-    // Remove empty sentences
-    text = text.replace(/\.\s*\./g, '.');
+    // Remove double punctuation
+    text = text.replace(/\.\./g, '.');
+    text = text.replace(/,,/g, ',');
     
-    // Fix any lingering formal language
-    text = text.replace(/\b(shall|whom|whilst|albeit|henceforth|thereof|wherein|whereby)\b/gi, 
-        (match) => {
-            const replacements = {
-                'shall': 'will',
-                'whom': 'who',
-                'whilst': 'while',
-                'albeit': 'although',
-                'henceforth': 'from now on',
-                'thereof': 'of it',
-                'wherein': 'where',
-                'whereby': 'by which'
-            };
-            return replacements[match.toLowerCase()] || match;
-        });
+    // Add some personality phrases students use
+    const personalityPhrases = {
+        'This means': 'So this means',
+        'This shows': 'This basically shows',
+        'This suggests': 'This kind of suggests',
+        'This indicates': 'This shows',
+        'We can see': 'You can see',
+        'One might': 'You might',
+        'It appears': 'It looks like',
+        'It seems': 'Seems like',
+    };
+    
+    for (const [formal, casual] of Object.entries(personalityPhrases)) {
+        text = text.replace(new RegExp('\\b' + formal + '\\b', 'gi'), casual);
+    }
+    
+    // Students often end with simple conclusions
+    if (text.length > 100) {
+        const endings = [
+            ' So yeah, that\'s basically it.',
+            ' That\'s pretty much the main idea.',
+            ' And that\'s what I think about it.',
+            ' So that\'s how it works.',
+            ' That\'s the basic idea anyway.',
+        ];
+        
+        // 15% chance to add a student-style ending
+        if (Math.random() < 0.15) {
+            text = text.replace(/\.$/, endings[Math.floor(Math.random() * endings.length)]);
+        }
+    }
     
     return text.trim();
 }
