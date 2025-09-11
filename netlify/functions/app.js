@@ -114,21 +114,21 @@ exports.handler = async (event, context) => {
         if (!humanizedText) {
             const patterns = [
                 // Common output patterns for AI humanizers
-                /<textarea[^>]*id="[^"]*output[^"]*"[^>]*>(.*?)<\/textarea>/is,
-                /<textarea[^>]*class="[^"]*output[^"]*"[^>]*>(.*?)<\/textarea>/is,
-                /<div[^>]*id="[^"]*output[^"]*"[^>]*>(.*?)<\/div>/is,
-                /<div[^>]*class="[^"]*output[^"]*"[^>]*>(.*?)<\/div>/is,
-                /<div[^>]*id="[^"]*result[^"]*"[^>]*>(.*?)<\/div>/is,
-                /<div[^>]*class="[^"]*result[^"]*"[^>]*>(.*?)<\/div>/is,
+                /<textarea[^>]*id="[^"]*output[^"]*"[^>]*>(.*?)<\/textarea>/gis,
+                /<textarea[^>]*class="[^"]*output[^"]*"[^>]*>(.*?)<\/textarea>/gis,
+                /<div[^>]*id="[^"]*output[^"]*"[^>]*>(.*?)<\/div>/gis,
+                /<div[^>]*class="[^"]*output[^"]*"[^>]*>(.*?)<\/div>/gis,
+                /<div[^>]*id="[^"]*result[^"]*"[^>]*>(.*?)<\/div>/gis,
+                /<div[^>]*class="[^"]*result[^"]*"[^>]*>(.*?)<\/div>/gis,
                 // Try any textarea after our input
-                /<textarea[^>]*>((?:(?!<textarea).)*?)<\/textarea>/is,
+                /<textarea[^>]*>((?:(?!<textarea).)*?)<\/textarea>/gis,
                 // Try divs with substantial content
-                /<div[^>]*class="[^"]*content[^"]*"[^>]*>(.*?)<\/div>/is
+                /<div[^>]*class="[^"]*content[^"]*"[^>]*>(.*?)<\/div>/gis
             ];
 
             for (let i = 0; i < patterns.length; i++) {
                 const pattern = patterns[i];
-                const matches = responseHtml.matchAll(new RegExp(pattern.source, pattern.flags));
+                const matches = [...responseHtml.matchAll(pattern)];
                 
                 for (const match of matches) {
                     if (match[1]) {
