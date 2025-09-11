@@ -55,8 +55,8 @@ exports.handler = async (event, context) => {
 
         console.log(`Processing text with ${wordCount} words...`);
 
-        // Apply advanced humanization for 80%+ success
-        const humanizedText = await advancedHumanize(inputText);
+        // Apply efficient humanization
+        const humanizedText = efficientHumanize(inputText);
 
         // Return the humanized text with word count info
         return {
@@ -80,1022 +80,556 @@ exports.handler = async (event, context) => {
     }
 };
 
-// Advanced humanization for 80%+ success rate
-async function advancedHumanize(text) {
-    // Core strategy: Complete rewrite, not just word replacement
+// Efficient humanization focused on what actually works
+function efficientHumanize(text) {
+    // Step 1: Strip and rebuild
+    text = stripAIMarkers(text);
     
-    // Step 1: Break down to core meaning
-    const sentences = extractSentences(text);
-    const rewritten = [];
+    // Step 2: Simplify vocabulary
+    text = simplifyVocabulary(text);
     
-    // Step 2: Rewrite each sentence from scratch
-    for (let i = 0; i < sentences.length; i++) {
-        const sentence = sentences[i];
-        
-        // Completely restructure the sentence
-        let newSentence = rewriteSentenceCompletely(sentence, i);
-        
-        // Add human elements
-        newSentence = addHumanElements(newSentence, i, sentences.length);
-        
-        rewritten.push(newSentence);
-    }
+    // Step 3: Break sentences
+    text = breakSentences(text);
     
-    // Step 3: Connect with natural flow
-    let result = rewritten.join(' ');
+    // Step 4: Add human touch
+    text = addHumanTouch(text);
     
-    // Step 4: Final humanization pass
-    result = finalHumanPass(result);
+    // Step 5: Final cleanup
+    text = finalCleanup(text);
     
-    return result;
+    return text;
 }
 
-// Extract sentences properly
-function extractSentences(text) {
-    // Clean up first
-    text = text.replace(/\s+/g, ' ').trim();
+// Remove AI markers completely
+function stripAIMarkers(text) {
+    // Remove transition words at start of sentences
+    text = text.replace(/\b(Furthermore|Moreover|Additionally|However|Nevertheless|Therefore|Thus|Hence|Consequently|Subsequently|Initially|Finally|Similarly|Likewise|Conversely|Alternatively|Specifically|Generally|Typically|Particularly|Essentially|Fundamentally|Ultimately|Accordingly|Notably|Importantly|Significantly|Interestingly|Surprisingly|Unfortunately|Fortunately|Admittedly|Granted|Indeed|Obviously|Clearly|Evidently|Apparently|Presumably|Arguably),?\s+/gi, '');
     
-    // Split by sentence endings
-    const sentences = text.match(/[^.!?]+[.!?]+/g) || [text];
+    // Remove academic phrases
+    text = text.replace(/It is important to note that/gi, '');
+    text = text.replace(/It should be noted that/gi, '');
+    text = text.replace(/It is worth mentioning that/gi, '');
+    text = text.replace(/In conclusion/gi, '');
+    text = text.replace(/In summary/gi, '');
+    text = text.replace(/To summarize/gi, '');
+    text = text.replace(/Overall/gi, '');
+    text = text.replace(/In essence/gi, '');
+    text = text.replace(/Essentially/gi, '');
+    text = text.replace(/Fundamentally/gi, '');
+    text = text.replace(/It is evident that/gi, '');
+    text = text.replace(/It is clear that/gi, '');
+    text = text.replace(/Research indicates/gi, 'Studies show');
+    text = text.replace(/Data suggests/gi, 'Numbers show');
+    text = text.replace(/Evidence indicates/gi, 'Proof shows');
     
-    return sentences.map(s => s.trim());
+    return text;
 }
 
-// Completely rewrite each sentence
-function rewriteSentenceCompletely(sentence, index) {
-    // First, strip it to basic meaning
-    let rewritten = sentence;
-    
-    // Remove all complex vocabulary first
-    const complexToSimple = {
-        // Business/Tech terms
-        'artificial intelligence': 'AI',
-        'machine learning': 'computers learning',
-        'algorithms': 'computer rules',
-        'optimize': 'make better',
-        'optimization': 'making things better',
-        'leverage': 'use',
+// Simplify vocabulary efficiently
+function simplifyVocabulary(text) {
+    // Most common AI words to simple words
+    const replacements = {
         'utilize': 'use',
-        'implement': 'put in place',
-        'implementation': 'putting it in place',
-        'facilitate': 'make easier',
-        'enhance': 'improve',
-        'establish': 'set up',
+        'utilized': 'used',
+        'utilizing': 'using',
+        'utilization': 'use',
+        'implement': 'do',
+        'implemented': 'did',
+        'implementing': 'doing',
+        'implementation': 'doing',
+        'facilitate': 'help',
+        'facilitated': 'helped',
+        'facilitates': 'helps',
         'demonstrate': 'show',
+        'demonstrated': 'showed',
+        'demonstrates': 'shows',
+        'establish': 'set up',
+        'established': 'set up',
+        'establishing': 'setting up',
+        'enhance': 'improve',
+        'enhanced': 'improved',
+        'enhances': 'improves',
+        'optimize': 'make better',
+        'optimized': 'made better',
+        'optimization': 'making better',
+        'leverage': 'use',
+        'leveraging': 'using',
+        'leveraged': 'used',
         'significant': 'big',
+        'significantly': 'a lot',
         'substantial': 'large',
-        'considerable': 'a lot of',
+        'substantially': 'a lot',
+        'considerable': 'big',
+        'considerably': 'a lot',
         'numerous': 'many',
         'various': 'different',
-        'multiple': 'several',
+        'multiple': 'many',
         'comprehensive': 'complete',
         'fundamental': 'basic',
+        'fundamentally': 'basically',
         'essential': 'needed',
-        'crucial': 'really important',
-        'critical': 'very important',
+        'essentially': 'basically',
+        'crucial': 'important',
+        'critical': 'important',
         'primary': 'main',
-        'achieve': 'reach',
-        'accomplish': 'finish',
+        'primarily': 'mainly',
+        'achieve': 'get',
+        'achieved': 'got',
+        'achieving': 'getting',
+        'accomplish': 'do',
+        'accomplished': 'did',
         'obtain': 'get',
+        'obtained': 'got',
         'acquire': 'get',
+        'acquired': 'got',
         'maintain': 'keep',
-        'sustain': 'keep going',
+        'maintained': 'kept',
+        'maintaining': 'keeping',
         'ensure': 'make sure',
+        'ensuring': 'making sure',
         'require': 'need',
+        'required': 'needed',
+        'requiring': 'needing',
         'indicate': 'show',
-        'suggest': 'hint',
+        'indicated': 'showed',
+        'indicates': 'shows',
+        'suggest': 'show',
+        'suggested': 'showed',
+        'suggests': 'shows',
         'imply': 'mean',
+        'implied': 'meant',
+        'implies': 'means',
         'reveal': 'show',
+        'revealed': 'showed',
+        'reveals': 'shows',
         'exhibit': 'show',
+        'exhibited': 'showed',
+        'exhibits': 'shows',
         'display': 'show',
-        'present': 'give',
+        'displayed': 'showed',
+        'displays': 'shows',
         'provide': 'give',
+        'provided': 'gave',
+        'provides': 'gives',
         'contribute': 'add',
+        'contributed': 'added',
+        'contributes': 'adds',
         'constitute': 'make up',
+        'constitutes': 'makes up',
         'comprise': 'include',
-        'consist': 'be made of',
-        'contain': 'have',
+        'comprises': 'includes',
         'incorporate': 'include',
+        'incorporated': 'included',
+        'incorporates': 'includes',
         'integrate': 'combine',
-        'combine': 'mix',
-        'merge': 'join',
+        'integrated': 'combined',
+        'integrates': 'combines',
         'transform': 'change',
-        'convert': 'turn into',
+        'transformed': 'changed',
+        'transforms': 'changes',
+        'transformation': 'change',
         'modify': 'change',
+        'modified': 'changed',
+        'modifies': 'changes',
         'alter': 'change',
-        'adjust': 'fix',
+        'altered': 'changed',
+        'alters': 'changes',
         'adapt': 'change',
+        'adapted': 'changed',
+        'adapts': 'changes',
         'evolve': 'grow',
-        'develop': 'build',
+        'evolved': 'grew',
+        'evolves': 'grows',
+        'develop': 'make',
+        'developed': 'made',
+        'develops': 'makes',
+        'development': 'growth',
         'progress': 'move forward',
-        'advance': 'go forward',
-        'proceed': 'go on',
+        'progressed': 'moved forward',
+        'advance': 'move forward',
+        'advanced': 'moved forward',
+        'proceed': 'go',
+        'proceeded': 'went',
         'continue': 'keep going',
-        'persist': 'keep at it',
-        'remain': 'stay',
-        'retain': 'keep',
-        'preserve': 'save',
+        'continued': 'kept going',
         'eliminate': 'remove',
-        'eradicate': 'get rid of',
-        'diminish': 'reduce',
+        'eliminated': 'removed',
+        'eliminates': 'removes',
+        'reduce': 'lower',
+        'reduced': 'lowered',
+        'reduces': 'lowers',
         'decrease': 'lower',
-        'reduce': 'cut down',
-        'minimize': 'make smaller',
-        'maximize': 'make bigger',
+        'decreased': 'lowered',
+        'decreases': 'lowers',
         'increase': 'raise',
+        'increased': 'raised',
+        'increases': 'raises',
         'expand': 'grow',
-        'extend': 'stretch',
-        'broaden': 'widen',
-        'amplify': 'make louder',
-        'intensify': 'make stronger',
-        'strengthen': 'make strong',
-        'reinforce': 'back up',
+        'expanded': 'grew',
+        'expands': 'grows',
         'emphasize': 'stress',
+        'emphasized': 'stressed',
+        'emphasizes': 'stresses',
         'highlight': 'point out',
-        'underscore': 'stress',
+        'highlighted': 'pointed out',
+        'highlights': 'points out',
         'illustrate': 'show',
-        'exemplify': 'be an example of',
+        'illustrated': 'showed',
+        'illustrates': 'shows',
+        'exemplify': 'show',
+        'exemplified': 'showed',
+        'exemplifies': 'shows',
         'represent': 'stand for',
+        'represented': 'stood for',
+        'represents': 'stands for',
         'signify': 'mean',
+        'signified': 'meant',
+        'signifies': 'means',
         'denote': 'mean',
-        'symbolize': 'represent',
+        'denoted': 'meant',
+        'denotes': 'means',
         'characterize': 'describe',
+        'characterized': 'described',
+        'characterizes': 'describes',
         'define': 'explain',
-        'describe': 'tell about',
-        'explain': 'make clear',
-        'clarify': 'clear up',
-        'elaborate': 'add detail',
-        'specify': 'be exact',
-        'detail': 'list',
-        'outline': 'sketch',
-        'summarize': 'sum up',
-        'conclude': 'end',
-        'terminate': 'stop',
-        'cease': 'stop',
-        'halt': 'stop',
-        'discontinue': 'stop',
-        'abandon': 'give up',
-        'relinquish': 'let go',
-        'surrender': 'give up',
-        'yield': 'give in',
-        'submit': 'turn in',
-        'deliver': 'bring',
-        'transmit': 'send',
-        'communicate': 'talk',
-        'convey': 'tell',
-        'express': 'say',
-        'articulate': 'say clearly',
-        'state': 'say',
-        'declare': 'announce',
-        'proclaim': 'announce',
-        'announce': 'tell',
-        'inform': 'tell',
-        'notify': 'let know',
-        'advise': 'tell',
-        'recommend': 'suggest',
-        'propose': 'suggest',
-        'advocate': 'support',
-        'promote': 'push',
-        'encourage': 'support',
-        'stimulate': 'boost',
-        'motivate': 'inspire',
-        'inspire': 'move',
-        'influence': 'affect',
-        'impact': 'affect',
-        'affect': 'change',
-        'shape': 'form',
-        'mold': 'shape',
-        'determine': 'decide',
-        'decide': 'choose',
-        'select': 'pick',
-        'choose': 'pick',
-        'opt': 'choose',
-        'prefer': 'like better',
-        'favor': 'like',
-        'appreciate': 'value',
-        'value': 'care about',
-        'respect': 'honor',
-        'admire': 'look up to',
-        'regard': 'see',
-        'consider': 'think about',
-        'contemplate': 'think about',
-        'ponder': 'think about',
-        'reflect': 'think',
-        'meditate': 'think deeply',
-        'deliberate': 'think carefully',
-        'evaluate': 'judge',
-        'assess': 'check',
+        'defined': 'explained',
+        'defines': 'explains',
         'examine': 'look at',
-        'inspect': 'check',
-        'investigate': 'look into',
-        'explore': 'look at',
+        'examined': 'looked at',
+        'examines': 'looks at',
         'analyze': 'study',
-        'study': 'learn about',
-        'research': 'look up',
+        'analyzed': 'studied',
+        'analyzes': 'studies',
+        'evaluate': 'check',
+        'evaluated': 'checked',
+        'evaluates': 'checks',
+        'assess': 'check',
+        'assessed': 'checked',
+        'assesses': 'checks',
+        'investigate': 'look into',
+        'investigated': 'looked into',
+        'investigates': 'looks into',
+        'explore': 'look at',
+        'explored': 'looked at',
+        'explores': 'looks at',
         'discover': 'find',
-        'uncover': 'find',
-        'detect': 'find',
-        'identify': 'spot',
+        'discovered': 'found',
+        'discovers': 'finds',
+        'identify': 'find',
+        'identified': 'found',
+        'identifies': 'finds',
         'recognize': 'know',
+        'recognized': 'knew',
+        'recognizes': 'knows',
         'acknowledge': 'admit',
-        'admit': 'say yes',
-        'confess': 'admit',
-        'deny': 'say no',
-        'reject': 'turn down',
-        'refuse': 'say no',
-        'decline': 'turn down',
-        'accept': 'take',
-        'embrace': 'accept',
-        'adopt': 'take on',
-        'assume': 'take on',
-        'undertake': 'take on',
+        'acknowledged': 'admitted',
+        'acknowledges': 'admits',
+        'determine': 'find out',
+        'determined': 'found out',
+        'determines': 'finds out',
+        'conclude': 'end',
+        'concluded': 'ended',
+        'concludes': 'ends',
         'initiate': 'start',
-        'commence': 'begin',
-        'launch': 'start',
-        'introduce': 'bring in',
-        'present': 'show',
-        'offer': 'give',
-        'propose': 'suggest',
-        'submit': 'hand in',
-        'apply': 'use',
-        'employ': 'use',
-        'utilize': 'use',
-        'operate': 'run',
-        'function': 'work',
-        'perform': 'do',
-        'execute': 'do',
-        'conduct': 'do',
-        'carry out': 'do',
-        'complete': 'finish',
-        'fulfill': 'complete',
-        'satisfy': 'meet',
-        'meet': 'reach',
-        'exceed': 'go over',
-        'surpass': 'beat',
-        'outperform': 'do better than',
-        'excel': 'do great',
-        'succeed': 'win',
-        'triumph': 'win',
-        'prevail': 'win',
-        'overcome': 'beat',
-        'conquer': 'beat',
-        'defeat': 'beat',
-        'master': 'learn',
-        'dominate': 'control',
-        'control': 'manage',
-        'manage': 'handle',
-        'handle': 'deal with',
-        'address': 'deal with',
-        'tackle': 'take on',
-        'approach': 'go to',
-        'encounter': 'meet',
-        'face': 'meet',
-        'confront': 'face',
-        'challenge': 'test',
-        'test': 'try',
-        'try': 'attempt',
-        'attempt': 'try',
-        'endeavor': 'try',
-        'strive': 'try hard',
-        'struggle': 'fight',
-        'battle': 'fight',
-        'combat': 'fight',
-        'resist': 'fight against',
-        'oppose': 'go against',
-        'protest': 'object',
-        'object': 'disagree',
-        'disagree': 'not agree',
-        'dispute': 'argue',
-        'argue': 'fight',
-        'debate': 'discuss',
-        'discuss': 'talk about',
-        'converse': 'talk',
-        'chat': 'talk',
-        'speak': 'talk',
-        'utter': 'say',
-        'voice': 'say',
-        'pronounce': 'say',
-        'mention': 'say',
-        'note': 'point out',
-        'observe': 'see',
-        'notice': 'see',
-        'perceive': 'see',
-        'view': 'see',
-        'witness': 'see',
-        'watch': 'look at',
-        'gaze': 'look',
-        'stare': 'look hard',
-        'glance': 'quick look',
-        'glimpse': 'quick look',
-        'peek': 'look',
-        'peer': 'look closely',
-        'scrutinize': 'look closely',
-        'monitor': 'watch',
-        'supervise': 'watch over',
-        'oversee': 'watch',
-        'regulate': 'control',
-        'govern': 'rule',
-        'administer': 'run',
-        'direct': 'lead',
-        'guide': 'lead',
-        'lead': 'be in charge',
-        'command': 'order',
-        'instruct': 'teach',
-        'educate': 'teach',
-        'train': 'teach',
-        'coach': 'teach',
-        'mentor': 'guide',
-        'tutor': 'teach',
-        'lecture': 'teach',
-        'demonstrate': 'show',
-        'display': 'show',
-        'exhibit': 'show',
-        'manifest': 'show',
-        'reveal': 'show',
-        'expose': 'show',
-        'uncover': 'find',
-        'disclose': 'tell',
-        'divulge': 'tell',
-        'share': 'give',
-        'distribute': 'hand out',
-        'allocate': 'give out',
-        'assign': 'give',
-        'designate': 'name',
-        'appoint': 'name',
-        'nominate': 'name',
-        'elect': 'choose',
-        'vote': 'pick',
-        'decide': 'choose',
-        'resolve': 'fix',
-        'solve': 'fix',
-        'remedy': 'fix',
-        'repair': 'fix',
-        'mend': 'fix',
-        'restore': 'bring back',
-        'recover': 'get back',
-        'retrieve': 'get back',
-        'reclaim': 'take back',
-        'regain': 'get back',
-        'return': 'go back',
-        'revert': 'go back',
-        'retreat': 'go back',
-        'withdraw': 'pull back',
-        'retire': 'step down',
-        'resign': 'quit',
-        'quit': 'stop',
-        'leave': 'go',
-        'depart': 'leave',
-        'exit': 'leave',
-        'evacuate': 'leave',
-        'flee': 'run away',
-        'escape': 'get away',
-        'avoid': 'stay away from',
-        'evade': 'dodge',
-        'dodge': 'avoid',
-        'sidestep': 'avoid',
-        'bypass': 'go around',
-        'circumvent': 'go around',
-        'navigate': 'find way',
-        'traverse': 'cross',
-        'journey': 'travel',
-        'travel': 'go',
-        'voyage': 'travel',
-        'tour': 'travel',
-        'visit': 'go to',
-        'attend': 'go to',
-        'participate': 'take part',
-        'engage': 'take part',
-        'involve': 'include',
-        'include': 'have',
-        'encompass': 'include',
-        'embrace': 'include',
-        'cover': 'include',
-        'span': 'cover',
-        'range': 'go from',
-        'vary': 'change',
-        'differ': 'be different',
-        'contrast': 'be different',
-        'compare': 'look at',
-        'match': 'go with',
-        'correspond': 'match',
-        'relate': 'connect',
-        'link': 'connect',
-        'connect': 'join',
-        'attach': 'stick',
-        'bind': 'tie',
-        'unite': 'join',
-        'combine': 'put together',
-        'blend': 'mix',
-        'mix': 'combine',
-        'fuse': 'join',
-        'merge': 'combine',
-        'integrate': 'combine',
-        'separate': 'split',
-        'divide': 'split',
-        'split': 'break',
-        'break': 'snap',
-        'crack': 'break',
-        'shatter': 'break',
-        'destroy': 'wreck',
-        'demolish': 'wreck',
-        'ruin': 'wreck',
-        'damage': 'hurt',
-        'harm': 'hurt',
-        'injure': 'hurt',
-        'wound': 'hurt',
-        'heal': 'get better',
-        'cure': 'fix',
-        'treat': 'help',
-        'aid': 'help',
-        'assist': 'help',
-        'support': 'help',
-        'back': 'support',
-        'endorse': 'support',
-        'sponsor': 'pay for',
-        'fund': 'pay for',
-        'finance': 'pay for',
-        'invest': 'put money in',
-        'spend': 'use money',
-        'purchase': 'buy',
-        'acquire': 'get',
-        'obtain': 'get',
-        'gain': 'get',
-        'earn': 'make',
-        'win': 'get',
-        'lose': 'not have',
-        'forfeit': 'lose',
-        'sacrifice': 'give up',
-        'surrender': 'give up',
-        'yield': 'give',
-        'concede': 'give in',
-        'grant': 'give',
-        'award': 'give',
-        'bestow': 'give',
-        'confer': 'give',
-        'donate': 'give',
-        'contribute': 'give',
-        'supply': 'give',
-        'furnish': 'give',
-        'equip': 'give tools',
-        'arm': 'give weapons',
-        'prepare': 'get ready',
-        'ready': 'prepare',
-        'arrange': 'set up',
-        'organize': 'set up',
-        'plan': 'think ahead',
-        'design': 'plan',
-        'devise': 'plan',
-        'formulate': 'make',
-        'create': 'make',
-        'produce': 'make',
-        'generate': 'make',
-        'manufacture': 'make',
-        'construct': 'build',
-        'build': 'make',
-        'erect': 'build',
-        'assemble': 'put together',
-        'compile': 'put together',
-        'compose': 'write',
-        'write': 'put down',
-        'draft': 'write',
-        'pen': 'write',
-        'type': 'write',
-        'print': 'write',
-        'publish': 'put out',
-        'release': 'let out',
-        'issue': 'put out',
-        'distribute': 'hand out',
-        'circulate': 'pass around',
-        'spread': 'get around',
-        'disseminate': 'spread',
-        'broadcast': 'send out',
-        'transmit': 'send',
-        'relay': 'pass on',
-        'forward': 'send on',
-        'transfer': 'move',
-        'transport': 'move',
-        'carry': 'take',
-        'convey': 'take',
-        'deliver': 'bring',
-        'ship': 'send',
-        'mail': 'send',
-        'post': 'send',
-        'dispatch': 'send',
-        'route': 'send',
-        'direct': 'point',
-        'steer': 'guide',
-        'pilot': 'fly',
-        'navigate': 'find way',
-        'drive': 'go',
-        'ride': 'go on',
-        'walk': 'go on foot',
-        'run': 'go fast',
-        'sprint': 'run fast',
-        'jog': 'run slow',
-        'march': 'walk',
-        'stride': 'walk',
-        'step': 'walk',
-        'pace': 'walk',
-        'stroll': 'walk slow',
-        'wander': 'walk around',
-        'roam': 'walk around',
-        'drift': 'float',
-        'float': 'stay up',
-        'sink': 'go down',
-        'drop': 'fall',
-        'fall': 'go down',
-        'descend': 'go down',
-        'plunge': 'fall fast',
-        'dive': 'jump down',
-        'jump': 'leap',
-        'leap': 'jump',
-        'hop': 'jump',
-        'skip': 'jump',
-        'bound': 'jump',
-        'spring': 'jump',
-        'vault': 'jump over',
-        'hurdle': 'jump over',
-        'climb': 'go up',
-        'ascend': 'go up',
-        'rise': 'go up',
-        'mount': 'go up',
-        'scale': 'climb',
-        'elevate': 'lift',
-        'lift': 'pick up',
-        'raise': 'lift',
-        'hoist': 'lift',
-        'boost': 'lift',
-        'lower': 'bring down',
-        'reduce': 'make less',
-        'decrease': 'make less',
-        'diminish': 'make less',
-        'lessen': 'make less',
-        'shrink': 'get smaller',
-        'contract': 'get smaller',
-        'compress': 'squeeze',
-        'squeeze': 'press',
-        'press': 'push',
-        'push': 'shove',
-        'shove': 'push hard',
-        'thrust': 'push',
-        'propel': 'push',
-        'pull': 'drag',
-        'drag': 'pull',
-        'haul': 'pull',
-        'tow': 'pull',
-        'draw': 'pull',
-        'attract': 'pull',
-        'repel': 'push away',
-        'repulse': 'push away',
-        'reject': 'say no',
-        'dismiss': 'send away',
-        'discharge': 'let go',
-        'fire': 'let go',
+        'initiated': 'started',
+        'initiates': 'starts',
+        'commence': 'start',
+        'commenced': 'started',
+        'commences': 'starts',
         'terminate': 'end',
-        'abolish': 'end',
-        'cancel': 'stop',
-        'annul': 'cancel',
-        'void': 'cancel',
-        'nullify': 'cancel',
-        'negate': 'cancel',
-        'reverse': 'turn around',
-        'invert': 'flip',
-        'flip': 'turn over',
-        'turn': 'move',
-        'rotate': 'turn',
-        'spin': 'turn fast',
-        'whirl': 'spin',
-        'twirl': 'spin',
-        'twist': 'turn',
-        'bend': 'curve',
-        'curve': 'bend',
-        'arch': 'curve',
-        'bow': 'bend',
-        'flex': 'bend',
-        'stretch': 'extend',
-        'extend': 'make longer',
-        'lengthen': 'make longer',
-        'elongate': 'make longer',
-        'shorten': 'make shorter',
-        'abbreviate': 'shorten',
-        'truncate': 'cut short',
-        'cut': 'slice',
-        'slice': 'cut',
-        'chop': 'cut',
-        'hack': 'cut',
-        'carve': 'cut',
-        'sculpt': 'shape',
-        'shape': 'form',
-        'form': 'make',
-        'fashion': 'make',
-        'craft': 'make',
-        'forge': 'make',
-        'mold': 'shape',
-        'cast': 'shape',
-        
-        // Academic phrases
-        'furthermore': 'also',
-        'moreover': 'plus',
-        'additionally': 'and',
-        'however': 'but',
-        'nevertheless': 'still',
-        'nonetheless': 'but still',
-        'therefore': 'so',
-        'thus': 'so',
-        'hence': 'so',
-        'consequently': 'because of this',
-        'accordingly': 'so',
-        'subsequently': 'after that',
+        'terminated': 'ended',
+        'terminates': 'ends',
+        'individuals': 'people',
+        'individual': 'person',
+        'organizations': 'groups',
+        'organization': 'group',
+        'institutions': 'places',
+        'institution': 'place',
+        'components': 'parts',
+        'component': 'part',
+        'elements': 'parts',
+        'element': 'part',
+        'aspects': 'parts',
+        'aspect': 'part',
+        'factors': 'things',
+        'factor': 'thing',
+        'subsequently': 'then',
         'previously': 'before',
         'ultimately': 'in the end',
         'initially': 'at first',
-        'finally': 'lastly',
-        'primarily': 'mainly',
-        'particularly': 'especially',
-        'specifically': 'exactly',
-        'generally': 'usually',
-        'typically': 'normally',
         'frequently': 'often',
         'occasionally': 'sometimes',
-        'rarely': 'almost never',
-        'significantly': 'a lot',
-        'substantially': 'a lot',
-        'considerably': 'quite a bit',
+        'rarely': 'not often',
+        'typically': 'usually',
+        'generally': 'usually',
+        'specifically': 'exactly',
+        'particularly': 'especially',
         'approximately': 'about',
-        'roughly': 'about',
-        'precisely': 'exactly',
         'merely': 'just',
         'simply': 'just',
-        'essentially': 'basically',
-        'fundamentally': 'at its core',
-        'inherently': 'by nature',
-        'evidently': 'clearly',
-        'obviously': 'of course',
-        'apparently': 'it seems',
-        'presumably': 'probably',
-        'potentially': 'maybe',
-        'possibly': 'might be',
+        'actually': 'really',
+        'basically': 'simply',
         'definitely': 'for sure',
         'certainly': 'for sure',
-        'undoubtedly': 'no doubt',
         'absolutely': 'totally',
         'completely': 'fully',
-        'entirely': 'all',
-        'wholly': 'completely',
+        'entirely': 'fully',
         'partially': 'partly',
         'somewhat': 'kind of',
-        'fairly': 'pretty',
-        'quite': 'pretty',
-        'rather': 'kind of',
-        'relatively': 'compared to others',
-        'comparatively': 'compared to',
-        'respectively': 'in that order',
+        'relatively': 'compared to',
+        'respectively': 'in order',
         'collectively': 'together',
         'individually': 'one by one',
-        'separately': 'apart',
         'simultaneously': 'at the same time',
-        'concurrently': 'at once',
-        'alternately': 'taking turns',
-        'conversely': 'on the other hand',
         'alternatively': 'or',
-        'likewise': 'also',
-        'similarly': 'in the same way',
-        'equally': 'just as',
-        'correspondingly': 'matching',
-        'analogously': 'like',
-        'contrarily': 'opposite',
-        'differently': 'not the same',
-        'distinctly': 'clearly',
-        'uniquely': 'only',
-        'exclusively': 'only',
-        'solely': 'only',
-        'purely': 'just',
-        'strictly': 'only',
-        'broadly': 'widely',
-        'widely': 'a lot',
-        'extensively': 'a lot',
-        'thoroughly': 'completely',
-        'comprehensively': 'fully',
-        'systematically': 'step by step',
-        'methodically': 'carefully',
-        'strategically': 'with a plan',
-        'tactically': 'smartly',
-        'practically': 'in real life',
-        'theoretically': 'in theory',
-        'hypothetically': 'what if',
-        'conceptually': 'as an idea',
-        'philosophically': 'thinking deep',
-        'logically': 'makes sense',
-        'rationally': 'with reason',
-        'emotionally': 'with feeling',
-        'physically': 'with body',
-        'mentally': 'in mind',
-        'spiritually': 'in spirit',
-        'morally': 'right and wrong',
-        'ethically': 'right way',
-        'legally': 'by law',
-        'officially': 'formal',
-        'formally': 'proper',
-        'informally': 'casual',
-        'personally': 'for me',
-        'professionally': 'at work',
-        'academically': 'in school',
-        'scientifically': 'by science',
-        'technically': 'by the book',
-        'historically': 'in the past',
-        'traditionally': 'old way',
-        'culturally': 'by culture',
-        'socially': 'with people',
-        'politically': 'in politics',
-        'economically': 'with money',
-        'financially': 'money-wise',
-        'commercially': 'for business',
-        'industrially': 'in factories',
-        'technologically': 'with tech',
-        'digitally': 'on computers',
-        'virtually': 'online',
-        'globally': 'worldwide',
-        'internationally': 'between countries',
-        'nationally': 'in the country',
-        'locally': 'nearby',
-        'regionally': 'in the area',
-        'domestically': 'at home',
-        'internally': 'inside',
-        'externally': 'outside',
-        'centrally': 'in the middle',
-        'peripherally': 'on the edge',
-        'directly': 'straight',
-        'indirectly': 'roundabout',
-        'explicitly': 'clearly said',
-        'implicitly': 'not said but meant',
-        'overtly': 'openly',
-        'covertly': 'secretly',
-        'publicly': 'in public',
-        'privately': 'in private',
-        'openly': 'not hidden',
-        'secretly': 'hidden',
-        'quietly': 'without noise',
-        'loudly': 'with noise',
-        'silently': 'no sound',
-        'verbally': 'with words',
-        'visually': 'by sight',
-        'audibly': 'by sound',
-        'tangibly': 'can touch',
-        'intangibly': 'cannot touch',
-        'concretely': 'real',
-        'abstractly': 'idea only',
-        'literally': 'exactly',
-        'figuratively': 'not really',
-        'metaphorically': 'like something else',
-        'symbolically': 'as a symbol',
-        'realistically': 'real world',
+        'conversely': 'on the other hand',
+        'similarly': 'likewise',
+        'additionally': 'also',
+        'furthermore': 'also',
+        'moreover': 'also',
+        'however': 'but',
+        'nevertheless': 'but',
+        'nonetheless': 'still',
+        'therefore': 'so',
+        'thus': 'so',
+        'hence': 'so',
+        'consequently': 'so',
+        'accordingly': 'so',
         
-        // Phrases to remove completely
-        'it is important to note that': '',
-        'it should be noted that': '',
-        'it is worth mentioning that': '',
-        'as previously mentioned': '',
-        'as stated earlier': '',
-        'in other words': '',
-        'that is to say': '',
-        'in essence': '',
-        'in fact': '',
-        'indeed': '',
-        'of course': '',
-        'clearly': '',
-        'obviously': '',
-        'evidently': '',
-        'undoubtedly': '',
-        'certainly': '',
-        'surely': '',
-        'arguably': '',
-        'presumably': '',
-        'supposedly': '',
-        'allegedly': '',
-        'reportedly': '',
-        'apparently': '',
-        'seemingly': '',
-        'ostensibly': '',
-        'purportedly': '',
-        'notably': '',
-        'remarkably': '',
-        'significantly': '',
-        'importantly': '',
-        'interestingly': '',
-        'surprisingly': '',
-        'unfortunately': '',
-        'fortunately': '',
-        'regrettably': '',
-        'admittedly': '',
-        'granted': '',
-        'true': '',
-        'in conclusion': '',
-        'to conclude': '',
-        'in summary': '',
-        'to summarize': '',
-        'overall': '',
-        'in general': '',
-        'generally speaking': '',
-        'broadly speaking': '',
-        'on the whole': '',
-        'all in all': '',
-        'in the final analysis': '',
-        'at the end of the day': '',
-        'when all is said and done': '',
+        // Common phrases
+        'in order to': 'to',
+        'due to the fact that': 'because',
+        'in the event that': 'if',
+        'at this point in time': 'now',
+        'in the near future': 'soon',
+        'for the purpose of': 'to',
+        'with respect to': 'about',
+        'in terms of': 'about',
+        'as a result of': 'because of',
+        'in light of': 'considering',
+        'in spite of': 'despite',
+        'with regard to': 'about',
+        'in accordance with': 'following',
+        'on the basis of': 'based on',
+        'for the most part': 'mostly',
+        'to a great extent': 'mostly',
+        'in many cases': 'often',
+        
+        // Tech/business terms
+        'artificial intelligence': 'AI',
+        'machine learning': 'computers learning',
+        'algorithms': 'computer rules',
+        'optimization': 'making better',
+        'digital transformation': 'going digital',
+        'operational': 'working',
+        'systematic': 'organized',
+        'application': 'use',
+        'applications': 'uses',
+        'enables': 'lets',
+        'productivity': 'work output',
+        'accelerated': 'faster',
+        'innovation': 'new ideas',
+        'cycles': 'rounds',
+        'marketplace': 'market',
+        'reshaping': 'changing',
+        'operate': 'work',
+        'operations': 'work',
+        'competitive': 'competing',
+        'advantages': 'benefits',
+        'disadvantages': 'downsides',
+        'challenges': 'problems',
+        'opportunities': 'chances',
+        'solutions': 'answers',
+        'strategies': 'plans',
+        'approaches': 'ways',
+        'methods': 'ways',
+        'techniques': 'ways',
+        'procedures': 'steps',
+        'processes': 'steps',
+        'mechanisms': 'ways',
+        'systems': 'setups',
+        'structures': 'setups',
+        'frameworks': 'setups',
+        'models': 'examples',
+        'concepts': 'ideas',
+        'perspectives': 'views',
+        'implications': 'effects',
+        'consequences': 'results',
+        'outcomes': 'results',
+        'benefits': 'good things',
+        'requirements': 'needs',
+        'objectives': 'goals',
+        'targets': 'goals',
+        'resources': 'things we need',
+        'materials': 'stuff',
+        'equipment': 'tools',
+        'technology': 'tech',
+        'developments': 'changes',
+        'improvements': 'better things',
+        'modifications': 'changes',
+        'variations': 'differences',
+        'categories': 'groups',
+        'dimensions': 'sides',
+        'parameters': 'limits',
+        'criteria': 'standards',
+        'circumstances': 'situations',
+        'conditions': 'states',
+        'contexts': 'settings',
+        'environments': 'places',
+        'scenarios': 'cases',
+        'instances': 'times',
+        'examples': 'cases',
     };
     
-    // Apply all replacements
-    for (const [complex, simple] of Object.entries(complexToSimple)) {
-        const regex = new RegExp('\\b' + complex.replace(/[.*+?^${}()|[\]\\]/g, '\\        'realistically': 'real worl') + '\\b', 'gi');
-        rewritten = rewritten.replace(regex, simple);
+    // Apply replacements
+    for (const [complex, simple] of Object.entries(replacements)) {
+        const regex = new RegExp('\\b' + complex + '\\b', 'gi');
+        text = text.replace(regex, simple);
     }
     
-    // Now completely restructure the sentence
-    rewritten = restructureSentence(rewritten, index);
-    
-    return rewritten;
+    return text;
 }
 
-// Restructure sentences to avoid AI patterns
-function restructureSentence(sentence, index) {
-    // Remove all transition words at the beginning
-    sentence = sentence.replace(/^(Furthermore|Moreover|Additionally|However|Nevertheless|Therefore|Thus|Hence|Consequently|Subsequently|Initially|Finally|Similarly|Likewise|Conversely|Alternatively|Specifically|Generally|Typically|Particularly|Essentially|Fundamentally|Ultimately|Accordingly|Notably|Importantly|Significantly|Interestingly|Surprisingly|Unfortunately|Fortunately|Admittedly|Granted|Indeed|Obviously|Clearly|Evidently|Apparently|Presumably|Arguably),?\s*/gi, '');
+// Break sentences to avoid AI patterns
+function breakSentences(text) {
+    // Split into sentences
+    let sentences = text.match(/[^.!?]+[.!?]+/g) || [text];
+    sentences = sentences.map(s => s.trim());
     
-    // Break up lists (AI loves parallel structure)
-    sentence = sentence.replace(/(\w+), (\w+), and (\w+)/g, '$1. Also $2. And $3');
-    sentence = sentence.replace(/(\w+ing \w+), (\w+ing \w+), and (\w+ing \w+)/g, '$1. Then $2. Plus $3');
-    
-    // Convert passive to active voice
-    sentence = sentence.replace(/is being (\w+ed)/g, 'gets $1');
-    sentence = sentence.replace(/are being (\w+ed)/g, 'get $1');
-    sentence = sentence.replace(/was being (\w+ed)/g, 'got $1');
-    sentence = sentence.replace(/were being (\w+ed)/g, 'got $1');
-    sentence = sentence.replace(/has been (\w+ed)/g, 'got $1');
-    sentence = sentence.replace(/have been (\w+ed)/g, 'got $1');
-    sentence = sentence.replace(/will be (\w+ed)/g, 'will get $1');
-    sentence = sentence.replace(/would be (\w+ed)/g, 'would get $1');
-    sentence = sentence.replace(/can be (\w+ed)/g, 'can get $1');
-    sentence = sentence.replace(/could be (\w+ed)/g, 'could get $1');
-    sentence = sentence.replace(/should be (\w+ed)/g, 'should get $1');
-    sentence = sentence.replace(/must be (\w+ed)/g, 'must get $1');
-    sentence = sentence.replace(/may be (\w+ed)/g, 'might get $1');
-    sentence = sentence.replace(/might be (\w+ed)/g, 'might get $1');
-    
-    // Break up compound sentences at natural points
-    const words = sentence.split(' ');
-    if (words.length > 12) {
-        // Find conjunctions to break at
-        const breakWords = ['which', 'that', 'because', 'since', 'while', 'when', 'where', 'although', 'though', 'whereas', 'if', 'unless', 'until', 'before', 'after', 'as'];
-        for (let i = 5; i < words.length - 5; i++) {
-            if (breakWords.includes(words[i].toLowerCase())) {
-                // Break here
-                const part1 = words.slice(0, i).join(' ');
-                const part2 = words.slice(i).join(' ');
-                sentence = part1 + '. ' + part2.charAt(0).toUpperCase() + part2.slice(1);
-                break;
-            }
-        }
-    }
-    
-    return sentence;
-}
-
-// Add human elements based on position
-function addHumanElements(sentence, index, totalSentences) {
-    // Add contractions
-    sentence = sentence.replace(/\bit is\b/g, "it's");
-    sentence = sentence.replace(/\bthat is\b/g, "that's");
-    sentence = sentence.replace(/\bwhat is\b/g, "what's");
-    sentence = sentence.replace(/\bthere is\b/g, "there's");
-    sentence = sentence.replace(/\bhere is\b/g, "here's");
-    sentence = sentence.replace(/\bdo not\b/g, "don't");
-    sentence = sentence.replace(/\bdoes not\b/g, "doesn't");
-    sentence = sentence.replace(/\bdid not\b/g, "didn't");
-    sentence = sentence.replace(/\bcannot\b/g, "can't");
-    sentence = sentence.replace(/\bcould not\b/g, "couldn't");
-    sentence = sentence.replace(/\bwould not\b/g, "wouldn't");
-    sentence = sentence.replace(/\bshould not\b/g, "shouldn't");
-    sentence = sentence.replace(/\bwill not\b/g, "won't");
-    sentence = sentence.replace(/\bhave not\b/g, "haven't");
-    sentence = sentence.replace(/\bhas not\b/g, "hasn't");
-    sentence = sentence.replace(/\bare not\b/g, "aren't");
-    sentence = sentence.replace(/\bis not\b/g, "isn't");
-    sentence = sentence.replace(/\bwas not\b/g, "wasn't");
-    sentence = sentence.replace(/\bwere not\b/g, "weren't");
-    
-    // Random variations based on position
-    const random = Math.random();
-    
-    // First sentence variations
-    if (index === 0) {
-        if (random < 0.2) {
-            sentence = 'So ' + sentence.charAt(0).toLowerCase() + sentence.slice(1);
-        } else if (random < 0.3) {
-            sentence = 'Okay so ' + sentence.charAt(0).toLowerCase() + sentence.slice(1);
-        } else if (random < 0.4) {
-            sentence = 'Well ' + sentence.charAt(0).toLowerCase() + sentence.slice(1);
-        }
-    }
-    
-    // Middle sentences
-    else if (index > 0 && index < totalSentences - 1) {
-        if (random < 0.15) {
-            sentence = 'And ' + sentence.charAt(0).toLowerCase() + sentence.slice(1);
-        } else if (random < 0.25) {
-            sentence = 'But ' + sentence.charAt(0).toLowerCase() + sentence.slice(1);
-        } else if (random < 0.35) {
-            sentence = 'Also ' + sentence.charAt(0).toLowerCase() + sentence.slice(1);
-        } else if (random < 0.4) {
-            sentence = 'Plus ' + sentence.charAt(0).toLowerCase() + sentence.slice(1);
-        } else if (random < 0.45) {
-            sentence = 'So ' + sentence.charAt(0).toLowerCase() + sentence.slice(1);
-        }
-    }
-    
-    // Add "I think" or similar occasionally
-    if (Math.random() < 0.12 && !sentence.match(/^(I |We |They |He |She |You )/i)) {
-        const phrases = ['I think ', 'I believe ', 'I guess ', 'I feel like ', 'Seems like ', 'Looks like '];
-        sentence = phrases[Math.floor(Math.random() * phrases.length)] + sentence.charAt(0).toLowerCase() + sentence.slice(1);
-    }
-    
-    // Add filler words sparingly
-    if (Math.random() < 0.08) {
-        const fillers = ['basically', 'actually', 'really', 'just', 'like'];
-        const filler = fillers[Math.floor(Math.random() * fillers.length)];
-        const words = sentence.split(' ');
-        if (words.length > 5) {
-            const insertPoint = 2 + Math.floor(Math.random() * 3);
-            words.splice(insertPoint, 0, filler);
-            sentence = words.join(' ');
-        }
-    }
-    
-    return sentence;
-}
-
-// Final humanization pass
-function finalHumanPass(text) {
-    // Remove any remaining dashes
-    text = text.replace(/—/g, ' ');
-    text = text.replace(/–/g, ' ');
-    text = text.replace(/-/g, ' ');
-    
-    // Remove semicolons
-    text = text.replace(/;/g, '.');
-    
-    // Remove colons
-    text = text.replace(/:/g, '.');
-    
-    // Fix double spaces
-    text = text.replace(/\s+/g, ' ');
-    
-    // Fix double periods
-    text = text.replace(/\.+/g, '.');
-    
-    // Ensure proper capitalization
-    text = text.replace(/\. ([a-z])/g, (match, letter) => '. ' + letter.toUpperCase());
-    
-    // Start with capital
-    text = text.charAt(0).toUpperCase() + text.slice(1);
-    
-    // Final sentence variation check
-    const sentences = text.split(/\. /);
-    const finalSentences = [];
+    const result = [];
     
     for (let i = 0; i < sentences.length; i++) {
         let sentence = sentences[i];
-        const words = sentence.split(' ').length;
         
-        // Ensure variety in sentence lengths
-        if (i > 0) {
-            const prevWords = finalSentences[i-1].split(' ').length;
+        // Break up lists (AI loves these)
+        sentence = sentence.replace(/(\w+), (\w+), and (\w+)/g, '$1. Also $2. Plus $3');
+        sentence = sentence.replace(/(\w+ing \w+), (\w+ing \w+), and (\w+ing \w+)/g, '$1. Then $2. And $3');
+        
+        // Break long sentences
+        const words = sentence.split(' ');
+        if (words.length > 12) {
+            // Find natural break points
+            const breakWords = ['which', 'that', 'because', 'since', 'while', 'when', 'where', 'and', 'but'];
+            let breakIndex = -1;
             
-            // If previous was long, make this shorter
-            if (prevWords > 12 && words > 10) {
-                const midPoint = Math.floor(words / 2);
-                const splitWords = sentence.split(' ');
-                finalSentences.push(splitWords.slice(0, midPoint).join(' ') + '.');
-                finalSentences.push(splitWords.slice(midPoint).join(' '));
+            // Look for break point in middle third of sentence
+            const startSearch = Math.floor(words.length / 3);
+            const endSearch = Math.floor(2 * words.length / 3);
+            
+            for (let j = startSearch; j < endSearch; j++) {
+                if (breakWords.includes(words[j].toLowerCase().replace(/[,.]/, ''))) {
+                    breakIndex = j;
+                    break;
+                }
             }
-            // If previous was short, this can be normal
-            else {
-                finalSentences.push(sentence);
+            
+            if (breakIndex > 0) {
+                result.push(words.slice(0, breakIndex).join(' ') + '.');
+                result.push(words.slice(breakIndex).join(' '));
+            } else {
+                // Force break at middle
+                const mid = Math.floor(words.length / 2);
+                result.push(words.slice(0, mid).join(' ') + '.');
+                result.push(words.slice(mid).join(' '));
             }
         } else {
-            finalSentences.push(sentence);
+            result.push(sentence);
         }
     }
     
-    text = finalSentences.join('. ');
+    return result.join(' ');
+}
+
+// Add human touch
+function addHumanTouch(text) {
+    // Add contractions
+    text = text.replace(/\bit is\b/gi, "it's");
+    text = text.replace(/\bthat is\b/gi, "that's");
+    text = text.replace(/\bdo not\b/gi, "don't");
+    text = text.replace(/\bdoes not\b/gi, "doesn't");
+    text = text.replace(/\bdid not\b/gi, "didn't");
+    text = text.replace(/\bcannot\b/gi, "can't");
+    text = text.replace(/\bcould not\b/gi, "couldn't");
+    text = text.replace(/\bwould not\b/gi, "wouldn't");
+    text = text.replace(/\bshould not\b/gi, "shouldn't");
+    text = text.replace(/\bwill not\b/gi, "won't");
+    text = text.replace(/\bhave not\b/gi, "haven't");
+    text = text.replace(/\bhas not\b/gi, "hasn't");
+    text = text.replace(/\bare not\b/gi, "aren't");
+    text = text.replace(/\bis not\b/gi, "isn't");
+    text = text.replace(/\bwas not\b/gi, "wasn't");
+    text = text.replace(/\bwere not\b/gi, "weren't");
     
-    // Clean up
-    text = text.replace(/\.\./g, '.');
-    text = text.replace(/\s+/g, ' ').trim();
+    // Split into sentences for processing
+    const sentences = text.split(/(?<=[.!?])\s+/);
+    const processed = [];
     
-    // Ensure it ends with a period
+    for (let i = 0; i < sentences.length; i++) {
+        let sentence = sentences[i];
+        
+        // Add simple connectors sometimes
+        if (i > 0) {
+            const rand = Math.random();
+            if (rand < 0.15) {
+                sentence = 'And ' + sentence.charAt(0).toLowerCase() + sentence.slice(1);
+            } else if (rand < 0.25) {
+                sentence = 'But ' + sentence.charAt(0).toLowerCase() + sentence.slice(1);
+            } else if (rand < 0.35) {
+                sentence = 'So ' + sentence.charAt(0).toLowerCase() + sentence.slice(1);
+            } else if (rand < 0.4) {
+                sentence = 'Also ' + sentence.charAt(0).toLowerCase() + sentence.slice(1);
+            }
+        }
+        
+        // Add "I think" occasionally
+        if (Math.random() < 0.1 && !sentence.match(/^(I |We |They |He |She |And |But |So )/i)) {
+            const phrases = ['I think ', 'I believe ', 'Seems like '];
+            sentence = phrases[Math.floor(Math.random() * phrases.length)] + 
+                      sentence.charAt(0).toLowerCase() + sentence.slice(1);
+        }
+        
+        // Add basic filler words sparingly
+        if (Math.random() < 0.05) {
+            const words = sentence.split(' ');
+            if (words.length > 4) {
+                const fillers = ['really', 'just', 'actually'];
+                const filler = fillers[Math.floor(Math.random() * fillers.length)];
+                const pos = 2 + Math.floor(Math.random() * 2);
+                words.splice(pos, 0, filler);
+                sentence = words.join(' ');
+            }
+        }
+        
+        processed.push(sentence);
+    }
+    
+    return processed.join(' ');
+}
+
+// Final cleanup
+function finalCleanup(text) {
+    // Remove dashes
+    text = text.replace(/—/g, ' ');
+    text = text.replace(/–/g, ' ');
+    text = text.replace(/ - /g, ' ');
+    
+    // Remove semicolons and colons
+    text = text.replace(/;/g, '.');
+    text = text.replace(/:/g, '.');
+    
+    // Fix spacing
+    text = text.replace(/\s+/g, ' ');
+    text = text.replace(/\.\s*\./g, '.');
+    text = text.replace(/\s+\./g, '.');
+    
+    // Fix capitalization
+    text = text.replace(/\. ([a-z])/g, (match, letter) => '. ' + letter.toUpperCase());
+    text = text.charAt(0).toUpperCase() + text.slice(1);
+    
+    // Ensure ending punctuation
     if (!text.match(/[.!?]$/)) {
         text += '.';
     }
     
-    return text;
+    return text.trim();
 }
