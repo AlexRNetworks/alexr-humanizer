@@ -55,8 +55,8 @@ exports.handler = async (event, context) => {
 
         console.log(`Processing text with ${wordCount} words...`);
 
-        // Apply student-focused humanization
-        const humanizedText = await studentHumanize(inputText);
+        // Apply boring basic student humanization
+        const humanizedText = await basicStudentRewrite(inputText);
 
         // Return the humanized text with word count info
         return {
@@ -80,151 +80,213 @@ exports.handler = async (event, context) => {
     }
 };
 
-// Student-focused humanization matching top humanizers
-async function studentHumanize(text) {
-    // Core principle: Write like a real student (not too perfect, not too casual)
+// Basic boring student rewrite
+async function basicStudentRewrite(text) {
+    // Remove all dashes first
+    text = text.replace(/—/g, ' ');
+    text = text.replace(/–/g, ' ');
+    text = text.replace(/ - /g, ' ');
+    text = text.replace(/\s-\s/g, ' ');
     
-    // Step 1: Simplify vocabulary to high school/early college level
-    text = simplifyToStudentLevel(text);
+    // Step 1: Make everything super basic
+    text = makeBasicVocabulary(text);
     
-    // Step 2: Add natural student voice
-    text = addStudentVoice(text);
+    // Step 2: Simple sentence structure
+    text = makeSimpleSentences(text);
     
-    // Step 3: Create realistic imperfections (students aren't perfect)
-    text = addStudentImperfections(text);
+    // Step 3: Remove all fancy punctuation
+    text = removeComplexPunctuation(text);
     
-    // Step 4: Vary sentence structure (key for detection bypass)
-    text = varyStudentSentences(text);
+    // Step 4: Basic student flow
+    text = createBasicFlow(text);
     
-    // Step 5: Remove AI markers completely
-    text = removeAIMarkers(text);
-    
-    // Step 6: Add student-style transitions
-    text = studentTransitions(text);
-    
-    // Step 7: Final polish
-    text = finalStudentPolish(text);
+    // Step 5: Final cleanup
+    text = finalBasicCleanup(text);
     
     return text;
 }
 
-// Simplify to authentic student vocabulary
-function simplifyToStudentLevel(text) {
-    // Replace complex words with what students actually use
-    const studentReplacements = {
-        // Academic words → Student words
+// Convert to most basic vocabulary possible
+function makeBasicVocabulary(text) {
+    // Super basic word replacements
+    const basicWords = {
         'utilize': 'use',
-        'utilization': 'use',
-        'utilized': 'used',
-        'utilizing': 'using',
-        'implement': 'do',
-        'implementation': 'doing',
-        'implemented': 'did',
-        'facilitate': 'help',
-        'facilitates': 'helps',
+        'obtain': 'get',
+        'require': 'need',
         'demonstrate': 'show',
-        'demonstrates': 'shows',
-        'illustrated': 'showed',
-        'illustrates': 'shows',
+        'indicate': 'show',
+        'establish': 'make',
+        'develop': 'make',
+        'examine': 'look at',
+        'analyze': 'look at',
+        'consider': 'think about',
+        'understand': 'get',
+        'implement': 'do',
+        'achieve': 'get',
+        'maintain': 'keep',
+        'provide': 'give',
+        'facilitate': 'help',
+        'enhance': 'make better',
+        'improve': 'make better',
+        'increase': 'add more',
+        'decrease': 'make less',
+        'eliminate': 'get rid of',
+        'determine': 'find out',
+        'identify': 'find',
+        'discover': 'find',
+        'observe': 'see',
+        'perceive': 'see',
+        'commence': 'start',
+        'initiate': 'start',
+        'terminate': 'end',
+        'conclude': 'end',
         'approximately': 'about',
-        'subsequent': 'next',
-        'subsequently': 'after',
+        'frequently': 'often',
+        'occasionally': 'sometimes',
+        'subsequently': 'then',
+        'previously': 'before',
+        'currently': 'now',
+        'ultimately': 'in the end',
+        'generally': 'usually',
+        'particularly': 'mostly',
+        'specifically': 'exactly',
+        'essentially': 'basically',
+        'primarily': 'mainly',
+        'significantly': 'a lot',
+        'substantially': 'a lot',
         'furthermore': 'also',
         'moreover': 'also',
-        'nevertheless': 'but',
-        'nonetheless': 'still',
+        'however': 'but',
+        'therefore': 'so',
         'consequently': 'so',
-        'methodology': 'way',
-        'paradigm': 'idea',
-        'optimize': 'make better',
-        'optimization': 'improvement',
-        'prioritize': 'focus on',
-        'leverage': 'use',
-        'innovative': 'new',
-        'comprehensive': 'complete',
-        'substantial': 'big',
-        'fundamental': 'basic',
-        'establish': 'create',
-        'established': 'created',
-        'indicates': 'shows',
-        'significant': 'important',
-        'significantly': 'a lot',
-        'numerous': 'many',
-        'acquire': 'get',
-        'endeavor': 'try',
-        'commence': 'start',
-        'terminate': 'end',
-        'sufficient': 'enough',
-        'inadequate': 'not enough',
-        'preceding': 'before',
-        'aforementioned': 'mentioned',
-        'regarding': 'about',
-        'concerning': 'about',
-        'pertaining to': 'about',
         'individuals': 'people',
-        'personnel': 'staff',
-        'obtain': 'get',
-        'possess': 'have',
-        'require': 'need',
+        'organization': 'group',
+        'institution': 'place',
+        'personnel': 'people',
+        'components': 'parts',
+        'elements': 'parts',
+        'aspects': 'parts',
+        'factors': 'things',
+        'issues': 'problems',
+        'challenges': 'problems',
+        'opportunities': 'chances',
+        'solutions': 'answers',
+        'consequences': 'results',
+        'implications': 'effects',
+        'benefits': 'good things',
+        'advantages': 'good things',
+        'disadvantages': 'bad things',
+        'requirements': 'needs',
+        'objectives': 'goals',
+        'strategies': 'plans',
+        'approaches': 'ways',
+        'methods': 'ways',
+        'procedures': 'steps',
+        'concepts': 'ideas',
+        'perspectives': 'views',
+        'information': 'info',
+        'evidence': 'proof',
+        'resources': 'things',
+        'materials': 'stuff',
+        'technology': 'tech',
+        'developments': 'changes',
+        'modifications': 'changes',
+        'situations': 'times',
+        'circumstances': 'times',
+        'instances': 'times',
+        'numerous': 'many',
+        'various': 'different',
+        'multiple': 'many',
+        'several': 'some',
+        'sufficient': 'enough',
         'necessary': 'needed',
-        'essential': 'important',
-        'crucial': 'important',
-        'vital': 'important',
-        'examine': 'look at',
-        'investigate': 'look into',
-        'analyze': 'look at',
-        'synthesis': 'combination',
-        'hypothesis': 'idea',
-        'phenomenon': 'thing',
-        'criteria': 'standards',
-        'parameter': 'limit',
-        'component': 'part',
-        'element': 'part',
-        'aspect': 'part',
-        'factor': 'thing',
-        'constitute': 'make up',
-        'comprise': 'include',
-        'encompass': 'include',
-        'incorporate': 'include',
-        'initiate': 'start',
-        'undertake': 'do',
-        'conduct': 'do',
-        'perform': 'do',
-        'execute': 'do',
-        'accomplish': 'finish',
-        'achieve': 'reach',
-        'attain': 'get',
-        'ascertain': 'find out',
-        'determine': 'figure out',
-        'elucidate': 'explain',
-        'elaborate': 'explain more',
-        'delineate': 'describe',
-        'articulate': 'say',
-        'convey': 'tell',
-        'transmit': 'send',
-        'disseminate': 'spread',
-        'promulgate': 'announce',
-        'advocate': 'support',
-        'contend': 'argue',
-        'assert': 'say',
-        'postulate': 'suggest',
-        'hypothesize': 'guess',
-        'theorize': 'think',
-        'conceptualize': 'think of',
-        'perceive': 'see',
-        'discern': 'notice',
-        'observe': 'see',
-        'detect': 'find',
-        'identify': 'find',
-        'recognize': 'know',
-        'acknowledge': 'admit',
-        'comprehend': 'understand',
-        'grasp': 'understand',
-        'fathom': 'understand',
+        'essential': 'needed',
+        'crucial': 'very important',
+        'significant': 'important',
+        'substantial': 'big',
+        'comprehensive': 'complete',
+        'extensive': 'big',
+        'fundamental': 'basic',
+        'primary': 'main',
+        'principal': 'main',
+        'major': 'big',
+        'minor': 'small',
+        'adequate': 'enough',
+        'appropriate': 'right',
+        'relevant': 'related',
+        'accurate': 'right',
+        'correct': 'right',
+        'effective': 'works',
+        'efficient': 'works well',
+        'successful': 'worked',
+        'beneficial': 'helpful',
+        'positive': 'good',
+        'negative': 'bad',
+        'favorable': 'good',
+        'optimal': 'best',
+        'maximum': 'most',
+        'minimum': 'least',
+        'typical': 'normal',
+        'common': 'normal',
+        'standard': 'normal',
+        'traditional': 'old',
+        'modern': 'new',
+        'contemporary': 'current',
+        'innovative': 'new',
+        'unique': 'special',
+        'distinctive': 'different',
+        'remarkable': 'amazing',
+        'exceptional': 'special',
+        'excellent': 'great',
+        'superior': 'better',
+        'inferior': 'worse',
+        'mediocre': 'okay',
+        'satisfactory': 'okay',
+        'acceptable': 'okay',
+        'suitable': 'good for',
+        'valid': 'true',
+        'genuine': 'real',
+        'authentic': 'real',
+        'obvious': 'clear',
+        'evident': 'clear',
+        'apparent': 'clear',
+        'specific': 'exact',
+        'particular': 'certain',
+        'universal': 'all',
+        'global': 'worldwide',
+        'domestic': 'home',
+        'foreign': 'outside',
+        'external': 'outside',
+        'internal': 'inside',
+        'central': 'middle',
+        'peripheral': 'edge',
+        'adjacent': 'next to',
+        'equivalent': 'equal',
+        'identical': 'same',
+        'similar': 'alike',
+        'diverse': 'different',
+        'permanent': 'forever',
+        'temporary': 'for now',
+        'constant': 'always',
+        'frequent': 'often',
+        'rapid': 'fast',
+        'immediate': 'right now',
+        'simultaneous': 'at same time',
+        'deliberate': 'on purpose',
+        'mandatory': 'must',
+        'prohibited': 'not allowed',
+        'legitimate': 'legal',
+        'ethical': 'right',
+        'beneficial': 'good',
+        'detrimental': 'bad',
+        'productive': 'gets things done',
+        'efficient': 'works well',
+        'economical': 'saves money',
+        'valuable': 'worth a lot',
     };
     
     let result = text;
-    for (const [complex, simple] of Object.entries(studentReplacements)) {
+    for (const [complex, simple] of Object.entries(basicWords)) {
         const regex = new RegExp('\\b' + complex + '\\b', 'gi');
         result = result.replace(regex, simple);
     }
@@ -239,114 +301,19 @@ function simplifyToStudentLevel(text) {
     result = result.replace(/with respect to/gi, 'about');
     result = result.replace(/in terms of/gi, 'about');
     result = result.replace(/as a result of/gi, 'because of');
-    result = result.replace(/in light of/gi, 'considering');
-    result = result.replace(/in spite of/gi, 'despite');
-    result = result.replace(/with regard to/gi, 'about');
-    result = result.replace(/in accordance with/gi, 'following');
-    result = result.replace(/on the basis of/gi, 'based on');
-    result = result.replace(/for the most part/gi, 'mostly');
-    result = result.replace(/to a great extent/gi, 'mostly');
-    result = result.replace(/in many cases/gi, 'often');
     result = result.replace(/it is important to note that/gi, '');
     result = result.replace(/it should be noted that/gi, '');
     result = result.replace(/it is worth mentioning that/gi, '');
+    result = result.replace(/one can see that/gi, 'you can see');
+    result = result.replace(/one might argue/gi, 'someone might say');
+    result = result.replace(/it is evident that/gi, '');
+    result = result.replace(/it is clear that/gi, '');
     
     return result;
 }
 
-// Add authentic student voice
-function addStudentVoice(text) {
-    // Use contractions (students always use these)
-    const contractions = {
-        'it is': "it's",
-        'that is': "that's",
-        'what is': "what's",
-        'there is': "there's",
-        'here is': "here's",
-        'who is': "who's",
-        'he is': "he's",
-        'she is': "she's",
-        'do not': "don't",
-        'does not': "doesn't",
-        'did not': "didn't",
-        'cannot': "can't",
-        'could not': "couldn't",
-        'would not': "wouldn't",
-        'should not': "shouldn't",
-        'will not': "won't",
-        'have not': "haven't",
-        'has not': "hasn't",
-        'had not': "hadn't",
-        'are not': "aren't",
-        'is not': "isn't",
-        'was not': "wasn't",
-        'were not': "weren't",
-    };
-    
-    let result = text;
-    for (const [formal, informal] of Object.entries(contractions)) {
-        const regex = new RegExp('\\b' + formal + '\\b', 'gi');
-        result = result.replace(regex, informal);
-    }
-    
-    // Students use "I think" and "I believe" a lot
-    const sentences = result.split(/(?<=[.!?])\s+/);
-    if (sentences.length > 2 && Math.random() < 0.3) {
-        const randomIndex = 1 + Math.floor(Math.random() * (sentences.length - 1));
-        if (!sentences[randomIndex].match(/^(I |We |They |He |She )/)) {
-            sentences[randomIndex] = 'I think ' + sentences[randomIndex].charAt(0).toLowerCase() + 
-                                    sentences[randomIndex].slice(1);
-        }
-    }
-    
-    return sentences.join(' ');
-}
-
-// Add realistic student imperfections
-function addStudentImperfections(text) {
-    const sentences = text.match(/[^.!?]+[.!?]+/g) || [text];
-    
-    return sentences.map((sentence, index) => {
-        let s = sentence.trim();
-        
-        // Sometimes start with And/But (common student pattern)
-        if (index > 0 && Math.random() < 0.2) {
-            if (!s.match(/^(And|But|So|Because)/i)) {
-                const starters = ['And', 'But', 'So'];
-                s = starters[Math.floor(Math.random() * starters.length)] + ' ' + 
-                    s.charAt(0).toLowerCase() + s.slice(1);
-            }
-        }
-        
-        // Occasionally use "like" as a filler (but not too much)
-        if (Math.random() < 0.08) {
-            s = s.replace(/\b(was|is|seems)\b/, '$1 like');
-            s = s.replace(/like like/g, 'like'); // Prevent doubles
-        }
-        
-        // Sometimes use "kind of" or "sort of"
-        if (Math.random() < 0.1) {
-            s = s.replace(/\b(very|really|quite)\b/, 'kind of');
-            s = s.replace(/kind of kind of/g, 'kind of');
-        }
-        
-        // Add "basically" occasionally (students love this word)
-        if (Math.random() < 0.1 && !s.includes('basically')) {
-            s = 'Basically, ' + s.charAt(0).toLowerCase() + s.slice(1);
-        }
-        
-        // Sometimes use "stuff" or "things" instead of specific terms
-        if (Math.random() < 0.05) {
-            s = s.replace(/\b(aspects|elements|components)\b/gi, 'things');
-            s = s.replace(/\b(materials|content|information)\b/gi, 'stuff');
-        }
-        
-        return s;
-    }).join(' ');
-}
-
-// Vary sentences like real students write
-function varyStudentSentences(text) {
+// Make sentences simple and varied
+function makeSimpleSentences(text) {
     const sentences = text.match(/[^.!?]+[.!?]+/g) || [text];
     const processed = [];
     
@@ -354,24 +321,21 @@ function varyStudentSentences(text) {
         let sentence = sentences[i].trim();
         const words = sentence.split(/\s+/);
         
-        // Mix short and long sentences (key for bypassing detectors)
-        if (i > 0) {
-            const prevLength = processed[processed.length - 1].split(/\s+/).length;
-            
-            // After a long sentence, make it short
-            if (prevLength > 15 && words.length > 10) {
-                const midPoint = Math.floor(words.length / 2);
-                processed.push(words.slice(0, midPoint).join(' ') + '.');
-                processed.push(words.slice(midPoint).join(' '));
-            }
-            // After a short sentence, keep normal or combine
-            else if (prevLength < 6 && words.length < 8 && i < sentences.length - 1) {
-                processed.push(sentence.replace(/\.$/, ',') + ' and ' + 
-                             sentences[i + 1].charAt(0).toLowerCase() + sentences[i + 1].slice(1));
-                i++;
+        // Mix short and long sentences randomly
+        if (words.length > 20) {
+            // Break long sentences
+            const parts = sentence.split(/,\s+/);
+            if (parts.length > 1) {
+                processed.push(parts[0] + '.');
+                processed.push(parts.slice(1).join(' '));
             } else {
-                processed.push(sentence);
+                const mid = Math.floor(words.length / 2);
+                processed.push(words.slice(0, mid).join(' ') + '.');
+                processed.push(words.slice(mid).join(' '));
             }
+        } else if (words.length < 5 && i < sentences.length - 1) {
+            // Sometimes keep short sentences as is
+            processed.push(sentence);
         } else {
             processed.push(sentence);
         }
@@ -380,52 +344,79 @@ function varyStudentSentences(text) {
     return processed.join(' ');
 }
 
-// Remove all AI markers
-function removeAIMarkers(text) {
-    // Remove AI's favorite starting phrases
-    text = text.replace(/^(Furthermore|Moreover|Additionally|In conclusion|In summary|To summarize|Overall|In essence|Essentially|Fundamentally),?\s*/gi, '');
+// Remove complex punctuation
+function removeComplexPunctuation(text) {
+    // Remove semicolons
+    text = text.replace(/;/g, '.');
     
-    // Remove embedded AI phrases
-    text = text.replace(/\b(it is evident that|it is clear that|it is apparent that|it can be observed that|one can see that|research indicates that|studies show that|data suggests that|evidence indicates that)\b/gi, '');
+    // Remove colons except in time
+    text = text.replace(/:\s+/g, '. ');
     
-    // Remove academic hedging
-    text = text.replace(/\b(arguably|presumably|ostensibly|purportedly|allegedly|seemingly|apparently)\b/gi, '');
+    // Remove parentheses
+    text = text.replace(/\([^)]*\)/g, '');
     
-    // Remove overly precise language
-    text = text.replace(/\b(precisely|specifically|exactly|particularly|especially)\b/gi, '');
+    // Remove brackets
+    text = text.replace(/\[[^\]]*\]/g, '');
+    
+    // Remove quotes if not dialogue
+    text = text.replace(/["']/g, '');
+    
+    // Simplify multiple punctuation
+    text = text.replace(/\.+/g, '.');
+    text = text.replace(/,+/g, ',');
+    text = text.replace(/\s+/g, ' ');
     
     return text;
 }
 
-// Add student-style transitions
-function studentTransitions(text) {
+// Create basic student flow
+function createBasicFlow(text) {
     const sentences = text.split(/(?<=[.!?])\s+/);
+    const processed = [];
     
-    for (let i = 1; i < sentences.length; i++) {
-        // Add simple transitions between some sentences
-        if (Math.random() < 0.25) {
-            const transitions = [
-                'Also, ',
-                'Plus, ',
-                'Another thing is ',
-                'Oh and ',
-                'The thing is, ',
-                'What else... ',
-                'Anyway, '
-            ];
-            
-            if (!sentences[i].match(/^(Also|Plus|Another|Oh|The thing|What|Anyway|But|So|And)/)) {
-                const transition = transitions[Math.floor(Math.random() * transitions.length)];
-                sentences[i] = transition + sentences[i].charAt(0).toLowerCase() + sentences[i].slice(1);
+    for (let i = 0; i < sentences.length; i++) {
+        let sentence = sentences[i];
+        
+        // Use simple contractions
+        sentence = sentence.replace(/\bit is\b/gi, "it's");
+        sentence = sentence.replace(/\bthat is\b/gi, "that's");
+        sentence = sentence.replace(/\bdo not\b/gi, "don't");
+        sentence = sentence.replace(/\bdoes not\b/gi, "doesn't");
+        sentence = sentence.replace(/\bdid not\b/gi, "didn't");
+        sentence = sentence.replace(/\bcannot\b/gi, "can't");
+        sentence = sentence.replace(/\bcould not\b/gi, "couldn't");
+        sentence = sentence.replace(/\bwould not\b/gi, "wouldn't");
+        sentence = sentence.replace(/\bshould not\b/gi, "shouldn't");
+        sentence = sentence.replace(/\bwill not\b/gi, "won't");
+        sentence = sentence.replace(/\bhave not\b/gi, "haven't");
+        sentence = sentence.replace(/\bhas not\b/gi, "hasn't");
+        sentence = sentence.replace(/\bare not\b/gi, "aren't");
+        sentence = sentence.replace(/\bis not\b/gi, "isn't");
+        sentence = sentence.replace(/\bwas not\b/gi, "wasn't");
+        sentence = sentence.replace(/\bwere not\b/gi, "weren't");
+        
+        // Sometimes start with simple connectors
+        if (i > 0 && Math.random() < 0.3) {
+            const connectors = ['And', 'But', 'So', 'Also'];
+            if (!sentence.match(/^(And|But|So|Also|Then|Because)/i)) {
+                sentence = connectors[Math.floor(Math.random() * connectors.length)] + ' ' + 
+                          sentence.charAt(0).toLowerCase() + sentence.slice(1);
             }
         }
+        
+        // Add "I think" or "I believe" occasionally
+        if (Math.random() < 0.15 && !sentence.match(/^I /i)) {
+            sentence = 'I think ' + sentence.charAt(0).toLowerCase() + sentence.slice(1);
+        }
+        
+        processed.push(sentence);
     }
     
-    return sentences.join(' ');
+    return processed.join(' ');
 }
 
-// Final polish for student writing
-function finalStudentPolish(text) {
+// Final cleanup
+function finalBasicCleanup(text) {
     // Fix spacing
     text = text.replace(/\s+/g, ' ');
     
@@ -439,37 +430,27 @@ function finalStudentPolish(text) {
     text = text.replace(/\.\./g, '.');
     text = text.replace(/,,/g, ',');
     
-    // Add some personality phrases students use
-    const personalityPhrases = {
-        'This means': 'So this means',
-        'This shows': 'This basically shows',
-        'This suggests': 'This kind of suggests',
-        'This indicates': 'This shows',
-        'We can see': 'You can see',
-        'One might': 'You might',
-        'It appears': 'It looks like',
-        'It seems': 'Seems like',
-    };
+    // Remove any remaining complex words that slipped through
+    text = text.replace(/\b(shall|whom|whilst|albeit|hence|thereof|wherein|whereby)\b/gi, 
+        (match) => {
+            const replacements = {
+                'shall': 'will',
+                'whom': 'who',
+                'whilst': 'while',
+                'albeit': 'though',
+                'hence': 'so',
+                'thereof': 'of it',
+                'wherein': 'where',
+                'whereby': 'by which'
+            };
+            return replacements[match.toLowerCase()] || match;
+        });
     
-    for (const [formal, casual] of Object.entries(personalityPhrases)) {
-        text = text.replace(new RegExp('\\b' + formal + '\\b', 'gi'), casual);
-    }
+    // Make sure no dashes remain
+    text = text.replace(/[-–—]/g, ' ');
     
-    // Students often end with simple conclusions
-    if (text.length > 100) {
-        const endings = [
-            ' So yeah, that\'s basically it.',
-            ' That\'s pretty much the main idea.',
-            ' And that\'s what I think about it.',
-            ' So that\'s how it works.',
-            ' That\'s the basic idea anyway.',
-        ];
-        
-        // 15% chance to add a student-style ending
-        if (Math.random() < 0.15) {
-            text = text.replace(/\.$/, endings[Math.floor(Math.random() * endings.length)]);
-        }
-    }
+    // Clean up extra spaces
+    text = text.replace(/\s+/g, ' ').trim();
     
-    return text.trim();
+    return text;
 }
