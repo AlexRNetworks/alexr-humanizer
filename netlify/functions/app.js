@@ -92,63 +92,97 @@ exports.handler = async (event, context) => {
         console.log("Got response HTML, extracting humanized text...");
 
         // Step 3: Extract the humanized text from the response
-        // Look for common patterns where the result might be displayed
+        console.log("Analyzing response HTML structure...");
+        
         let humanizedText = '';
         
-        // Try different possible selectors/patterns
-        const patterns = [
-            /<textarea[^>]*id="output"[^>]*>(.*?)<\/textarea>/is,
-            /<div[^>]*class="output"[^>]*>(.*?)<\/div>/is,
-            /<div[^>]*id="result"[^>]*>(.*?)<\/div>/is,
-            /<div[^>]*class="result"[^>]*>(.*?)<\/div>/is,
-            /<div[^>]*class="humanized"[^>]*>(.*?)<\/div>/is,
-            /<textarea[^>]*class="output"[^>]*>(.*?)<\/textarea>/is
-        ];
-
-        for (const pattern of patterns) {
-            const match = responseHtml.match(pattern);
-            if (match && match[1]) {
-                humanizedText = match[1].trim();
-                // Clean up HTML entities and tags
-                humanizedText = humanizedText
-                    .replace(/<[^>]*>/g, '') // Remove HTML tags
-                    .replace(/&nbsp;/g, ' ')
-                    .replace(/&amp;/g, '&')
-                    .replace(/&lt;/g, '<')
-                    .replace(/&gt;/g, '>')
-                    .replace(/&quot;/g, '"')
-                    .trim();
-                
-                if (humanizedText.length > 20) { // Make sure we got substantial content
-                    console.log("Found humanized text using pattern");
-                    break;
+        // First, try to find JSON response (some sites return JSON)
+        try {
+            const jsonMatch = responseHtml.match(/\{[^}]*"result"[^}]*\}/);
+            if (jsonMatch) {
+                const jsonResult = JSON.parse(jsonMatch[0]);
+                if (jsonResult.result || jsonResult.humanized_text) {
+                    humanizedText = jsonResult.result || jsonResult.humanized_text;
+                    console.log("Found result in JSON response");
                 }
+            }
+        } catch (e) {
+            console.log("No JSON response found");
+        }
+
+        // If no JSON, try HTML patterns for HumanizeAI.io specifically
+        if (!humanizedText) {
+            const patterns = [
+                // Common output patterns for AI humanizers
+                /<textarea[^>]*id="[^"]*output[^"]*"[^>]*>(.*?)<\/textarea>/is,
+                /<textarea[^>]*class="[^"]*output[^"]*"[^>]*>(.*?)<\/textarea>/is,
+                /<div[^>]*id="[^"]*output[^"]*"[^>]*>(.*?)<\/div>/is,
+                /<div[^>]*class="[^"]*output[^"]*"[^>]*>(.*?)<\/div>/is,
+                /<div[^>]*id="[^"]*result[^"]*"[^>]*>(.*?)<\/div>/is,
+                /<div[^>]*class="[^"]*result[^"]*"[^>]*>(.*?)<\/div>/is,
+                // Try any textarea after our input
+                /<textarea[^>]*>((?:(?!<textarea).)*?)<\/textarea>/is,
+                // Try divs with substantial content
+                /<div[^>]*class="[^"]*content[^"]*"[^>]*>(.*?)<\/div>/is
+            ];
+
+            for (let i = 0; i < patterns.length; i++) {
+                const pattern = patterns[i];
+                const matches = responseHtml.matchAll(new RegExp(pattern.source, pattern.flags));
+                
+                for (const match of matches) {
+                    if (match[1]) {
+                        let candidateText = match[1].trim();
+                        
+                        // Clean up HTML entities and tags
+                        candidateText = candidateText
+                            .replace(/<[^>]*>/g, '') // Remove HTML tags
+                            .replace(/&nbsp;/g, ' ')
+                            .replace(/&amp;/g, '&')
+                            .replace(/&lt;/g, '<')
+                            .replace(/&gt;/g, '>')
+                            .replace(/&quot;/g, '"')
+                            .replace(/&#39;/g, "'")
+                            .replace(/\s+/g, ' ')
+                            .trim();
+                        
+                        // Check if this looks like our humanized result
+                        if (candidateText.length > 30 && 
+                            candidateText.length > inputText.length * 0.5 && 
+                            candidateText !== inputText &&
+                            !candidateText.includes('AI Tools') &&
+                            !candidateText.includes('Pricing') &&
+                            !candidateText.includes('Login')) {
+                            
+                            humanizedText = candidateText;
+                            console.log(`Found humanized text using pattern ${i + 1}`);
+                            break;
+                        }
+                    }
+                }
+                
+                if (humanizedText) break;
             }
         }
 
-        // If no pattern matched, try to find any substantial text content
+        // If still no result, the form might require JavaScript or different approach
         if (!humanizedText) {
-            console.log("No pattern matched, trying fallback extraction...");
+            console.log("Could not find humanized text in standard patterns");
+            console.log("Response length:", responseHtml.length);
             
-            // Look for any text that's different from our input
-            const textMatch = responseHtml.match(/<body[^>]*>(.*?)<\/body>/is);
-            if (textMatch) {
-                const bodyText = textMatch[1]
-                    .replace(/<script[^>]*>.*?<\/script>/gis, '')
-                    .replace(/<style[^>]*>.*?<\/style>/gis, '')
-                    .replace(/<[^>]*>/g, ' ')
-                    .replace(/\s+/g, ' ')
-                    .trim();
-                
-                // Look for text that's longer than our input and different
-                if (bodyText.length > inputText.length && !bodyText.includes(inputText)) {
-                    const sentences = bodyText.split(/[.!?]+/).filter(s => s.trim().length > 50);
-                    if (sentences.length > 0) {
-                        humanizedText = sentences.slice(0, 3).join('. ').trim();
-                        console.log("Used fallback extraction");
-                    }
-                }
-            }
+            // Log some of the response for debugging (first 1000 chars)
+            const debugSnippet = responseHtml
+                .replace(/<script[^>]*>.*?<\/script>/gis, '[SCRIPT]')
+                .replace(/<style[^>]*>.*?<\/style>/gis, '[STYLE]')
+                .substring(0, 1000);
+            console.log("Response debug snippet:", debugSnippet);
+            
+            return { 
+                statusCode: 500, 
+                body: JSON.stringify({ 
+                    error: "The website may require JavaScript or have changed its structure. Please try again or the service might be temporarily unavailable." 
+                }) 
+            };
         }
 
         if (!humanizedText || humanizedText.length < 20) {
