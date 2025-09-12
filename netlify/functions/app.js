@@ -3,25 +3,54 @@ import fetch from 'node-fetch';
 exports.handler = async (event, context) => {
     try {
         if (event.httpMethod !== "POST") {
-            return { statusCode: 405, body: JSON.stringify({ error: "Method Not Allowed" }) };
+            return {
+                statusCode: 405,
+                body: JSON.stringify({ error: "Method Not Allowed. Use POST." })
+            };
         }
-        
-        const { prompt: inputText } = JSON.parse(event.body);
+
+        let inputText;
+        try {
+            const requestBody = JSON.parse(event.body);
+            inputText = requestBody.prompt;
+        } catch (parseError) {
+            return {
+                statusCode: 400,
+                body: JSON.stringify({ error: "Invalid request body." })
+            };
+        }
+
         if (!inputText) {
-            return { statusCode: 400, body: JSON.stringify({ error: "Missing text" }) };
+            return {
+                statusCode: 400,
+                body: JSON.stringify({ error: "Missing 'prompt' in request body." })
+            };
         }
-        
-        const words = inputText.trim().split(/\s+/);
-        const wordCount = words.length;
-        
+
+        const wordCount = inputText.trim().split(/\s+/).length;
         if (wordCount > 200) {
-            return { statusCode: 400, body: JSON.stringify({ 
-                error: `Exceeds 200 word limit (${wordCount} words)`, wordCount, limit: 200 
-            }) };
+            return {
+                statusCode: 400,
+                body: JSON.stringify({ 
+                    error: `Text exceeds 200 word limit. Your text has ${wordCount} words.`,
+                    wordCount: wordCount,
+                    limit: 200
+                })
+            };
         }
-        
-        const humanizedText = naturalRewrite(inputText);
-        
+
+        if (wordCount < 10) {
+            return {
+                statusCode: 400,
+                body: JSON.stringify({ 
+                    error: "Text must be at least 10 words long.",
+                    wordCount: wordCount 
+                })
+            };
+        }
+
+        const humanizedText = humanizeText(inputText);
+
         return {
             statusCode: 200,
             body: JSON.stringify({ 
@@ -31,117 +60,758 @@ exports.handler = async (event, context) => {
                 limit: 200
             })
         };
+
     } catch (error) {
-        return { statusCode: 500, body: JSON.stringify({ error: error.message }) };
+        console.error("Error:", error);
+        return {
+            statusCode: 500,
+            body: JSON.stringify({ 
+                error: "An error occurred: " + error.message 
+            })
+        };
     }
 };
 
-function naturalRewrite(text) {
-    // Simple word replacements - just the basics
-    text = text.replace(/\butilize\b/gi, 'use');
-    text = text.replace(/\bdemonstrate\b/gi, 'show');
-    text = text.replace(/\bsignificant\b/gi, 'big');
-    text = text.replace(/\bnumerous\b/gi, 'many');
-    text = text.replace(/\bindividuals\b/gi, 'people');
-    text = text.replace(/\bfurthermore\b/gi, 'and');
-    text = text.replace(/\bmoreover\b/gi, 'and');
-    text = text.replace(/\bhowever\b/gi, 'but');
-    text = text.replace(/\btherefore\b/gi, 'so');
-    text = text.replace(/\bconsequently\b/gi, 'so');
-    text = text.replace(/\bestablish\b/gi, 'make');
-    text = text.replace(/\bmaintain\b/gi, 'keep');
-    text = text.replace(/\brequire\b/gi, 'need');
-    text = text.replace(/\bprovide\b/gi, 'give');
-    text = text.replace(/\bachieve\b/gi, 'get');
-    text = text.replace(/\bobtain\b/gi, 'get');
-    text = text.replace(/\bensure\b/gi, 'make sure');
-    text = text.replace(/\borganizations\b/gi, 'groups');
-    text = text.replace(/\bimplement\b/gi, 'do');
-    text = text.replace(/\bfacilitate\b/gi, 'help');
-    text = text.replace(/\benhance\b/gi, 'make better');
-    text = text.replace(/\bcomprehensive\b/gi, 'complete');
-    text = text.replace(/\bfundamental\b/gi, 'basic');
-    text = text.replace(/\bcrucial\b/gi, 'important');
-    text = text.replace(/\bapproximately\b/gi, 'about');
-    text = text.replace(/\bsubstantial\b/gi, 'big');
-    text = text.replace(/\bvarious\b/gi, 'different');
-    text = text.replace(/\bmultiple\b/gi, 'many');
+function humanizeText(text) {
+    // Remove all dashes
+    text = text.replace(/[—–-]/g, ' ');
     
-    // Remove formal phrases
-    text = text.replace(/in order to/gi, 'to');
-    text = text.replace(/due to the fact that/gi, 'because');
-    text = text.replace(/it is important to note that/gi, '');
-    text = text.replace(/in conclusion/gi, '');
-    
-    // Basic contractions
-    text = text.replace(/\bit is\b/g, "it's");
-    text = text.replace(/\bdo not\b/g, "don't");
-    text = text.replace(/\bdoes not\b/g, "doesn't");
-    text = text.replace(/\bdid not\b/g, "didn't");
-    text = text.replace(/\bcannot\b/g, "can't");
-    text = text.replace(/\bwould not\b/g, "wouldn't");
-    text = text.replace(/\bshould not\b/g, "shouldn't");
-    text = text.replace(/\bwill not\b/g, "won't");
-    text = text.replace(/\bhave not\b/g, "haven't");
-    text = text.replace(/\bhas not\b/g, "hasn't");
-    text = text.replace(/\bare not\b/g, "aren't");
-    text = text.replace(/\bis not\b/g, "isn't");
-    text = text.replace(/\bwas not\b/g, "wasn't");
-    text = text.replace(/\bwere not\b/g, "weren't");
-    
-    // Get sentences
-    let sentences = text.match(/[^.!?]+[.!?]+/g) || [text];
-    let result = [];
-    
-    for (let i = 0; i < sentences.length; i++) {
-        let s = sentences[i].trim();
-        
-        // Connect some sentences with "and" or "because" like natural writing
-        if (i > 0 && Math.random() < 0.3) {
-            // Remove the period from previous sentence and connect
-            if (result.length > 0) {
-                let prev = result.pop().replace(/\.$/, '');
-                const connectors = [' and ', ' because ', ' so ', ' but '];
-                const connector = connectors[Math.floor(Math.random() * connectors.length)];
-                s = prev + connector + s.charAt(0).toLowerCase() + s.slice(1);
-            }
-        }
-        
-        // Sometimes start with "I think" or "I would"
-        if (Math.random() < 0.15 && !s.match(/^I /i)) {
-            const starters = ['I think ', 'I would say ', 'I feel like '];
-            s = starters[Math.floor(Math.random() * starters.length)] + s.charAt(0).toLowerCase() + s.slice(1);
-        }
-        
-        // Use "like" naturally sometimes
-        if (Math.random() < 0.1) {
-            // Add "like" before examples
-            s = s.replace(/\bfor example\b/gi, 'like');
-            s = s.replace(/\bsuch as\b/gi, 'like');
-        }
-        
-        // Repeat some words naturally (good, really, very)
-        if (Math.random() < 0.1) {
-            s = s.replace(/\bgood\b/g, 'good');  // Sometimes double "good"
-            s = s.replace(/\breally\b/g, 'really');
-            s = s.replace(/\bvery\b/g, 'very');
-        }
-        
-        result.push(s);
-    }
-    
-    // Join everything
-    let final = result.join(' ');
-    
-    // Clean up
-    final = final.replace(/\s+/g, ' ');
-    final = final.replace(/\.\./g, '.');
-    
-    // Fix capitalization after periods
-    final = final.replace(/\. ([a-z])/g, (m, l) => '. ' + l.toUpperCase());
-    
-    // Start with capital
-    final = final.charAt(0).toUpperCase() + final.slice(1);
-    
-    return final.trim();
-}
+    // Core vocabulary replacements (most common AI words)
+    const aiWords = {
+        'utilize': 'use',
+        'implement': 'do',
+        'demonstrate': 'show',
+        'significant': 'big',
+        'substantial': 'large',
+        'numerous': 'many',
+        'various': 'different',
+        'comprehensive': 'complete',
+        'fundamental': 'basic',
+        'essential': 'needed',
+        'crucial': 'important',
+        'facilitate': 'help',
+        'enhance': 'improve',
+        'optimize': 'make better',
+        'leverage': 'use',
+        'establish': 'set up',
+        'maintain': 'keep',
+        'ensure': 'make sure',
+        'require': 'need',
+        'provide': 'give',
+        'contribute': 'add',
+        'achieve': 'reach',
+        'accomplish': 'finish',
+        'obtain': 'get',
+        'acquire': 'get',
+        'determine': 'find out',
+        'identify': 'find',
+        'analyze': 'look at',
+        'examine': 'check',
+        'evaluate': 'judge',
+        'assess': 'check',
+        'consider': 'think about',
+        'indicate': 'show',
+        'suggest': 'hint',
+        'imply': 'mean',
+        'reveal': 'show',
+        'exhibit': 'show',
+        'display': 'show',
+        'present': 'give',
+        'constitute': 'make up',
+        'comprise': 'include',
+        'incorporate': 'add',
+        'integrate': 'combine',
+        'transform': 'change',
+        'modify': 'change',
+        'alter': 'change',
+        'adjust': 'fix',
+        'adapt': 'change',
+        'develop': 'make',
+        'generate': 'create',
+        'produce': 'make',
+        'eliminate': 'remove',
+        'reduce': 'lower',
+        'decrease': 'make less',
+        'increase': 'make more',
+        'expand': 'grow',
+        'enhance': 'make better',
+        'improve': 'make better',
+        'approximately': 'about',
+        'frequently': 'often',
+        'occasionally': 'sometimes',
+        'subsequently': 'then',
+        'previously': 'before',
+        'currently': 'now',
+        'ultimately': 'in the end',
+        'generally': 'usually',
+        'particularly': 'especially',
+        'specifically': 'exactly',
+        'essentially': 'basically',
+        'primarily': 'mainly',
+        'significantly': 'a lot',
+        'substantially': 'much',
+        'furthermore': 'also',
+        'moreover': 'plus',
+        'additionally': 'and',
+        'however': 'but',
+        'nevertheless': 'still',
+        'therefore': 'so',
+        'consequently': 'so',
+        'accordingly': 'so',
+        'individuals': 'people',
+        'organizations': 'groups',
+        'institutions': 'places',
+        'components': 'parts',
+        'elements': 'parts',
+        'aspects': 'things',
+        'factors': 'things',
+        'issues': 'problems',
+        'challenges': 'problems',
+        'opportunities': 'chances',
+        'solutions': 'answers',
+        'consequences': 'results',
+        'implications': 'effects',
+        'benefits': 'good things',
+        'advantages': 'pros',
+        'disadvantages': 'cons',
+        'requirements': 'needs',
+        'objectives': 'goals',
+        'strategies': 'plans',
+        'approaches': 'ways',
+        'methods': 'ways',
+        'procedures': 'steps',
+        'concepts': 'ideas',
+        'perspectives': 'views',
+        'resources': 'stuff',
+        'materials': 'things',
+        'technology': 'tech',
+        'developments': 'changes',
+        'circumstances': 'times',
+        'instances': 'cases',
+        'effective': 'works',
+        'efficient': 'works well',
+        'successful': 'worked',
+        'beneficial': 'helpful',
+        'optimal': 'best',
+        'appropriate': 'right',
+        'relevant': 'related',
+        'accurate': 'correct',
+        'valid': 'true',
+        'evident': 'clear',
+        'apparent': 'obvious',
+        'specific': 'exact',
+        'particular': 'certain',
+        'unique': 'special',
+        'distinctive': 'different',
+        'remarkable': 'amazing',
+        'exceptional': 'great',
+        'superior': 'better',
+        'adequate': 'enough',
+        'sufficient': 'enough',
+        'necessary': 'needed',
+        'critical': 'key',
+        'vital': 'very important',
+        'enables': 'lets',
+        'allows': 'lets',
+        'permits': 'lets',
+        'provides': 'gives',
+        'offers': 'gives',
+        'delivers': 'brings',
+        'creates': 'makes',
+        'builds': 'makes',
+        'forms': 'makes',
+        'shapes': 'makes',
+        'drives': 'pushes',
+        'leads': 'goes',
+        'results': 'ends',
+        'yields': 'gives',
+        'produces': 'makes',
+        'causes': 'makes',
+        'affects': 'changes',
+        'impacts': 'hits',
+        'influences': 'changes',
+        'determines': 'decides',
+        'defines': 'explains',
+        'describes': 'tells',
+        'explains': 'tells',
+        'illustrates': 'shows',
+        'demonstrates': 'proves',
+        'represents': 'stands for',
+        'reflects': 'shows',
+        'indicates': 'points to',
+        'suggests': 'hints',
+        'implies': 'means',
+        'signifies': 'means',
+        'denotes': 'means',
+        'consists': 'has',
+        'contains': 'has',
+        'includes': 'has',
+        'involves': 'has',
+        'requires': 'needs',
+        'demands': 'needs',
+        'necessitates': 'needs',
+        'entails': 'means',
+        'encompasses': 'covers',
+        'addresses': 'deals with',
+        'tackles': 'takes on',
+        'handles': 'deals with',
+        'manages': 'runs',
+        'controls': 'runs',
+        'directs': 'leads',
+        'guides': 'helps',
+        'supports': 'helps',
+        'assists': 'helps',
+        'aids': 'helps',
+        'facilitates': 'makes easy',
+        'promotes': 'pushes',
+        'encourages': 'pushes',
+        'fosters': 'helps',
+        'cultivates': 'grows',
+        'nurtures': 'helps grow',
+        'sustains': 'keeps',
+        'maintains': 'keeps',
+        'preserves': 'saves',
+        'protects': 'keeps safe',
+        'secures': 'makes safe',
+        'ensures': 'makes sure',
+        'guarantees': 'promises',
+        'confirms': 'proves',
+        'validates': 'checks',
+        'verifies': 'checks',
+        'authenticates': 'proves real',
+        'demonstrates': 'shows',
+        'exhibits': 'shows',
+        'displays': 'shows',
+        'presents': 'shows',
+        'introduces': 'brings in',
+        'implements': 'puts in',
+        'executes': 'does',
+        'performs': 'does',
+        'conducts': 'does',
+        'operates': 'runs',
+        'functions': 'works',
+        'serves': 'helps',
+        'contributes': 'adds',
+        'participates': 'joins',
+        'engages': 'takes part',
+        'interacts': 'works with',
+        'collaborates': 'works with',
+        'cooperates': 'works with',
+        'coordinates': 'organizes',
+        'organizes': 'sets up',
+        'arranges': 'sets up',
+        'structures': 'builds',
+        'constructs': 'builds',
+        'assembles': 'puts together',
+        'compiles': 'puts together',
+        'combines': 'mixes',
+        'merges': 'joins',
+        'integrates': 'combines',
+        'synthesizes': 'combines',
+        'consolidates': 'combines',
+        'unifies': 'makes one',
+        'standardizes': 'makes same',
+        'normalizes': 'makes normal',
+        'optimizes': 'improves',
+        'maximizes': 'makes most',
+        'minimizes': 'makes least',
+        'streamlines': 'simplifies',
+        'simplifies': 'makes easy',
+        'clarifies': 'clears up',
+        'specifies': 'states',
+        'elaborates': 'explains more',
+        'emphasizes': 'stresses',
+        'highlights': 'points out',
+        'underscores': 'stresses',
+        'reinforces': 'backs up',
+        'strengthens': 'makes strong',
+        'weakens': 'makes weak',
+        'undermines': 'hurts',
+        'diminishes': 'makes less',
+        'reduces': 'cuts',
+        'decreases': 'lowers',
+        'increases': 'raises',
+        'expands': 'grows',
+        'extends': 'stretches',
+        'broadens': 'widens',
+        'narrows': 'makes smaller',
+        'limits': 'keeps small',
+        'restricts': 'limits',
+        'constrains': 'limits',
+        'inhibits': 'stops',
+        'prevents': 'stops',
+        'prohibits': 'bans',
+        'forbids': 'bans',
+        'allows': 'lets',
+        'enables': 'lets',
+        'empowers': 'gives power',
+        'authorizes': 'allows',
+        'approves': 'okays',
+        'endorses': 'backs',
+        'advocates': 'supports',
+        'recommends': 'suggests',
+        'proposes': 'suggests',
+        'suggests': 'hints',
+        'advises': 'tells',
+        'counsels': 'advises',
+        'instructs': 'teaches',
+        'educates': 'teaches',
+        'informs': 'tells',
+        'notifies': 'tells',
+        'communicates': 'talks',
+        'conveys': 'tells',
+        'transmits': 'sends',
+        'delivers': 'gives',
+        'distributes': 'hands out',
+        'disseminates': 'spreads',
+        'circulates': 'passes around',
+        'publishes': 'puts out',
+        'releases': 'lets out',
+        'issues': 'gives out',
+        'announces': 'tells',
+        'declares': 'states',
+        'proclaims': 'announces',
+        'reveals': 'shows',
+        'discloses': 'tells',
+        'exposes': 'shows',
+        'uncovers': 'finds',
+        'discovers': 'finds',
+        'identifies': 'finds',
+        'recognizes': 'knows',
+        'acknowledges': 'admits',
+        'realizes': 'understands',
+        'comprehends': 'gets',
+        'understands': 'gets',
+        'grasps': 'gets',
+        'perceives': 'sees',
+        'observes': 'sees',
+        'notices': 'sees',
+        'detects': 'finds',
+        'senses': 'feels',
+        'experiences': 'goes through',
+        'encounters': 'meets',
+        'confronts': 'faces',
+        'addresses': 'deals with',
+        'resolves': 'fixes',
+        'solves': 'fixes',
+        'remedies': 'fixes',
+        'corrects': 'fixes',
+        'rectifies': 'fixes',
+        'improves': 'makes better',
+        'enhances': 'makes better',
+        'upgrades': 'makes better',
+        'advances': 'moves forward',
+        'progresses': 'moves forward',
+        'proceeds': 'goes',
+        'continues': 'keeps going',
+        'persists': 'keeps on',
+        'remains': 'stays',
+        'endures': 'lasts',
+        'survives': 'lives',
+        'thrives': 'does well',
+        'flourishes': 'grows well',
+        'prospers': 'does well',
+        'succeeds': 'wins',
+        'excels': 'does great',
+        'achieves': 'gets',
+        'attains': 'reaches',
+        'obtains': 'gets',
+        'acquires': 'gets',
+        'gains': 'gets',
+        'secures': 'gets',
+        'procures': 'gets',
+        'retrieves': 'gets back',
+        'recovers': 'gets back',
+        'restores': 'brings back',
+        'returns': 'goes back',
+        'reverts': 'goes back',
+        'regresses': 'goes back',
+        'retreats': 'pulls back',
+        'withdraws': 'pulls out',
+        'removes': 'takes out',
+        'eliminates': 'gets rid of',
+        'deletes': 'removes',
+        'erases': 'removes',
+        'abolishes': 'ends',
+        'terminates': 'ends',
+        'concludes': 'ends',
+        'finishes': 'ends',
+        'completes': 'finishes',
+        'accomplishes': 'does',
+        'fulfills': 'meets',
+        'satisfies': 'meets',
+        'meets': 'reaches',
+        'exceeds': 'goes over',
+        'surpasses': 'beats',
+        'transcends': 'goes beyond',
+        'overcomes': 'beats',
+        'conquers': 'beats',
+        'defeats': 'beats',
+        'triumphs': 'wins',
+        'prevails': 'wins',
+        'dominates': 'controls',
+        'controls': 'runs',
+        'commands': 'leads',
+        'governs': 'rules',
+        'regulates': 'controls',
+        'supervises': 'watches',
+        'oversees': 'watches',
+        'monitors': 'watches',
+        'tracks': 'follows',
+        'traces': 'follows',
+        'follows': 'goes after',
+        'pursues': 'chases',
+        'seeks': 'looks for',
+        'searches': 'looks for',
+        'explores': 'looks at',
+        'investigates': 'looks into',
+        'examines': 'looks at',
+        'inspects': 'checks',
+        'scrutinizes': 'looks closely',
+        'analyzes': 'studies',
+        'evaluates': 'judges',
+        'assesses': 'checks',
+        'appraises': 'judges',
+        'estimates': 'guesses',
+        'calculates': 'figures out',
+        'computes': 'figures out',
+        'measures': 'checks',
+        'quantifies': 'measures',
+        'determines': 'finds',
+        'establishes': 'sets',
+        'constitutes': 'is',
+        'comprises': 'has',
+        'systematic': 'organized',
+        'methodical': 'careful',
+        'comprehensive': 'full',
+        'extensive': 'big',
+        'intensive': 'deep',
+        'thorough': 'complete',
+        'exhaustive': 'complete',
+        'meticulous': 'careful',
+        'rigorous': 'strict',
+        'stringent': 'strict',
+        'precise': 'exact',
+        'accurate': 'right',
+        'explicit': 'clear',
+        'implicit': 'hidden',
+        'inherent': 'built in',
+        'intrinsic': 'natural',
+        'extrinsic': 'outside',
+        'peripheral': 'side',
+        'marginal': 'small',
+        'negligible': 'tiny',
+        'minimal': 'very small',
+        'maximal': 'very big',
+        'optimal': 'best',
+        'suboptimal': 'not best',
+        'ideal': 'perfect',
+        'practical': 'useful',
+        'theoretical': 'in theory',
+        'empirical': 'from tests',
+        'analytical': 'thinking',
+        'critical': 'important',
+        'pivotal': 'key',
+        'integral': 'part of',
+        'holistic': 'whole',
+        'granular': 'detailed',
+        'nuanced': 'subtle',
+        'sophisticated': 'complex',
+        'rudimentary': 'basic',
+        'preliminary': 'first',
+        'subsequent': 'next',
+        'concurrent': 'at same time',
+        'simultaneous': 'together',
+        'sequential': 'in order',
+        'consecutive': 'in a row',
+        'intermittent': 'on and off',
+        'continuous': 'nonstop',
+        'perpetual': 'forever',
+        'temporary': 'for now',
+        'permanent': 'forever',
+        'transient': 'passing',
+        'ephemeral': 'short',
+        'enduring': 'lasting',
+        'persistent': 'keeps going',
+        'consistent': 'same',
+        'inconsistent': 'different',
+        'coherent': 'makes sense',
+        'incoherent': 'confused',
+        'logical': 'makes sense',
+        'illogical': 'no sense',
+        'rational': 'reasonable',
+        'irrational': 'not reasonable',
+        'reasonable': 'fair',
+        'unreasonable': 'not fair',
+        'feasible': 'possible',
+        'unfeasible': 'not possible',
+        'viable': 'workable',
+        'unviable': 'wont work',
+        'plausible': 'believable',
+        'implausible': 'hard to believe',
+        'probable': 'likely',
+        'improbable': 'unlikely',
+        'possible': 'could be',
+        'impossible': 'cant be',
+        'certain': 'sure',
+        'uncertain': 'not sure',
+        'definite': 'sure',
+        'indefinite': 'not sure',
+        'ambiguous': 'unclear',
+        'unambiguous': 'clear',
+        'explicit': 'stated',
+        'implicit': 'not stated',
+        'overt': 'open',
+        'covert': 'hidden',
+        'transparent': 'clear',
+        'opaque': 'unclear',
+        'obvious': 'clear',
+        'subtle': 'not obvious',
+        'blatant': 'obvious',
+        'flagrant': 'obvious',
+        'egregious': 'really bad',
+        'heinous': 'terrible',
+        'atrocious': 'awful',
+        'abominable': 'horrible',
+        'deplorable': 'bad',
+        'lamentable': 'sad',
+        'regrettable': 'too bad',
+        'unfortunate': 'unlucky',
+        'fortunate': 'lucky',
+        'auspicious': 'good sign',
+        'propitious': 'favorable',
+        'advantageous': 'helpful',
+        'disadvantageous': 'unhelpful',
+        'beneficial': 'good',
+        'detrimental': 'bad',
+        'constructive': 'helpful',
+        'destructive': 'harmful',
+        'productive': 'useful',
+        'unproductive': 'useless',
+        'counterproductive': 'makes worse',
+        'redundant': 'extra',
+        'superfluous': 'not needed',
+        'extraneous': 'extra',
+        'irrelevant': 'not related',
+        'pertinent': 'related',
+        'germane': 'related',
+        'applicable': 'applies',
+        'inapplicable': 'doesnt apply',
+        'appropriate': 'right',
+        'inappropriate': 'wrong',
+        'suitable': 'fits',
+        'unsuitable': 'doesnt fit',
+        'compatible': 'works with',
+        'incompatible': 'doesnt work with',
+        'congruent': 'matches',
+        'incongruent': 'doesnt match',
+        'harmonious': 'works well',
+        'discordant': 'clashes',
+        'synergistic': 'works together',
+        'antagonistic': 'works against',
+        'complementary': 'goes with',
+        'supplementary': 'adds to',
+        'auxiliary': 'extra',
+        'ancillary': 'supporting',
+        'subsidiary': 'secondary',
+        'subordinate': 'under',
+        'superordinate': 'over',
+        'coordinate': 'equal',
+        'correlate': 'relate',
+        'juxtapose': 'put next to',
+        'interpolate': 'insert',
+        'extrapolate': 'extend',
+        'substantiate': 'prove',
+        'corroborate': 'confirm',
+        'authenticate': 'prove real',
+        'validate': 'confirm',
+        'invalidate': 'cancel',
+        'nullify': 'cancel',
+        'negate': 'deny',
+        'contradict': 'go against',
+        'refute': 'disprove',
+        'rebut': 'argue against',
+        'dispute': 'challenge',
+        'contest': 'challenge',
+        'question': 'ask',
+        'interrogate': 'question',
+        'inquire': 'ask',
+        'investigate': 'look into',
+        'probe': 'dig into',
+        'delve': 'dig',
+        'excavate': 'dig up',
+        'unearth': 'find',
+        'exhume': 'dig up',
+        'inter': 'bury',
+        'entomb': 'bury',
+        'immerse': 'dip',
+        'submerge': 'put under',
+        'emerge': 'come out',
+        'surface': 'come up',
+        'materialize': 'appear',
+        'manifest': 'show',
+        'emanate': 'come from',
+        'originate': 'start',
+        'derive': 'come from',
+        'stem': 'come from',
+        'evolve': 'grow',
+        'devolve': 'go back',
+        'revolve': 'turn',
+        'rotate': 'spin',
+        'oscillate': 'swing',
+        'fluctuate': 'change',
+        'vacillate': 'waver',
+        'hesitate': 'pause',
+        'deliberate': 'think',
+        'contemplate': 'think about',
+        'meditate': 'think deeply',
+        'ruminate': 'think over',
+        'ponder': 'think',
+        'speculate': 'guess',
+        'conjecture': 'guess',
+        'hypothesize': 'guess',
+        'theorize': 'make theory',
+        'postulate': 'assume',
+        'presume': 'assume',
+        'assume': 'think',
+        'surmise': 'guess',
+        'infer': 'figure out',
+        'deduce': 'figure out',
+        'conclude': 'decide',
+        'ascertain': 'find out',
+        'discern': 'see',
+        'distinguish': 'tell apart',
+        'differentiate': 'tell apart',
+        'discriminate': 'tell apart',
+        'segregate': 'separate',
+        'isolate': 'separate',
+        'insulate': 'protect',
+        'quarantine': 'isolate',
+        'sequester': 'set apart',
+        'confine': 'limit',
+        'restrict': 'limit',
+        'constrain': 'limit',
+        'restrain': 'hold back',
+        'contain': 'hold',
+        'encompass': 'include',
+        'envelop': 'wrap',
+        'encapsulate': 'sum up',
+        'epitomize': 'represent',
+        'exemplify': 'show example',
+        'typify': 'represent',
+        'characterize': 'describe',
+        'personify': 'represent',
+        'embody': 'represent',
+        'incarnate': 'embody',
+        'instantiate': 'make real',
+        'actualize': 'make real',
+        'realize': 'make real',
+        'materialize': 'become real',
+        'crystallize': 'become clear',
+        'solidify': 'make solid',
+        'liquefy': 'make liquid',
+        'vaporize': 'turn to gas',
+        'evaporate': 'disappear',
+        'dissipate': 'fade',
+        'disperse': 'scatter',
+        'diffuse': 'spread',
+        'permeate': 'spread through',
+        'penetrate': 'go through',
+        'infiltrate': 'sneak in',
+        'percolate': 'filter',
+        'saturate': 'soak',
+        'inundate': 'flood',
+        'deluge': 'flood',
+        'overwhelm': 'overpower',
+        'overpower': 'beat',
+        'subjugate': 'conquer',
+        'vanquish': 'defeat',
+        'obliterate': 'destroy',
+        'annihilate': 'destroy',
+        'eradicate': 'wipe out',
+        'exterminate': 'kill',
+        'decimate': 'destroy',
+        'devastate': 'destroy',
+        'ravage': 'destroy',
+        'demolish': 'tear down',
+        'dismantle': 'take apart',
+        'disassemble': 'take apart',
+        'deconstruct': 'break down',
+        'decompose': 'break down',
+        'disintegrate': 'fall apart',
+        'deteriorate': 'get worse',
+        'degenerate': 'get worse',
+        'atrophy': 'waste away',
+        'wither': 'dry up',
+        'shrivel': 'shrink',
+        'dwindle': 'get smaller',
+        'diminish': 'get less',
+        'abate': 'get less',
+        'subside': 'calm down',
+        'recede': 'go back',
+        'ebb': 'go down',
+        'wane': 'get less',
+        'fade': 'disappear',
+        'vanish': 'disappear',
+        'disappear': 'go away',
+        'reappear': 'come back',
+        'resurface': 'come back',
+        'reemerge': 'come back',
+        'regenerate': 'grow back',
+        'rejuvenate': 'make young',
+        'revitalize': 'bring back life',
+        'reinvigorate': 'energize',
+        'energize': 'give energy',
+        'invigorate': 'energize',
+        'stimulate': 'excite',
+        'galvanize': 'shock into action',
+        'mobilize': 'get moving',
+        'activate': 'turn on',
+        'deactivate': 'turn off',
+        'neutralize': 'cancel out',
+        'counteract': 'work against',
+        'offset': 'balance',
+        'compensate': 'make up for',
+        'reimburse': 'pay back',
+        'remunerate': 'pay',
+        'recompense': 'pay back',
+        'indemnify': 'protect',
+        'insure': 'protect',
+        'assure': 'make sure',
+        'reassure': 'comfort',
+        'placate': 'calm',
+        'pacify': 'calm',
+        'appease': 'satisfy',
+        'mollify': 'soothe',
+        'assuage': 'ease',
+        'alleviate': 'ease',
+        'mitigate': 'lessen',
+        'ameliorate': 'improve',
+        'exacerbate': 'make worse',
+        'aggravate': 'make worse',
+        'intensify': 'make stronger',
+        'amplify': 'make bigger',
+        'magnify': 'make bigger',
+        'escalate': 'increase',
+        'accelerate': 'speed up',
+        'expedite': 'hurry',
+        'facilitate': 'make easy',
+        'hinder': 'slow down',
+        'impede': 'block',
+        'obstruct': 'block',
+        'encumber': 'burden',
+        'hamper': 'hold back',
+        'thwart': 'stop',
+        'foil': 'stop',
+        'frustrate': 'annoy',
+        'confound': 'confuse',
+        'perplex': 'puzzle',
+        'bewilder': 'confuse',
+        'mystify': 'puzzle',
+        'baffle': 'confuse',
+        'elude': 'escape',
+        'evade': 'avoid',
+        'circumvent': 'go around',
+        'bypass': 'go around',
+        'sidestep': 'avoid',
+        '
