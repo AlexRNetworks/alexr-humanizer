@@ -20,7 +20,7 @@ exports.handler = async (event, context) => {
             }) };
         }
         
-        const humanizedText = humanize(inputText);
+        const humanizedText = aggressiveHumanize(inputText);
         
         return {
             statusCode: 200,
@@ -36,96 +36,113 @@ exports.handler = async (event, context) => {
     }
 };
 
-function humanize(text) {
-    // Step 1: Critical vocabulary swaps (only the most detected words)
-    text = text.replace(/\b(utilize|utilized|utilizing)\b/gi, 'use');
-    text = text.replace(/\b(implement|implemented|implementing)\b/gi, 'do');
-    text = text.replace(/\b(demonstrate|demonstrated|demonstrates)\b/gi, 'show');
-    text = text.replace(/\b(significant|significantly)\b/gi, 'big');
-    text = text.replace(/\b(substantial|substantially)\b/gi, 'large');
-    text = text.replace(/\b(fundamental|fundamentally)\b/gi, 'basic');
-    text = text.replace(/\b(comprehensive|comprehensively)\b/gi, 'complete');
-    text = text.replace(/\b(facilitate|facilitated|facilitates)\b/gi, 'help');
-    text = text.replace(/\b(enhance|enhanced|enhancing)\b/gi, 'improve');
-    text = text.replace(/\b(establish|established|establishing)\b/gi, 'set up');
-    text = text.replace(/\b(individuals)\b/gi, 'people');
-    text = text.replace(/\b(organizations)\b/gi, 'groups');
-    text = text.replace(/\b(furthermore|moreover|additionally)\b/gi, '');
-    text = text.replace(/\b(however|nevertheless|nonetheless)\b/gi, 'but');
-    text = text.replace(/\b(therefore|consequently|thus|hence)\b/gi, 'so');
-    text = text.replace(/\b(approximately)\b/gi, 'about');
-    text = text.replace(/\b(numerous)\b/gi, 'many');
-    text = text.replace(/\b(various)\b/gi, 'different');
-    text = text.replace(/\b(ensure)\b/gi, 'make sure');
-    text = text.replace(/\b(require|required|requires)\b/gi, 'need');
-    text = text.replace(/\b(provide|provided|provides)\b/gi, 'give');
-    text = text.replace(/\b(maintain|maintained|maintains)\b/gi, 'keep');
-    text = text.replace(/\b(achieve|achieved|achieves)\b/gi, 'get');
-    text = text.replace(/\b(obtain|obtained)\b/gi, 'get');
-    text = text.replace(/\b(crucial)\b/gi, 'important');
-    text = text.replace(/\b(essential)\b/gi, 'needed');
-    text = text.replace(/\b(enables)\b/gi, 'lets');
-    text = text.replace(/\b(allows)\b/gi, 'lets');
-    text = text.replace(/\b(comprises)\b/gi, 'has');
-    text = text.replace(/\b(constitutes)\b/gi, 'is');
-    text = text.replace(/\b(represents)\b/gi, 'shows');
-    text = text.replace(/\b(indicates)\b/gi, 'shows');
-    text = text.replace(/\b(suggests)\b/gi, 'hints');
-    text = text.replace(/\b(implies)\b/gi, 'means');
-    text = text.replace(/\b(involves)\b/gi, 'has');
-    text = text.replace(/\b(encompasses)\b/gi, 'covers');
-    text = text.replace(/\b(incorporates)\b/gi, 'adds');
-    text = text.replace(/\b(emphasizes)\b/gi, 'stresses');
-    text = text.replace(/\b(highlights)\b/gi, 'points out');
-    text = text.replace(/\b(underscores)\b/gi, 'shows');
-    text = text.replace(/\b(illustrates)\b/gi, 'shows');
-    text = text.replace(/\b(exemplifies)\b/gi, 'shows');
-    text = text.replace(/\b(subsequently)\b/gi, 'then');
-    text = text.replace(/\b(ultimately)\b/gi, 'finally');
-    text = text.replace(/\b(primarily)\b/gi, 'mainly');
-    text = text.replace(/\b(particularly)\b/gi, 'especially');
-    text = text.replace(/\b(specifically)\b/gi, '');
-    text = text.replace(/\b(essentially)\b/gi, 'basically');
-    text = text.replace(/\b(generally)\b/gi, 'usually');
-    text = text.replace(/\b(typically)\b/gi, 'often');
-    text = text.replace(/\b(frequently)\b/gi, 'often');
-    text = text.replace(/\b(occasionally)\b/gi, 'sometimes');
-    text = text.replace(/\b(rarely)\b/gi, 'not often');
-    text = text.replace(/\b(optimal)\b/gi, 'best');
-    text = text.replace(/\b(multiple)\b/gi, 'many');
-    text = text.replace(/\b(sufficient)\b/gi, 'enough');
-    text = text.replace(/\b(adequate)\b/gi, 'enough');
-    text = text.replace(/\b(appropriate)\b/gi, 'right');
-    text = text.replace(/\b(relevant)\b/gi, 'related');
-    text = text.replace(/\b(evident)\b/gi, 'clear');
-    text = text.replace(/\b(apparent)\b/gi, 'clear');
-    text = text.replace(/\b(obvious)\b/gi, 'clear');
+function aggressiveHumanize(text) {
+    // Phase 1: Strip AI vocabulary completely
+    const aiTerms = {
+        'utilize': 'use', 'utilized': 'used', 'utilizing': 'using',
+        'implement': 'do', 'implemented': 'did', 'implementing': 'doing',
+        'demonstrate': 'show', 'demonstrates': 'shows', 'demonstrated': 'showed',
+        'facilitate': 'help', 'facilitates': 'helps', 'facilitated': 'helped',
+        'significant': 'big', 'significantly': 'a lot', 'significance': 'importance',
+        'substantial': 'big', 'substantially': 'a lot',
+        'comprehensive': 'full', 'comprehensively': 'fully',
+        'fundamental': 'basic', 'fundamentally': 'basically',
+        'essential': 'needed', 'essentially': 'basically',
+        'crucial': 'key', 'critically': 'very',
+        'numerous': 'many', 'various': 'different', 'multiple': 'many',
+        'enhance': 'help', 'enhanced': 'helped', 'enhancing': 'helping',
+        'establish': 'make', 'established': 'made', 'establishing': 'making',
+        'maintain': 'keep', 'maintained': 'kept', 'maintaining': 'keeping',
+        'ensure': 'make sure', 'ensures': 'makes sure', 'ensured': 'made sure',
+        'require': 'need', 'requires': 'needs', 'required': 'needed',
+        'provide': 'give', 'provides': 'gives', 'provided': 'gave',
+        'achieve': 'get', 'achieves': 'gets', 'achieved': 'got',
+        'obtain': 'get', 'obtained': 'got', 'obtaining': 'getting',
+        'enable': 'let', 'enables': 'lets', 'enabled': 'let',
+        'allow': 'let', 'allows': 'lets', 'allowed': 'let',
+        'contribute': 'help', 'contributes': 'helps', 'contributed': 'helped',
+        'represent': 'show', 'represents': 'shows', 'represented': 'showed',
+        'indicate': 'show', 'indicates': 'shows', 'indicated': 'showed',
+        'suggest': 'say', 'suggests': 'says', 'suggested': 'said',
+        'imply': 'mean', 'implies': 'means', 'implied': 'meant',
+        'involve': 'have', 'involves': 'has', 'involved': 'had',
+        'incorporate': 'add', 'incorporates': 'adds', 'incorporated': 'added',
+        'emphasize': 'stress', 'emphasizes': 'stresses', 'emphasized': 'stressed',
+        'highlight': 'show', 'highlights': 'shows', 'highlighted': 'showed',
+        'illustrate': 'show', 'illustrates': 'shows', 'illustrated': 'showed',
+        'comprise': 'have', 'comprises': 'has', 'comprised': 'had',
+        'constitute': 'make', 'constitutes': 'makes', 'constituted': 'made',
+        'encompass': 'cover', 'encompasses': 'covers', 'encompassed': 'covered',
+        'subsequently': 'then', 'ultimately': 'finally', 'primarily': 'mainly',
+        'particularly': 'mostly', 'specifically': 'exactly', 'generally': 'usually',
+        'typically': 'often', 'frequently': 'often', 'occasionally': 'sometimes',
+        'approximately': 'about', 'optimal': 'best', 'sufficient': 'enough',
+        'adequate': 'okay', 'appropriate': 'right', 'relevant': 'related',
+        'evident': 'clear', 'apparent': 'clear', 'obvious': 'clear',
+        'furthermore': '', 'moreover': '', 'additionally': '', 'however': 'but',
+        'nevertheless': 'but', 'nonetheless': 'still', 'therefore': 'so',
+        'consequently': 'so', 'thus': 'so', 'hence': 'so', 'accordingly': 'so',
+        'individuals': 'people', 'organizations': 'groups', 'institutions': 'places',
+        'components': 'parts', 'elements': 'parts', 'aspects': 'things',
+        'factors': 'things', 'parameters': 'settings', 'criteria': 'rules',
+        'objectives': 'goals', 'strategies': 'plans', 'approaches': 'ways',
+        'methods': 'ways', 'procedures': 'steps', 'concepts': 'ideas',
+        'perspectives': 'views', 'implications': 'effects', 'consequences': 'results',
+        'benefits': 'good stuff', 'advantages': 'pros', 'disadvantages': 'cons',
+        'challenges': 'problems', 'opportunities': 'chances', 'solutions': 'fixes'
+    };
     
-    // Remove AI phrases
+    for (const [ai, human] of Object.entries(aiTerms)) {
+        const regex = new RegExp('\\b' + ai + '\\b', 'gi');
+        text = text.replace(regex, human);
+    }
+    
+    // Phase 2: Remove ALL formal phrases
     text = text.replace(/it is important to note that/gi, '');
     text = text.replace(/it should be noted that/gi, '');
     text = text.replace(/it is worth mentioning that/gi, '');
     text = text.replace(/in conclusion/gi, '');
     text = text.replace(/in summary/gi, '');
+    text = text.replace(/to summarize/gi, '');
     text = text.replace(/overall/gi, '');
+    text = text.replace(/in general/gi, '');
+    text = text.replace(/generally speaking/gi, '');
     text = text.replace(/in order to/gi, 'to');
     text = text.replace(/due to the fact that/gi, 'because');
     text = text.replace(/in the event that/gi, 'if');
+    text = text.replace(/as a result of/gi, 'because of');
+    text = text.replace(/for the purpose of/gi, 'to');
+    text = text.replace(/with respect to/gi, 'about');
+    text = text.replace(/in terms of/gi, 'about');
     
-    // Step 2: Sentence restructuring
+    // Phase 3: Aggressive sentence restructuring
     let sentences = text.match(/[^.!?]+[.!?]+/g) || [text];
-    sentences = sentences.map(s => s.trim());
+    const output = [];
     
-    const result = [];
     for (let i = 0; i < sentences.length; i++) {
-        let s = sentences[i];
+        let s = sentences[i].trim();
         
-        // Remove leading transitions
-        s = s.replace(/^(Furthermore|Moreover|Additionally|However|Nevertheless|Therefore|Thus|Hence|Consequently|Subsequently|Initially|Finally|Similarly|Likewise|Conversely|Alternatively|Specifically|Generally|Typically|Particularly|Essentially|Fundamentally|Ultimately|Accordingly),?\s*/i, '');
+        // Remove ALL leading transitions
+        s = s.replace(/^(Furthermore|Moreover|Additionally|However|Nevertheless|Therefore|Thus|Hence|Consequently|Subsequently|Initially|Finally|Similarly|Likewise|Conversely|Alternatively|Specifically|Generally|Typically|Particularly|Essentially|Fundamentally|Ultimately|Accordingly|Notably|Importantly|Significantly|Interestingly|Surprisingly|Unfortunately|Fortunately|Admittedly|Clearly|Obviously|Evidently),?\s*/gi, '');
         
-        // Contractions
+        // Break parallel structures aggressively
+        s = s.replace(/(\w+), (\w+), and (\w+)/g, '$1. Then $2. Also $3');
+        s = s.replace(/(\w+ing) (\w+), (\w+ing) (\w+), and (\w+ing) (\w+)/g, '$1 $2. Then $3 $4. Also $5 $6');
+        
+        // Convert ALL passive voice
+        s = s.replace(/\b(is|are|was|were|be|been|being) (\w+ed)\b/g, 'got $2');
+        s = s.replace(/\bhas been (\w+ed)\b/g, 'got $1');
+        s = s.replace(/\bhave been (\w+ed)\b/g, 'got $1');
+        s = s.replace(/\bwill be (\w+ed)\b/g, 'will get $1');
+        s = s.replace(/\bcan be (\w+ed)\b/g, 'can get $1');
+        
+        // Maximum contractions
         s = s.replace(/\bit is\b/g, "it's");
         s = s.replace(/\bthat is\b/g, "that's");
+        s = s.replace(/\bwhat is\b/g, "what's");
+        s = s.replace(/\bthere is\b/g, "there's");
+        s = s.replace(/\bhere is\b/g, "here's");
+        s = s.replace(/\bwho is\b/g, "who's");
         s = s.replace(/\bdo not\b/g, "don't");
         s = s.replace(/\bdoes not\b/g, "doesn't");
         s = s.replace(/\bdid not\b/g, "didn't");
@@ -136,87 +153,119 @@ function humanize(text) {
         s = s.replace(/\bwill not\b/g, "won't");
         s = s.replace(/\bhave not\b/g, "haven't");
         s = s.replace(/\bhas not\b/g, "hasn't");
+        s = s.replace(/\bhad not\b/g, "hadn't");
         s = s.replace(/\bare not\b/g, "aren't");
         s = s.replace(/\bis not\b/g, "isn't");
         s = s.replace(/\bwas not\b/g, "wasn't");
         s = s.replace(/\bwere not\b/g, "weren't");
+        s = s.replace(/\bI am\b/g, "I'm");
+        s = s.replace(/\byou are\b/g, "you're");
+        s = s.replace(/\bwe are\b/g, "we're");
+        s = s.replace(/\bthey are\b/g, "they're");
         
-        // Break parallel lists
-        s = s.replace(/(\w+), (\w+), and (\w+)/g, '$1. Also $2. Plus $3');
-        
-        // Convert passive to active
-        s = s.replace(/is being (\w+ed)/g, 'gets $1');
-        s = s.replace(/are being (\w+ed)/g, 'get $1');
-        s = s.replace(/has been (\w+ed)/g, 'got $1');
-        s = s.replace(/have been (\w+ed)/g, 'got $1');
-        
-        // Split long sentences
+        // GPTZero killer: Force extreme sentence length variation
         const words = s.split(' ');
-        if (words.length > 15) {
-            const mid = Math.floor(words.length / 2);
-            const connectors = ['which', 'that', 'because', 'since', 'when'];
-            let splitPoint = -1;
+        const len = words.length;
+        
+        if (len > 12) {
+            // Break EVERY long sentence
+            const parts = [];
+            let current = [];
             
-            for (let j = mid - 3; j < mid + 3; j++) {
-                if (connectors.includes(words[j]?.toLowerCase())) {
-                    splitPoint = j;
-                    break;
+            for (let j = 0; j < words.length; j++) {
+                current.push(words[j]);
+                // Force break at 5-8 words
+                if (current.length >= 5 + Math.floor(Math.random() * 4)) {
+                    parts.push(current.join(' ') + '.');
+                    current = [];
                 }
             }
+            if (current.length > 0) {
+                parts.push(current.join(' ') + '.');
+            }
             
-            if (splitPoint > 0) {
-                result.push(words.slice(0, splitPoint).join(' ') + '.');
-                s = words.slice(splitPoint).join(' ');
-                s = s.charAt(0).toUpperCase() + s.slice(1);
+            // Add the parts with random connectors
+            for (let p of parts) {
+                output.push(p);
+            }
+        } else if (len < 4) {
+            // Keep very short sentences
+            output.push(s);
+        } else {
+            // Medium sentences - randomly break or keep
+            if (Math.random() > 0.5 && len > 7) {
+                const mid = Math.floor(len / 2);
+                output.push(words.slice(0, mid).join(' ') + '.');
+                output.push(words.slice(mid).join(' ') + '.');
+            } else {
+                output.push(s);
             }
         }
-        
-        // Add human elements based on position
-        const r = Math.random();
-        if (i === 0 && r < 0.3) {
-            s = ['So ', 'Well ', 'Okay so '][Math.floor(r * 3)] + s.charAt(0).toLowerCase() + s.slice(1);
-        } else if (i > 0 && r < 0.25) {
-            s = ['And ', 'But ', 'Also ', 'Plus '][Math.floor(r * 4)] + s.charAt(0).toLowerCase() + s.slice(1);
-        }
-        
-        // Add "I think" occasionally
-        if (Math.random() < 0.1 && !s.match(/^(I |We |You |They |He |She |So |And |But )/i)) {
-            s = 'I think ' + s.charAt(0).toLowerCase() + s.slice(1);
-        }
-        
-        result.push(s);
     }
     
-    // Step 3: Final cleanup
-    let final = result.join(' ');
+    // Phase 4: Add heavy human elements
+    const humanized = [];
+    for (let i = 0; i < output.length; i++) {
+        let s = output[i].trim();
+        if (!s) continue;
+        
+        // Random starters (40% chance)
+        const r = Math.random();
+        if (i === 0) {
+            if (r < 0.4) {
+                const starters = ['So ', 'Well ', 'Okay so ', 'Look ', 'See '];
+                s = starters[Math.floor(Math.random() * starters.length)] + 
+                    s.charAt(0).toLowerCase() + s.slice(1);
+            }
+        } else if (r < 0.35) {
+            const connectors = ['And ', 'But ', 'Also ', 'Plus ', 'Then ', 'So ', 'Now ', 'Well '];
+            s = connectors[Math.floor(Math.random() * connectors.length)] + 
+                s.charAt(0).toLowerCase() + s.slice(1);
+        }
+        
+        // Add "I think/believe/guess" (20% chance)
+        if (Math.random() < 0.2 && !s.match(/^(I |We |You |They |He |She |And |But |So )/i)) {
+            const opinions = ['I think ', 'I believe ', 'I guess ', 'I feel like ', 'Seems like ', 'Maybe '];
+            s = opinions[Math.floor(Math.random() * opinions.length)] + 
+                s.charAt(0).toLowerCase() + s.slice(1);
+        }
+        
+        // Add fillers (15% chance)
+        if (Math.random() < 0.15 && s.split(' ').length > 4) {
+            const fillers = ['basically', 'actually', 'really', 'just', 'like', 'kinda', 'pretty much'];
+            const filler = fillers[Math.floor(Math.random() * fillers.length)];
+            const sWords = s.split(' ');
+            const pos = 1 + Math.floor(Math.random() * 3);
+            sWords.splice(pos, 0, filler);
+            s = sWords.join(' ');
+        }
+        
+        // Sometimes repeat words for emphasis (5% chance)
+        if (Math.random() < 0.05) {
+            s = s.replace(/\b(very|really|so)\b/g, '$1 $1');
+        }
+        
+        humanized.push(s);
+    }
     
-    // Remove dashes
+    // Phase 5: Final cleanup
+    let final = humanized.join(' ');
+    
+    // Remove any dashes/semicolons/colons
     final = final.replace(/[—–-]/g, ' ');
+    final = final.replace(/;/g, '.');
+    final = final.replace(/:/g, '.');
     
-    // Fix punctuation
+    // Clean up spacing
     final = final.replace(/\s+/g, ' ');
     final = final.replace(/\.\./g, '.');
     final = final.replace(/\. ([a-z])/g, (m, l) => '. ' + l.toUpperCase());
     
-    // Ensure variety in consecutive sentences
-    const finalSentences = final.split(/\. /);
-    const varied = [];
-    let lastLength = 0;
+    // Ensure capital at start
+    final = final.charAt(0).toUpperCase() + final.slice(1);
     
-    for (let s of finalSentences) {
-        const len = s.split(' ').length;
-        // Force variety: if last was long, make short
-        if (lastLength > 12 && len > 10) {
-            const mid = Math.floor(len / 2);
-            const words = s.split(' ');
-            varied.push(words.slice(0, mid).join(' ') + '.');
-            varied.push(words.slice(mid).join(' '));
-            lastLength = mid;
-        } else {
-            varied.push(s);
-            lastLength = len;
-        }
-    }
+    // Add period if missing
+    if (!final.match(/[.!?]$/)) final += '.';
     
-    return varied.join(' ').trim();
+    return final.trim();
 }
